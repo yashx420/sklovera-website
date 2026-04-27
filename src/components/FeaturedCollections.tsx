@@ -74,18 +74,18 @@ const FeaturedCollections = ({ onExplore }: Props) => {
   const [main, ...rest] = tiles;
 
   return (
-    <section className="py-32 px-12">
+    <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 lg:px-12">
       <div className="max-w-[1920px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2 }}
-          className="flex justify-between items-end mb-16"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-12 lg:mb-16"
         >
           <div>
-            <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Curated Selections</span>
-            <h2 className="font-headline text-5xl italic text-primary">Featured Collections</h2>
+            <span className="text-on-surface-variant font-medium tracking-wide text-xs sm:text-sm block mb-2 sm:mb-4">Curated Selections</span>
+            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary">Featured Collections</h2>
           </div>
           {onExplore && (
             <button
@@ -100,7 +100,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
           )}
         </motion.div>
 
-        <div className="grid grid-cols-12 gap-8">
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 lg:gap-8">
           <motion.button
             initial={{ opacity: 0, scale: 0.95 }}
             whileInView={{ opacity: 1, scale: 1 }}
@@ -108,7 +108,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
             transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ scale: 1.01 }}
             onClick={() => onExplore?.(main.name)}
-            className="col-span-12 lg:col-span-8 group relative overflow-hidden rounded-xl bg-surface-container h-[600px] text-left"
+            className="col-span-1 lg:col-span-8 group relative overflow-hidden rounded-xl bg-surface-container h-[300px] sm:h-[400px] lg:h-[600px] text-left"
           >
             {main.imageSrc ? (
               <img src={main.imageSrc} alt={main.name} className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
@@ -119,7 +119,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
                 className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
               />
             )}
-            <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent flex flex-col justify-end p-12">
+            <div className="absolute inset-0 bg-gradient-to-t from-primary/70 to-transparent flex flex-col justify-end p-4 sm:p-8 lg:p-12">
               <motion.span
                 initial={{ opacity: 0, y: 10 }}
                 whileInView={{ opacity: 1, y: 0 }}
@@ -134,7 +134,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
                 whileInView={{ opacity: 1, y: 0 }}
                 viewport={{ once: true }}
                 transition={{ delay: 0.8, duration: 1.2 }}
-                className="text-surface text-5xl font-headline italic mb-4"
+                className="text-surface text-2xl sm:text-3xl lg:text-5xl font-headline italic mb-2 sm:mb-4"
               >
                 {main.name}
               </motion.h3>
@@ -160,7 +160,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
             </div>
           </motion.button>
 
-          <div className="col-span-12 lg:col-span-4 flex flex-col gap-8">
+          <div className="col-span-1 lg:col-span-4 grid grid-cols-2 lg:grid-cols-1 gap-4 sm:gap-6 lg:gap-8">
             {rest.map((t, i) => (
               <motion.button
                 key={t.name}
@@ -172,7 +172,7 @@ const FeaturedCollections = ({ onExplore }: Props) => {
                 onClick={() => onExplore?.(t.name)}
                 className={`${
                   i % 2 === 0 ? 'bg-surface-container-highest' : 'bg-surface-container'
-                } flex-1 rounded-xl group relative overflow-hidden p-8 flex flex-col justify-between text-left`}
+                } rounded-xl group relative overflow-hidden p-4 sm:p-8 flex flex-col justify-between text-left min-h-[180px] sm:min-h-[220px] lg:min-h-0 lg:flex-1`}
               >
                 {t.imageSrc ? (
                   <img src={t.imageSrc} alt={t.name} className="absolute inset-0 w-full h-full object-cover opacity-70 group-hover:scale-110 transition-transform duration-700" />

@@ -71,18 +71,18 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
   };
 
   return (
-    <section className="py-24 px-12 bg-surface-container-low">
+    <section className="py-12 sm:py-16 lg:py-24 px-4 sm:px-8 lg:px-12 bg-surface-container-low">
       <div className="max-w-[1920px] mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.2 }}
-          className="flex justify-between items-end mb-12"
+          className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-12"
         >
           <div>
-            <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Editor's Picks</span>
-            <h2 className="font-headline text-5xl italic text-primary">Featured Products</h2>
+            <span className="text-on-surface-variant font-medium tracking-wide text-xs sm:text-sm block mb-2 sm:mb-4">Editor's Picks</span>
+            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary">Featured Products</h2>
           </div>
           {onBrowseAll && (
             <button
@@ -112,7 +112,7 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
                 variants={itemVariants}
                 whileHover={{ y: -8, scale: 1.02 }}
                 onClick={() => setSelected(p)}
-                className="bg-surface-container-lowest rounded-xl p-6 flex flex-col gap-3 cursor-pointer transition-shadow hover:shadow-xl"
+                className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 cursor-pointer transition-shadow hover:shadow-xl"
               >
                 <ProductImage
                   imageKey={p.imageKey}
@@ -125,7 +125,7 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
                     <span className="text-tertiary-fixed font-semibold uppercase tracking-wider">{p.category}</span>
                   )}
                 </div>
-                <h3 className="font-headline italic text-2xl text-primary leading-snug">{p.name}</h3>
+                <h3 className="font-headline italic text-lg sm:text-2xl text-primary leading-snug">{p.name}</h3>
                 {p.collection && (
                   <div className="text-xs uppercase tracking-widest text-secondary font-semibold">{p.collection}</div>
                 )}

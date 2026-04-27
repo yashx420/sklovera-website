@@ -3,8 +3,12 @@
 @tailwind utilities;
 
 @layer base {
+  html {
+    overflow-x: hidden;
+  }
   body {
     @apply bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container;
+    overflow-x: hidden;
   }
 }
 

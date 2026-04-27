@@ -24,20 +24,20 @@ type Props = {
 
 const SpecificationDrawer = ({ onRegister }: Props) => {
   return (
-    <section className="bg-surface py-32 px-12 border-t border-outline-variant/15 overflow-hidden">
-      <div className="max-w-[1920px] mx-auto grid grid-cols-12 gap-16 items-center">
+    <section className="bg-surface py-16 sm:py-24 lg:py-32 px-4 sm:px-8 lg:px-12 border-t border-outline-variant/15 overflow-hidden">
+      <div className="max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center">
         {/* Left — Visual */}
         <motion.div
           initial={{ opacity: 0, scale: 0.92, y: 30 }}
           whileInView={{ opacity: 1, scale: 1, y: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }}
-          className="col-span-12 lg:col-span-6 relative"
+          className="col-span-1 lg:col-span-6 relative"
         >
           <motion.div
             whileHover={{ scale: 1.01 }}
             transition={{ type: 'spring', stiffness: 100, damping: 14 }}
-            className="rounded-2xl overflow-hidden shadow-2xl relative aspect-[4/3]"
+            className="rounded-2xl overflow-hidden shadow-2xl relative aspect-[4/3] max-w-2xl mx-auto lg:max-w-none"
           >
             <img
               alt="Premium Glassware Atelier"
@@ -50,7 +50,7 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1.4, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute bottom-6 left-6 glass-panel px-5 py-4 rounded-xl shadow-lg"
+              className="hidden sm:block absolute bottom-6 left-6 glass-panel px-5 py-4 rounded-xl shadow-lg"
             >
               <span className="text-[10px] uppercase tracking-widest text-secondary font-bold block">Active Vendors</span>
               <span className="text-3xl font-headline italic text-primary">120+</span>
@@ -60,7 +60,7 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
               whileInView={{ opacity: 1, x: 0 }}
               viewport={{ once: true }}
               transition={{ duration: 1.4, delay: 1.1, ease: [0.16, 1, 0.3, 1] }}
-              className="absolute top-6 right-6 glass-panel px-5 py-4 rounded-xl shadow-lg"
+              className="hidden sm:block absolute top-6 right-6 glass-panel px-5 py-4 rounded-xl shadow-lg"
             >
               <span className="text-[10px] uppercase tracking-widest text-secondary font-bold block">Countries</span>
               <span className="text-3xl font-headline italic text-primary">14</span>
@@ -74,10 +74,10 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
           transition={{ duration: 1.6, ease: [0.16, 1, 0.3, 1] }}
-          className="col-span-12 lg:col-span-6"
+          className="col-span-1 lg:col-span-6"
         >
           <span className="text-on-surface-variant font-medium tracking-widest text-xs uppercase block mb-6">For Suppliers</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-6 leading-tight">
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary mb-4 sm:mb-6 leading-tight">
             Grow your business with Sklovera.
           </h2>
           <p className="text-on-surface-variant text-lg mb-10 leading-relaxed max-w-lg">

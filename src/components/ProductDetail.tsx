@@ -39,14 +39,14 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
         animate={{ x: 0, opacity: 1 }}
         exit={{ x: '100%', opacity: 0 }}
         transition={{ type: 'spring', stiffness: 150, damping: 22 }}
-        className="fixed top-0 right-0 bottom-0 w-full max-w-[520px] z-50 overflow-y-auto"
+        className="fixed top-0 right-0 bottom-0 w-full sm:max-w-[520px] z-50 overflow-y-auto"
         style={{
           background: 'rgba(250, 249, 247, 0.92)',
           backdropFilter: 'blur(16px)',
           boxShadow: '0px 24px 48px rgba(26, 28, 27, 0.12)',
         }}
       >
-        <div className="p-10">
+        <div className="p-5 sm:p-10">
           <motion.button
             whileHover={{ scale: 1.2, rotate: 90 }}
             onClick={onClose}

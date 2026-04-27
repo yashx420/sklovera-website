@@ -215,17 +215,17 @@ function App() {
         transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
         className="bg-surface/80 backdrop-blur-md text-on-surface docked full-width top-0 sticky z-50 shadow-[0px_24px_48px_rgba(26,28,27,0.06)]"
       >
-        <div className="flex justify-between items-center w-full px-4 xl:px-12 py-4 max-w-[1920px] mx-auto gap-4">
-          <div className="flex flex-1 min-w-0 items-center gap-4 xl:gap-8">
+        <div className="flex justify-between items-center w-full px-3 sm:px-4 xl:px-12 py-3 sm:py-4 max-w-[1920px] mx-auto gap-2 sm:gap-4">
+          <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-4 xl:gap-8">
             <a className="text-xl font-serif italic text-primary tracking-tight flex items-center gap-4 cursor-pointer flex-shrink-0" onClick={() => setView('home')}>
               <motion.img
                 whileHover={{ rotate: 8, scale: 1.1 }}
                 transition={{ type: 'spring', stiffness: 150, damping: 12 }}
-                src="/sklovera-logo.svg" alt="Sklovera Logo" className="h-10 object-contain drop-shadow"
+                src="/sklovera-logo.svg" alt="Sklovera Logo" className="h-8 sm:h-10 object-contain drop-shadow"
               />
             </a>
             
-            <div className="flex flex-1 min-w-0 items-center gap-1 xl:gap-2">
+            <div className="hidden sm:flex flex-1 min-w-0 items-center gap-1 xl:gap-2">
               <NavTab active={view === 'home'} onClick={() => { setView('home'); setDropdownOpen(false); }}>Home</NavTab>
               <NavTab active={view === 'catalog'} onClick={() => { setView('catalog'); setDropdownOpen(false); }}>Catalog</NavTab>
               
@@ -282,7 +282,15 @@ function App() {
             </div>
           </div>
 
-          <div className="flex items-center gap-3 xl:gap-6 flex-shrink-0">
+          <div className="flex items-center gap-2 sm:gap-3 xl:gap-6 flex-shrink-0">
+            {/* Mobile search icon */}
+            <button
+              className="lg:hidden flex items-center justify-center w-9 h-9 rounded-full bg-surface-container text-on-surface-variant"
+              onClick={() => { setView('catalog'); }}
+            >
+              <span className="material-symbols-outlined text-lg" data-icon="search">search</span>
+            </button>
+            {/* Desktop search bar */}
             <div className="hidden lg:flex items-center bg-surface-container px-4 py-2 rounded-full">
               <span className="material-symbols-outlined text-sm mr-2 text-on-surface-variant" data-icon="search">search</span>
               <input 
@@ -297,15 +305,16 @@ function App() {
               />
             </div>
 
-            <div className="flex items-center gap-3">
+            <div className="flex items-center gap-1.5 sm:gap-3">
               {showBagPill && (
                 <button
                   onClick={() => setBagOpen(true)}
-                  className="text-xs font-semibold tracking-wide px-3 py-2 rounded-md bg-primary text-surface hover:opacity-90 transition flex items-center gap-2"
+                  className="text-xs font-semibold tracking-wide px-2 sm:px-3 py-2 rounded-md bg-primary text-surface hover:opacity-90 transition flex items-center gap-1.5"
                 >
-                  Bag
+                  <span className="material-symbols-outlined text-sm sm:hidden" data-icon="shopping_bag">shopping_bag</span>
+                  <span className="hidden sm:inline">Bag</span>
                   {bagCount > 0 && (
-                    <span className="bg-surface text-primary text-[10px] px-2 py-0.5 rounded-full">
+                    <span className="bg-surface text-primary text-[10px] px-1.5 sm:px-2 py-0.5 rounded-full">
                       {bagCount}
                     </span>
                   )}
@@ -314,9 +323,9 @@ function App() {
               {showRfqPill && (
                 <button
                   onClick={() => setCartOpen(true)}
-                  className="text-xs font-semibold tracking-wide px-3 py-2 rounded-md bg-surface-container-low text-primary hover:bg-surface-container transition flex items-center gap-2"
+                  className="hidden sm:flex text-xs font-semibold tracking-wide px-3 py-2 rounded-md bg-surface-container-low text-primary hover:bg-surface-container transition items-center gap-2"
                 >
-                  RFQ Cart
+                  RFQ
                   {cartCount > 0 && (
                     <span className="bg-primary text-surface text-[10px] px-2 py-0.5 rounded-full">
                       {cartCount}
@@ -327,6 +336,62 @@ function App() {
               <AuthBar onSignInClick={() => setView('login')} />
             </div>
           </div>
+        </div>
+        
+        {/* Mobile Navigation Row (Options) */}
+        <div className="sm:hidden flex justify-center gap-3 py-2.5 border-t border-outline-variant/10 bg-surface/90 backdrop-blur-md">
+          <NavTab active={view === 'home'} onClick={() => { setView('home'); setDropdownOpen(false); }}>Home</NavTab>
+          <NavTab active={view === 'catalog'} onClick={() => { setView('catalog'); setDropdownOpen(false); }}>Catalog</NavTab>
+          {tabs.filter(v => v !== 'home' && v !== 'catalog').length > 0 && (
+            <div className="relative">
+              <NavTab active={!['home', 'catalog'].includes(view)} onClick={() => setDropdownOpen(!dropdownOpen)}>
+                Manage
+                <span className="material-symbols-outlined text-[16px] ml-1 align-text-bottom" data-icon="expand_more">expand_more</span>
+              </NavTab>
+              
+              {dropdownOpen && (
+                <>
+                  <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
+                  <div className="absolute top-full right-0 mt-2 bg-surface-container rounded-xl shadow-xl py-2 min-w-[200px] border border-outline-variant/30 flex flex-col z-50">
+                    {tabs.filter(v => v !== 'home' && v !== 'catalog').map((v) => (
+                      <button 
+                        key={v}
+                        onClick={() => { setView(v); setDropdownOpen(false); }}
+                        className={`px-4 py-2.5 text-left text-sm tracking-wide transition hover:bg-surface-container-high flex items-center justify-between ${view === v ? 'text-primary font-bold' : 'text-on-surface font-medium'}`}
+                      >
+                        <span>{viewLabel[v]}</span>
+                        {v === 'admin' && (pendingCount + revisionCount) > 0 && (
+                          <span className="ml-2 bg-error-container text-on-error-container text-[10px] px-2 py-0.5 rounded-full">
+                            {pendingCount + revisionCount}
+                          </span>
+                        )}
+                        {v === 'admin-rfqs' && rfqCount > 0 && (
+                          <span className="ml-2 bg-error-container text-on-error-container text-[10px] px-2 py-0.5 rounded-full">
+                            {rfqCount}
+                          </span>
+                        )}
+                        {v === 'admin-inventory' && lowStockCount > 0 && (
+                          <span className="ml-2 bg-tertiary-fixed/40 text-primary text-[10px] px-2 py-0.5 rounded-full">
+                            {lowStockCount}
+                          </span>
+                        )}
+                        {v === 'rfqs' && rfqCount > 0 && (
+                          <span className="ml-2 bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full">
+                            {rfqCount}
+                          </span>
+                        )}
+                        {(v === 'orders' || v === 'admin-orders') && ordersCount > 0 && (
+                          <span className="ml-2 bg-secondary-container text-on-secondary-container text-[10px] px-2 py-0.5 rounded-full">
+                            {ordersCount}
+                          </span>
+                        )}
+                      </button>
+                    ))}
+                  </div>
+                </>
+              )}
+            </div>
+          )}
         </div>
       </motion.nav>
 

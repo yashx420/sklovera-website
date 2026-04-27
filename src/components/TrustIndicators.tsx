@@ -25,9 +25,9 @@ const indicators = [
 
 const TrustIndicators = () => {
   return (
-    <section className="bg-surface-container-low py-32 px-12">
+    <section className="bg-surface-container-low py-16 sm:py-24 lg:py-32 px-4 sm:px-8 lg:px-12">
       <div className="max-w-[1920px] mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-24 items-start">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 sm:gap-12 lg:gap-24 items-start">
           <motion.div
             initial={{ opacity: 0, x: -30 }}
             whileInView={{ opacity: 1, x: 0 }}
@@ -39,8 +39,8 @@ const TrustIndicators = () => {
             <h2 className="font-headline text-4xl italic text-primary">European Quality Certified.</h2>
             <p className="text-on-surface-variant leading-relaxed">Every piece in our collection is sourced from century-old glassworks across the Czech Republic, Italy, and Poland.</p>
           </motion.div>
-          <div className="space-y-8 col-span-2">
-            <div className="grid grid-cols-2 gap-12">
+          <div className="space-y-6 col-span-1 md:col-span-2">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6 sm:gap-8 lg:gap-12">
               {indicators.map((item, i) => (
                 <motion.div
                   key={item.title}

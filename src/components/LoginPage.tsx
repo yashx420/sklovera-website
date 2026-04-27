@@ -80,7 +80,7 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
         <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
       </motion.div>
 
-      <div className="relative max-w-[1600px] mx-auto px-12 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-10 sm:py-16 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -96,7 +96,7 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
 
           <motion.h1
             variants={fade}
-            className="font-headline italic text-[64px] lg:text-[88px] leading-[0.95] text-primary mb-6 tracking-tight"
+            className="font-headline italic text-[40px] sm:text-[56px] lg:text-[88px] leading-[0.95] text-primary mb-6 tracking-tight"
           >
             Bonjour.<br />
             <span className="text-secondary">Welcome back.</span>
@@ -250,7 +250,7 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 1.4, duration: 0.8 }}
-        className="absolute bottom-8 left-12 flex items-center gap-6 text-[11px] uppercase tracking-[0.3em] z-10"
+        className="absolute bottom-4 sm:bottom-8 left-4 sm:left-12 flex items-center gap-3 sm:gap-6 text-[11px] uppercase tracking-[0.3em] z-10"
       >
         <RoleLink active={mode === 'customer'} onClick={() => setMode('customer')} label="Customer" />
         <span className="text-outline-variant">·</span>

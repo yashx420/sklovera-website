@@ -63,10 +63,10 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
 
   if (!visible.length) {
     return (
-      <section className="py-32 px-12">
+      <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 lg:px-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2 }} className="max-w-[900px] mx-auto text-center">
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Catalog</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-4">
+          <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary mb-4">
             {products.length ? 'No approved products yet' : 'No products yet'}
           </h2>
           <p className="text-on-surface-variant">
@@ -88,17 +88,17 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
   };
 
   return (
-    <section className="py-24 px-12">
+    <section className="py-12 sm:py-16 lg:py-24 px-4 sm:px-8 lg:px-12">
       <div className="max-w-[1600px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }} className="flex flex-wrap justify-between items-end gap-6 mb-10">
           <div>
             <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Catalog</span>
-            <h2 className="font-headline text-5xl italic text-primary">
-              {filtered.length} <span className="not-italic font-sans text-3xl text-on-surface-variant">of {visible.length} products</span>
+            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary">
+              {filtered.length} <span className="not-italic font-sans text-xl sm:text-2xl lg:text-3xl text-on-surface-variant">of {visible.length} products</span>
             </h2>
           </div>
           <div className="flex flex-wrap gap-3 items-center">
-            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search SKU or description" className="bg-surface-container-low px-4 py-3 rounded-md outline-none border-b border-outline-variant/30 focus:border-primary w-64 transition-colors"/>
+            <input value={query} onChange={(e) => setQuery(e.target.value)} placeholder="Search SKU or description" className="bg-surface-container-low px-4 py-3 rounded-md outline-none border-b border-outline-variant/30 focus:border-primary w-full sm:w-64 transition-colors"/>
             <select value={collection} onChange={(e) => setCollection(e.target.value)} className="bg-surface-container-low px-4 py-3 rounded-md outline-none">
               {collections.map((c) => (<option key={c} value={c}>{c === 'all' ? 'All collections' : c}</option>))}
             </select>
@@ -110,7 +110,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
 
         <motion.div variants={containerVariants} initial="hidden" animate="show" key={`${query}-${collection}`} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filtered.map((p) => (
-            <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-6 flex flex-col gap-3 transition-shadow hover:shadow-xl cursor-pointer">
+            <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xl cursor-pointer">
               <ProductImage imageKey={p.imageKey} alt={p.name} className="aspect-square w-full object-contain rounded-md bg-surface-container"/>
               <div className="flex items-center justify-between text-xs">
                 <span className="font-mono text-on-surface-variant">{p.sku}</span>

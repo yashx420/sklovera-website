@@ -19,24 +19,24 @@ const HeroSection = ({ onViewCatalog }: Props) => {
   };
 
   return (
-    <section className="relative min-h-[700px] flex items-center px-12 py-24 overflow-hidden">
-      <div className="max-w-[1920px] mx-auto w-full grid grid-cols-12 gap-12 items-center">
+    <section className="relative min-h-[480px] sm:min-h-[600px] lg:min-h-[700px] flex items-center px-4 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-24 overflow-hidden">
+      <div className="max-w-[1920px] mx-auto w-full grid grid-cols-1 lg:grid-cols-12 gap-8 lg:gap-12 items-center">
         <motion.div 
-          className="col-span-12 lg:col-span-6 z-10 self-start -mt-8"
+          className="col-span-1 lg:col-span-6 z-10 lg:self-start lg:-mt-8"
           variants={containerVariants}
           initial="hidden"
           animate="visible"
         >
-          <motion.h1 variants={itemVariants} className="text-7xl lg:text-8xl font-headline italic leading-[1.1] mb-8 text-primary">
+          <motion.h1 variants={itemVariants} className="text-4xl sm:text-5xl md:text-7xl lg:text-8xl font-headline italic leading-[1.1] mb-4 sm:mb-6 lg:mb-8 text-primary">
             Refined <br/>Glassware <br/>Sourcing <br/>from Europe
           </motion.h1>
-          <motion.p variants={itemVariants} className="text-on-surface-variant text-lg max-w-md mb-12 leading-relaxed">
+          <motion.p variants={itemVariants} className="text-on-surface-variant text-sm sm:text-base lg:text-lg max-w-md mb-6 sm:mb-8 lg:mb-12 leading-relaxed">
             Bridging the gap between high-end Italian craftsmanship and functional minimalism. Curated for architects, designers, and curators.
           </motion.p>
           <motion.div variants={itemVariants}>
             <motion.button 
               onClick={onViewCatalog}
-              className="bg-primary text-surface px-8 py-4 flex items-center gap-3 rounded-full font-medium tracking-wide shadow-2xl overflow-hidden relative group"
+              className="bg-primary text-surface px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-3 rounded-full font-medium tracking-wide shadow-2xl overflow-hidden relative group text-sm sm:text-base"
               whileHover={{ scale: 1.05 }}
               whileTap={{ scale: 0.95 }}
             >
@@ -46,7 +46,7 @@ const HeroSection = ({ onViewCatalog }: Props) => {
             </motion.button>
           </motion.div>
         </motion.div>
-        <div className="col-span-12 lg:col-span-6 relative h-[450px] lg:h-[600px]">
+        <div className="col-span-1 lg:col-span-6 relative h-[280px] sm:h-[350px] md:h-[450px] lg:h-[600px]">
           {/* Asymmetric Layout Principle */}
           <motion.div 
             initial={{ opacity: 0, scale: 0.8, rotate: -2 }}
@@ -62,7 +62,7 @@ const HeroSection = ({ onViewCatalog }: Props) => {
             animate={{ opacity: 1, x: 0, y: 0 }}
             transition={{ duration: 2, delay: 0.8, ease: [0.16, 1, 0.3, 1] }}
             whileHover={{ scale: 1.05, y: -10 }}
-            className="absolute left-0 bottom-0 w-1/2 h-1/2 overflow-hidden rounded-xl shadow-xl border-8 border-surface z-20"
+            className="absolute left-0 bottom-0 w-1/2 h-1/2 overflow-hidden rounded-xl shadow-xl border-4 sm:border-8 border-surface z-20"
           >
             <img alt="Decanter Detail" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRCuW0kAHcfFaCe4kocjc-18zDGmZv08i4yFpdAB_JV0rdxY-zgZGiaCojKOle1c9HPbka_8sE8MPe9MBQZ4uofDulXTaCFhlLZ5KSpHhP5KFh98nwBibBLCw6e3TyIMom13p9FGy-ANdTl0OcfMx_MwbHFPXo96DUejSrAqAnTKHo26jg-wHG8d4-zdTnMVwTHZwli4fRwQIRNG5uRY9K23eW1e1jRS0aCyndx1y-Qqp71VF2dyL0_p8d3Q9B4HmHmEUUCQ-_KrM"/>
           </motion.div>
