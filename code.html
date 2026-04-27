@@ -1,0 +1,358 @@
+<!DOCTYPE html>
+
+<html class="light" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif:ital,wght@0,400;0,700;1,400&amp;family=Manrope:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "inverse-surface": "#2f3130",
+                    "secondary": "#42655b",
+                    "inverse-primary": "#c8c6c6",
+                    "primary-fixed": "#e4e2e1",
+                    "surface-container-high": "#e9e8e6",
+                    "on-primary-fixed": "#1b1c1c",
+                    "surface": "#faf9f7",
+                    "background": "#faf9f7",
+                    "primary-fixed-dim": "#c8c6c6",
+                    "outline": "#717975",
+                    "tertiary-fixed-dim": "#e9c176",
+                    "on-background": "#1a1c1b",
+                    "tertiary-fixed": "#ffdea5",
+                    "on-surface-variant": "#414846",
+                    "surface-variant": "#e3e2e0",
+                    "on-error-container": "#93000a",
+                    "on-secondary-container": "#486b61",
+                    "on-surface": "#1a1c1b",
+                    "on-tertiary-fixed-variant": "#5d4201",
+                    "on-secondary": "#ffffff",
+                    "surface-bright": "#faf9f7",
+                    "surface-tint": "#5f5e5e",
+                    "error": "#ba1a1a",
+                    "inverse-on-surface": "#f1f1ef",
+                    "surface-container-low": "#f4f3f1",
+                    "surface-container": "#efeeec",
+                    "secondary-fixed-dim": "#a9cec2",
+                    "tertiary-container": "#5d4201",
+                    "surface-container-highest": "#e3e2e0",
+                    "on-primary-fixed-variant": "#474747",
+                    "outline-variant": "#c1c8c4",
+                    "secondary-fixed": "#c4ebde",
+                    "on-error": "#ffffff",
+                    "surface-dim": "#dadad8",
+                    "error-container": "#ffdad6",
+                    "on-primary": "#ffffff",
+                    "primary": "#303030",
+                    "on-primary-container": "#b6b4b4",
+                    "on-secondary-fixed": "#00201a",
+                    "on-tertiary-fixed": "#261900",
+                    "secondary-container": "#c4ebde",
+                    "on-tertiary": "#ffffff",
+                    "surface-container-lowest": "#ffffff",
+                    "on-tertiary-container": "#d6b067",
+                    "tertiary": "#412d00",
+                    "on-secondary-fixed-variant": "#2a4d44",
+                    "primary-container": "#474646"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.125rem",
+                    "lg": "0.25rem",
+                    "xl": "0.5rem",
+                    "full": "0.75rem"
+            },
+            "fontFamily": {
+                    "headline": ["Noto Serif"],
+                    "body": ["Manrope"],
+                    "label": ["Manrope"]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-panel {
+            backdrop-filter: blur(24px);
+            background: rgba(250, 249, 247, 0.8);
+        }
+        .satin-gradient:hover {
+            background: linear-gradient(135deg, #303030 0%, #474646 100%);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container">
+<!-- TopNavBar -->
+<nav class="bg-stone-50/80 dark:bg-neutral-950/80 backdrop-blur-xl text-neutral-900 dark:text-stone-100 docked full-width top-0 sticky z-50 shadow-[0px_24px_48px_rgba(26,28,27,0.06)]">
+<div class="flex justify-between items-center w-full px-12 py-6 max-w-[1920px] mx-auto">
+<div class="flex items-center gap-12">
+<a class="text-xl font-serif italic text-neutral-900 dark:text-stone-100 tracking-tight" href="#">The Editorial Glassware Platform</a>
+<div class="hidden md:flex items-center gap-8">
+<a class="text-neutral-900 dark:text-stone-100 border-b-2 border-emerald-900 dark:border-emerald-500 pb-1 font-medium transition-colors duration-300" href="#">Explore Collections</a>
+<a class="text-neutral-500 dark:text-stone-400 font-medium hover:text-emerald-900 dark:hover:text-emerald-400 transition-colors duration-300" href="#">My Projects</a>
+<a class="text-neutral-500 dark:text-stone-400 font-medium hover:text-emerald-900 dark:hover:text-emerald-400 transition-colors duration-300" href="#">RFQ History</a>
+</div>
+</div>
+<div class="flex items-center gap-6">
+<div class="hidden lg:flex items-center bg-stone-100/50 dark:bg-neutral-900/50 px-4 py-2 rounded-full">
+<span class="material-symbols-outlined text-sm mr-2" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-sm w-48" placeholder="Search Atelier..." type="text"/>
+</div>
+<button class="bg-primary text-on-primary px-6 py-2.5 rounded-lg text-sm font-semibold satin-gradient transition-all active:scale-95">Request Quote</button>
+<div class="flex items-center gap-4 text-neutral-900 dark:text-stone-100">
+<span class="material-symbols-outlined cursor-pointer hover:opacity-70 transition-opacity" data-icon="notifications">notifications</span>
+<span class="material-symbols-outlined cursor-pointer hover:opacity-70 transition-opacity" data-icon="person">person</span>
+</div>
+</div>
+</div>
+</nav>
+<!-- Hero Section -->
+<section class="relative min-h-[921px] flex items-center px-12 py-24 overflow-hidden">
+<div class="max-w-[1920px] mx-auto w-full grid grid-cols-12 gap-12 items-center">
+<div class="col-span-12 lg:col-span-6 z-10">
+<h1 class="text-7xl lg:text-8xl font-headline italic leading-[1.1] mb-8 text-primary">
+                    Refined <br/>Glassware <br/>Sourcing <br/>from Europe
+                </h1>
+<p class="text-on-surface-variant text-lg max-w-md mb-12 leading-relaxed">
+                    Bridging the gap between high-end Italian craftsmanship and functional minimalism. Curated for architects, designers, and curators.
+                </p>
+<div class="flex items-center gap-8">
+<button class="bg-secondary text-on-secondary px-10 py-4 rounded-lg font-semibold flex items-center gap-3 hover:opacity-90 transition-all">
+                        View Editorial Series
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<button class="font-semibold text-primary underline underline-offset-8 decoration-1 hover:text-secondary transition-colors">
+                        Download Catalog
+                    </button>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-6 relative h-[600px] lg:h-[800px]">
+<!-- Asymmetric Layout Principle -->
+<div class="absolute right-0 top-0 w-4/5 h-4/5 overflow-hidden rounded-xl shadow-2xl">
+<img alt="Glassware Detail" class="w-full h-full object-cover" data-alt="Close-up of minimalist clear glass vase with sharp structural lines catching light on a neutral stone background" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDbZZBHM0URyvFsSvOzS8_SXMK4fPUcYLmgIQnQd4R_0nmW5O2c3hdemWdzhslV1-xVMZCoHGbwJPVpcEsqxhLyRsdU4_8I1wT5UwJ31kEmyYCJlNKJhxpcXvVccxt2iQZhXBFp0Zz7wRe2QwpgXAruse-SdiJy8aSEgz4yeSlWos4CU-QvI2oqebHrw8sARrIvr2rVomcw1P33sZrNIGj1Oi53WMWR30MMntRRw6be9neDoyjtk-VH2ha1Q80grXOvt-v1-iTf36E"/>
+</div>
+<div class="absolute left-0 bottom-0 w-1/2 h-1/2 overflow-hidden rounded-xl shadow-xl border-8 border-surface z-20">
+<img alt="Decanter Detail" class="w-full h-full object-cover" data-alt="Artistic crystalline decanter filled with water on a frosted glass surface with soft morning light shadows" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDRCuW0kAHcfFaCe4kocjc-18zDGmZv08i4yFpdAB_JV0rdxY-zgZGiaCojKOle1c9HPbka_8sE8MPe9MBQZ4uofDulXTaCFhlLZ5KSpHhP5KFh98nwBibBLCw6e3TyIMom13p9FGy-ANdTl0OcfMx_MwbHFPXo96DUejSrAqAnTKHo26jg-wHG8d4-zdTnMVwTHZwli4fRwQIRNG5uRY9K23eW1e1jRS0aCyndx1y-Qqp71VF2dyL0_p8d3Q9B4HmHmEUUCQ-_KrM"/>
+</div>
+</div>
+</div>
+</section>
+<!-- Trust Indicators & Story -->
+<section class="bg-surface-container-low py-32 px-12">
+<div class="max-w-[1920px] mx-auto">
+<div class="grid grid-cols-1 md:grid-cols-3 gap-24 items-start">
+<div class="space-y-6">
+<span class="text-secondary font-semibold tracking-widest text-xs uppercase">The Provenance</span>
+<h2 class="font-headline text-4xl italic text-primary">European Quality Certified.</h2>
+<p class="text-on-surface-variant leading-relaxed">Every piece in our collection is sourced from century-old glassworks across the Czech Republic, Italy, and Poland.</p>
+</div>
+<div class="space-y-8 col-span-2">
+<div class="grid grid-cols-2 gap-12">
+<div class="flex flex-col gap-4 group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary text-4xl" data-icon="verified_user">verified_user</span>
+<h3 class="font-semibold text-lg">Lead-Free Crystal</h3>
+</div>
+<p class="text-on-surface-variant text-sm">Meeting the highest EU safety and sustainability standards for residential and hospitality usage.</p>
+</div>
+<div class="flex flex-col gap-4 group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary text-4xl" data-icon="eco">eco</span>
+<h3 class="font-semibold text-lg">Sustainable Logistics</h3>
+</div>
+<p class="text-on-surface-variant text-sm">CO2-neutral shipping lanes and 100% recyclable, plastic-free industrial packaging solutions.</p>
+</div>
+<div class="flex flex-col gap-4 group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary text-4xl" data-icon="precision_manufacturing">precision_manufacturing</span>
+<h3 class="font-semibold text-lg">Artisanal Hand-Blown</h3>
+</div>
+<p class="text-on-surface-variant text-sm">We maintain direct partnerships with small-batch workshops to ensure unique character in every SKU.</p>
+</div>
+<div class="flex flex-col gap-4 group">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined text-secondary text-4xl" data-icon="history_edu">history_edu</span>
+<h3 class="font-semibold text-lg">Legacy Sourcing</h3>
+</div>
+<p class="text-on-surface-variant text-sm">Full transparency into factory history and social governance metrics for large-scale procurement.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Featured Collections - Bento Grid -->
+<section class="py-32 px-12">
+<div class="max-w-[1920px] mx-auto">
+<div class="flex justify-between items-end mb-16">
+<div>
+<span class="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Curated Selections</span>
+<h2 class="font-headline text-5xl italic text-primary">Featured Collections</h2>
+</div>
+<a class="text-primary font-semibold flex items-center gap-2 group" href="#">
+                    View Sourcing Archive 
+                    <span class="material-symbols-outlined group-hover:translate-x-1 transition-transform" data-icon="trending_flat">trending_flat</span>
+</a>
+</div>
+<div class="grid grid-cols-12 gap-8">
+<!-- Large Feature Card -->
+<div class="col-span-12 lg:col-span-8 group relative overflow-hidden rounded-xl bg-surface-container h-[600px]">
+<img alt="The Nordic Bar Series" class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" data-alt="Minimalist cocktail glasses arranged in an architectural composition on a gray surface with dramatic shadow lines" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBUPMotuOI2JVpg9TYkjNg_DfHFCBMRmKwx4b_IkmQ6zG3U_FH5v7xW9fHR9bLVM2uxeaLW3lPvuwQG5LASUVS29np6xYDkpUYcvdzgURvHVtzI2MtcXPHLOGIxD1cZv7oXPKPCG6XP7siuKgWpcYasb5Sfeugc6iW080xi7-GjRZt82V6fUSWjMuSVkUIwf50przlgZx7n0iVcxitHL_RVN5IN2MRVywyt5QA3Wc6hFFwOcwrRczkudO7BmsscT_9dKuEXKi37gbI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-primary/60 to-transparent flex flex-col justify-end p-12">
+<span class="text-tertiary-fixed text-sm font-semibold tracking-widest uppercase mb-4">Volume I</span>
+<h3 class="text-surface text-4xl font-headline italic mb-4">The Nordic Bar Series</h3>
+<p class="text-surface-variant max-w-sm mb-6">Ultra-thin silhouettes for premium hospitality environments. Precision crafted in Denmark.</p>
+<button class="bg-surface text-primary px-8 py-3 w-fit rounded-lg font-semibold hover:bg-secondary hover:text-on-secondary transition-colors">Inquire Collection</button>
+</div>
+</div>
+<!-- Secondary Card -->
+<div class="col-span-12 lg:col-span-4 flex flex-col gap-8">
+<div class="bg-surface-container-highest flex-1 rounded-xl group relative overflow-hidden p-8 flex flex-col justify-between">
+<img alt="Vases" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" data-alt="Collection of assorted smoky gray glass vases on an ivory pedestal with ethereal lighting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCbDj2sVs_knWkQqimHP9xDe3HFcfInGXqObtmFFjrzu8ONHw3hPpXrBjNjGVr4duxZAk6kZkHPFlROr7gfFI_LRGV7t_kvRaH_ToQZo3DjUHyjkKLiaZGLTgYtalOaoACjPi4AY0MPpKI-pC1s2aP1vaEQq4dJ8Nmkhi6VJmbaKfGIBEKr6RugyKd4Mhmf0xcPQI8BiumQEmjB4Tu3TSX7i2jLRy_6PmuCRjqRnYmR-77kpoKnLFuAWOOeAhIbODaWhiw_55TMz1s"/>
+<div class="relative z-10 bg-surface/90 backdrop-blur-sm p-6 rounded-lg w-fit">
+<h4 class="font-headline text-2xl italic text-primary">Structural Vessels</h4>
+<span class="text-sm text-secondary font-medium">12 SKUs Available</span>
+</div>
+<div class="relative z-10">
+<span class="material-symbols-outlined bg-primary text-surface p-4 rounded-full group-hover:rotate-45 transition-transform" data-icon="add">add</span>
+</div>
+</div>
+<div class="bg-surface-container flex-1 rounded-xl group relative overflow-hidden p-8 flex flex-col justify-between">
+<img alt="Decanters" class="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:scale-110 transition-transform duration-700" data-alt="Modernist glass decanters with wooden stoppers on a white linen tablecloth with soft natural light" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDYy_wBfevLXbEHQwxTImmrI4uK7IgJtwYRFyAIe7xaSHvgn8nc6CepZmyyhp_geJVM7W2Rqph8ZLGzAk74lHpW5GHF5E02VBGcJKGGlucZSpKfshec6LLwp5xzRMEmor8pR0vOWAoQhIGpO7WahJ4rt-mqTOZ_0t_HwgNEFhiccRFPF_Qx8FFbNpILWMxMteEAt6mrWDtRO0xllv_UTIlHnoWUNUPu3W5SkvwBxyeVsDWZtPBhd5JAaXG21s9PFU1NoLGeUaigPbs"/>
+<div class="relative z-10 bg-surface/90 backdrop-blur-sm p-6 rounded-lg w-fit">
+<h4 class="font-headline text-2xl italic text-primary">Decanter Studio</h4>
+<span class="text-sm text-secondary font-medium">4 Series Available</span>
+</div>
+<div class="relative z-10">
+<span class="material-symbols-outlined bg-primary text-surface p-4 rounded-full group-hover:rotate-45 transition-transform" data-icon="add">add</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Glassware Specification Drawer (Signature Component Simulation) -->
+<section class="bg-surface py-32 px-12 border-t border-outline-variant/15">
+<div class="max-w-[1920px] mx-auto grid grid-cols-12 gap-16 items-center">
+<div class="col-span-12 lg:col-span-5">
+<h2 class="font-headline text-5xl italic text-primary mb-8 leading-tight">Master the details with our Specification Portal.</h2>
+<p class="text-on-surface-variant text-lg mb-8 leading-relaxed">Professional-grade data for every glass. Access CAD files, weight tolerances, and optical clarity certificates instantly.</p>
+<div class="space-y-6">
+<div class="p-6 bg-surface-container-low rounded-xl flex items-center gap-6 group hover:bg-surface-container-high transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-4xl text-secondary" data-icon="inventory_2">inventory_2</span>
+<div>
+<h5 class="font-bold">Real-time Stock Audits</h5>
+<p class="text-sm text-on-surface-variant">Check warehouse availability across 4 EU hubs.</p>
+</div>
+</div>
+<div class="p-6 bg-surface-container-low rounded-xl flex items-center gap-6 group hover:bg-surface-container-high transition-colors cursor-pointer">
+<span class="material-symbols-outlined text-4xl text-secondary" data-icon="architecture">architecture</span>
+<div>
+<h5 class="font-bold">CAD &amp; 3D Assets</h5>
+<p class="text-sm text-on-surface-variant">Direct downloads for Revit, Rhino, and SketchUp.</p>
+</div>
+</div>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-7 relative">
+<div class="bg-surface-container-highest rounded-2xl overflow-hidden shadow-2xl relative">
+<img alt="Technical View" class="w-full h-[500px] object-cover" data-alt="A technical close up of high quality glassware showing delicate reflections and light refractions in a studio setting" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV3ZSZj0bJ3dEOC5I41TyTlL14NrIReg3_tWQ9EE05cHo5if3eIGyKVaEK_kuJFpUUBo-jJrf_r4s42F5-hTrrwGOGcU8fbhC-IaYqcca7FJToVRuLFtJYD0GrX1dm0XIAjwXzZck1iPXB7hCxzVQR0zu5ZUBelV9k_WmTKAzaQW-kDElkBY2Dh1XEtVrXovcrLLNRsl_29Jn6U_yBZ6WLYjh81ewgeyFKKLJy8mlFa8rS-2ys3yk2v3gl8EalXU7XIUoLw90F2i8"/>
+<!-- Glassmorphism Spec Panel -->
+<div class="absolute inset-y-0 right-0 w-80 glass-panel p-8 flex flex-col gap-6 shadow-[-24px_0_48px_rgba(0,0,0,0.05)]">
+<div class="space-y-1">
+<span class="text-[10px] uppercase tracking-widest text-secondary font-bold">SKU: AV-992-G</span>
+<h4 class="font-headline text-xl italic">Verrerie Tumbler</h4>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between border-b border-outline-variant/15 pb-2">
+<span class="text-xs text-on-surface-variant font-medium">Height</span>
+<span class="text-xs font-bold">92mm</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/15 pb-2">
+<span class="text-xs text-on-surface-variant font-medium">Capacity</span>
+<span class="text-xs font-bold">340ml</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/15 pb-2">
+<span class="text-xs text-on-surface-variant font-medium">Clarity Rating</span>
+<span class="text-xs font-bold text-secondary">A+ Optic</span>
+</div>
+</div>
+<div class="mt-auto space-y-3">
+<button class="w-full bg-primary text-on-primary py-3 rounded-lg text-sm font-semibold">Add to Project</button>
+<button class="w-full border border-primary/20 py-3 rounded-lg text-sm font-semibold hover:bg-surface-container transition-colors">Spec Sheet PDF</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Footer -->
+<footer class="bg-neutral-900 dark:bg-black text-stone-100 dark:text-stone-300 w-full relative">
+<div class="w-full px-12 py-24 flex flex-col gap-12 max-w-[1920px] mx-auto">
+<div class="grid grid-cols-12 gap-12">
+<div class="col-span-12 lg:col-span-4">
+<h2 class="font-headline italic text-4xl mb-8">Newsletter</h2>
+<p class="text-stone-400 mb-8 max-w-sm">Join our professional network for first access to new collections and global sourcing reports.</p>
+<div class="flex flex-col gap-4">
+<div class="relative">
+<input class="bg-transparent border-b border-stone-700 w-full py-4 focus:border-emerald-400 focus:ring-0 text-stone-100" placeholder="professional@email.com" type="email"/>
+<button class="absolute right-0 bottom-4 material-symbols-outlined text-emerald-400" data-icon="send">send</button>
+</div>
+<p class="text-[10px] text-stone-500 font-medium">By subscribing, you agree to our Privacy Policy regarding professional data handling.</p>
+</div>
+</div>
+<div class="col-span-12 lg:col-span-8 grid grid-cols-2 md:grid-cols-4 gap-8">
+<div class="space-y-6">
+<h6 class="font-bold text-xs uppercase tracking-widest text-stone-500">Navigation</h6>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Collections</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Sourcing Standards</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Custom Production</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Logistics</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h6 class="font-bold text-xs uppercase tracking-widest text-stone-500">Legal</h6>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Privacy Policy</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Terms of Service</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">GDPR Compliance</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h6 class="font-bold text-xs uppercase tracking-widest text-stone-500">Contact</h6>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Atelier Studio</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">B2B Support</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Press Relations</a></li>
+</ul>
+</div>
+<div class="space-y-6">
+<h6 class="font-bold text-xs uppercase tracking-widest text-stone-500">Social</h6>
+<ul class="space-y-4 text-sm font-medium">
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Instagram</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">LinkedIn</a></li>
+<li><a class="text-stone-400 hover:text-stone-100 underline underline-offset-4 transition-all" href="#">Pinterest</a></li>
+</ul>
+</div>
+</div>
+</div>
+<div class="pt-24 border-t border-stone-800 flex flex-col md:flex-row justify-between items-center gap-8">
+<span class="text-stone-100 font-serif italic text-2xl">Atelier Verrerie</span>
+<p class="text-stone-500 text-[10px] font-medium tracking-[0.2em] uppercase">© 2024 The Editorial Glassware Platform. European Quality Certified.</p>
+<div class="flex gap-4">
+<span class="text-emerald-400 font-semibold text-xs tracking-widest uppercase">Verified Sourcing Partner</span>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

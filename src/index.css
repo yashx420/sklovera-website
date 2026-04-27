@@ -1,0 +1,25 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  body {
+    @apply bg-surface text-on-surface font-body selection:bg-secondary-container selection:text-on-secondary-container;
+  }
+}
+
+@layer utilities {
+  .material-symbols-outlined {
+    font-variation-settings: 'FILL' 0, 'wght' 300, 'GRAD' 0, 'opsz' 24;
+    vertical-align: middle;
+  }
+  
+  .glass-panel {
+    backdrop-filter: blur(24px);
+    background: rgba(250, 249, 247, 0.8);
+  }
+  
+  .satin-gradient:hover {
+    background: linear-gradient(135deg, #303030 0%, #474646 100%);
+  }
+}
