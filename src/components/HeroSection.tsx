@@ -2,9 +2,10 @@ import { motion, type Variants } from 'framer-motion';
 
 type Props = {
   onViewCatalog?: () => void;
+  onViewStandards?: () => void;
 };
 
-const HeroSection = ({ onViewCatalog }: Props) => {
+const HeroSection = ({ onViewCatalog, onViewStandards }: Props) => {
   const containerVariants: Variants = {
     hidden: { opacity: 0 },
     visible: {
@@ -104,7 +105,7 @@ const HeroSection = ({ onViewCatalog }: Props) => {
               <span className="material-symbols-outlined relative z-10 text-sm group-hover:translate-x-1 transition-transform duration-500" data-icon="arrow_forward">arrow_forward</span>
             </motion.button>
             <motion.button 
-              onClick={onViewCatalog}
+              onClick={onViewStandards}
               className="px-6 sm:px-8 py-3 sm:py-4 flex items-center gap-3 rounded-full font-medium tracking-wide text-sm sm:text-base transition-all duration-300 group"
               style={{ border: '2px solid rgba(26,58,42,0.5)', color: '#1a3a2a' }}
               whileHover={{ scale: 1.05 }}

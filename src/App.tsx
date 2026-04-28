@@ -22,6 +22,7 @@ import Checkout from './components/Checkout';
 import Orders from './components/Orders';
 import SupplierInventory from './components/SupplierInventory';
 import AdminVendors from './components/AdminVendors';
+import StandardsPage from './components/StandardsPage';
 import VendorRegister from './components/VendorRegister';
 import { LOW_STOCK_THRESHOLD, totalStock } from './lib/fulfillment';
 import { currentUser, onAuthChange, type Role } from './lib/auth';
@@ -31,6 +32,7 @@ import { isShopper, loadBag, loadOrders, onBagChange, onOrdersChange } from './l
 
 type View =
   | 'home'
+  | 'standards'
   | 'vendor'
   | 'catalog'
   | 'admin'
@@ -63,22 +65,23 @@ const NavTab = ({ active, onClick, children }: { active: boolean; onClick: () =>
 const tabsForRole = (role: Role): View[] => {
   switch (role) {
     case 'admin':
-      return ['home', 'catalog', 'admin', 'admin-rfqs', 'admin-orders', 'admin-inventory', 'admin-vendors', 'admin-pricing', 'vendor'];
+      return ['home', 'catalog', 'standards', 'admin', 'admin-rfqs', 'admin-orders', 'admin-inventory', 'admin-vendors', 'admin-pricing', 'vendor'];
     case 'supplier':
-      return ['home', 'catalog', 'vendor', 'supplier-inventory'];
+      return ['home', 'catalog', 'standards', 'vendor', 'supplier-inventory'];
     case 'b2c':
-      return ['home', 'catalog', 'orders'];
+      return ['home', 'catalog', 'standards', 'orders'];
     case 'b2b':
     case 'retail':
-      return ['home', 'catalog', 'rfqs'];
+      return ['home', 'catalog', 'standards', 'rfqs'];
     default:
-      return ['home', 'catalog'];
+      return ['home', 'catalog', 'standards'];
   }
 };
 
 const viewLabel: Record<View, string> = {
   home: 'Home',
   catalog: 'Catalog',
+  standards: 'Our Standards',
   admin: 'Approvals',
   'admin-rfqs': 'RFQ Queue',
   'admin-pricing': 'Pricing',
@@ -353,7 +356,7 @@ function App() {
                 <>
                   <div className="fixed inset-0 z-40" onClick={() => setDropdownOpen(false)} />
                   <div className="absolute top-full right-0 mt-2 bg-surface-container rounded-xl shadow-xl py-2 min-w-[200px] border border-outline-variant/30 flex flex-col z-50">
-                    {tabs.filter(v => v !== 'home' && v !== 'catalog').map((v) => (
+                    {tabs.filter(v => v !== 'home' && v !== 'catalog' && v !== 'standards').map((v) => (
                       <button 
                         key={v}
                         onClick={() => { setView(v); setDropdownOpen(false); }}
@@ -405,7 +408,7 @@ function App() {
           )}
           {view === 'home' && (
             <>
-              <HeroSection onViewCatalog={() => setView('catalog')} />
+              <HeroSection onViewCatalog={() => setView('catalog')} onViewStandards={() => setView('standards')} />
               <FeaturedProducts onBrowseAll={() => setView('catalog')} />
               <TrustIndicators />
               <FeaturedCollections onExplore={() => setView('catalog')} />
@@ -413,6 +416,7 @@ function App() {
             </>
           )}
           {view === 'catalog' && <ProductCatalog searchQuery={searchQuery} onSearchChange={setSearchQuery} />}
+          {view === 'standards' && <StandardsPage />}
           {view === 'vendor' && <VendorUpload onDone={() => setView(role === 'admin' ? 'admin' : role === 'supplier' ? 'supplier-inventory' : 'home')} />}
           {view === 'supplier-inventory' && <SupplierInventory />}
           {view === 'admin-vendors' && <AdminVendors />}
