@@ -80,7 +80,21 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
         <div className="absolute inset-0 bg-gradient-to-t from-primary/40 via-transparent to-transparent" />
       </motion.div>
 
-      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-10 sm:py-16 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center">
+      {/* Role switcher, top */}
+      <motion.div
+        initial={{ opacity: 0, y: -20 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.2, duration: 0.8 }}
+        className="absolute top-6 left-0 right-0 sm:right-auto sm:left-8 lg:left-12 flex flex-wrap items-center justify-center sm:justify-start gap-4 sm:gap-6 text-[10px] sm:text-[11px] uppercase tracking-[0.2em] sm:tracking-[0.3em] z-20 px-4 sm:px-0"
+      >
+        <RoleLink active={mode === 'customer'} onClick={() => setMode('customer')} label="Customer" />
+        <span className="text-outline-variant">·</span>
+        <RoleLink active={mode === 'vendor'} onClick={() => setMode('vendor')} label="Vendors" />
+        <span className="text-outline-variant">·</span>
+        <RoleLink active={mode === 'admin'} onClick={() => setMode('admin')} label="Admin" />
+      </motion.div>
+
+      <div className="relative max-w-[1600px] mx-auto px-4 sm:px-8 lg:px-12 py-16 sm:py-24 lg:py-20 grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 items-center mt-8 sm:mt-0">
         <motion.div
           variants={stagger}
           initial="hidden"
@@ -245,19 +259,6 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
         <div className="hidden lg:block lg:col-span-6" />
       </div>
 
-      {/* Discreet role chips, bottom-left */}
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 1.4, duration: 0.8 }}
-        className="absolute bottom-4 sm:bottom-8 left-4 sm:left-12 flex items-center gap-3 sm:gap-6 text-[11px] uppercase tracking-[0.3em] z-10"
-      >
-        <RoleLink active={mode === 'customer'} onClick={() => setMode('customer')} label="Customer" />
-        <span className="text-outline-variant">·</span>
-        <RoleLink active={mode === 'vendor'} onClick={() => setMode('vendor')} label="Vendors" />
-        <span className="text-outline-variant">·</span>
-        <RoleLink active={mode === 'admin'} onClick={() => setMode('admin')} label="Admin" />
-      </motion.div>
 
       {/* Decorative serif marker, bottom-right */}
       <motion.div
