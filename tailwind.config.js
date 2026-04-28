@@ -54,7 +54,19 @@ export default {
         "on-tertiary-container": "#d6b067",
         "tertiary": "#412d00",
         "on-secondary-fixed-variant": "#2a4d44",
-        "primary-container": "#474646"
+        "primary-container": "#474646",
+        /* Dark green accent palette */
+        "forest": "#1a3a2a",
+        "forest-light": "#24523a",
+        "forest-dark": "#0f2218",
+        "emerald": "#2d6a4f",
+        "emerald-light": "#40916c",
+        "emerald-muted": "#74c69d",
+        "moss": "#1b4332",
+        "sage": "#95d5b2",
+        "sage-muted": "#b7e4c7",
+        "jade": "#52b788",
+        "jade-dark": "#2d6a4f"
       },
       borderRadius: {
         "DEFAULT": "0.125rem",

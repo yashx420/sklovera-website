@@ -51,7 +51,11 @@ const slug = (s: string) =>
  * account we log into that, otherwise we create a lightweight session
  * with the email + name (no password validation in this demo).
  */
-export const loginAsCustomer = (email: string, name?: string): User => {
+export const loginAsCustomer = (
+  email: string,
+  name?: string,
+  buyerType: 'b2c' | 'b2b' = 'b2c',
+): User => {
   const trimmedEmail = email.trim().toLowerCase();
   const match = loadAllUsers().find((u) => u.email.toLowerCase() === trimmedEmail);
   if (match) {
@@ -60,8 +64,8 @@ export const loginAsCustomer = (email: string, name?: string): User => {
   }
   const cleanName = name?.trim() || trimmedEmail.split('@')[0].replace(/[._-]+/g, ' ');
   const user: User = {
-    id: `b2c-${slug(trimmedEmail)}`,
-    role: 'b2c',
+    id: `${buyerType}-${slug(trimmedEmail)}`,
+    role: buyerType,
     email: trimmedEmail,
     displayName: cleanName.replace(/\b\w/g, (c) => c.toUpperCase()),
   };

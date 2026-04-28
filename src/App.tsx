@@ -65,7 +65,7 @@ const tabsForRole = (role: Role): View[] => {
     case 'admin':
       return ['home', 'catalog', 'admin', 'admin-rfqs', 'admin-orders', 'admin-inventory', 'admin-vendors', 'admin-pricing', 'vendor'];
     case 'supplier':
-      return ['home', 'vendor', 'supplier-inventory'];
+      return ['home', 'catalog', 'vendor', 'supplier-inventory'];
     case 'b2c':
       return ['home', 'catalog', 'orders'];
     case 'b2b':
