@@ -16,6 +16,7 @@ export type RfqItem = {
   collection?: string;
   imageKey?: string;
   priceEurRef?: number; // reference at time of submission, not the quote
+  pcsPerPallet?: number;
   quantity: number;
 };
 
@@ -189,6 +190,7 @@ export const hydrateCart = (entries: CartEntry[], products: Product[]): RfqItem[
       collection: p.collection,
       imageKey: p.imageKey,
       priceEurRef: p.priceEur,
+      pcsPerPallet: p.pcsPerPallet,
       quantity: e.quantity,
     });
   }

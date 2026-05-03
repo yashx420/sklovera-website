@@ -33,6 +33,26 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
         <div className="absolute right-[50%] top-[10%] bottom-[10%] w-px bg-gradient-to-b from-transparent via-emerald/20 to-transparent hidden lg:block" />
       </div>
 
+      {/* Tall vertical background image with crazy scroll animation */}
+      <motion.div 
+        initial={{ opacity: 0, scale: 0.4, rotate: 25 }}
+        whileInView={{ opacity: 0.35, scale: 1, rotate: 4 }}
+        viewport={{ once: false, amount: 0.2 }}
+        transition={{ 
+          type: "spring", 
+          stiffness: 60, 
+          damping: 10, 
+          mass: 1.5
+        }}
+        className="absolute right-[-2%] top-[15%] w-[180px] lg:w-[260px] aspect-[1/3] hidden md:block overflow-hidden rounded-[50px] pointer-events-none z-[1]"
+      >
+        <img 
+          src="/AVANT-GARDE%2057-9917-0180-FL0-0000-00.png" 
+          alt="Decorative Glassware" 
+          className="w-full h-full object-cover shadow-2xl"
+        />
+      </motion.div>
+
       <div className="max-w-[1920px] mx-auto grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12 lg:gap-16 items-center relative">
         {/* Left — Visual */}
         <motion.div initial={{ opacity: 0, scale: 0.92, y: 30 }} whileInView={{ opacity: 1, scale: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 2, ease: [0.16, 1, 0.3, 1] }} className="col-span-1 lg:col-span-6 relative">
@@ -41,7 +61,7 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
           <div className="absolute -top-6 -left-6 w-12 h-12 rounded-full bg-forest/8 animate-float-medium hidden lg:block" />
 
           <motion.div whileHover={{ scale: 1.01 }} transition={{ type: 'spring', stiffness: 100, damping: 14 }} className="rounded-2xl overflow-hidden shadow-2xl relative aspect-[4/3] max-w-2xl mx-auto lg:max-w-none">
-            <img alt="Premium Glassware Atelier" className="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAV3ZSZj0bJ3dEOC5I41TyTlL14NrIReg3_tWQ9EE05cHo5if3eIGyKVaEK_kuJFpUUBo-jJrf_r4s42F5-hTrrwGOGcU8fbhC-IaYqcca7FJToVRuLFtJYD0GrX1dm0XIAjwXzZck1iPXB7hCxzVQR0zu5ZUBelV9k_WmTKAzaQW-kDElkBY2Dh1XEtVrXovcrLLNRsl_29Jn6U_yBZ6WLYjh81ewgeyFKKLJy8mlFa8rS-2ys3yk2v3gl8EalXU7XIUoLw90F2i8" />
+            <img alt="Premium Glassware Showroom" className="w-full h-full object-cover" src="/images/glassware-showroom.png" />
             {/* Green tint overlay */}
             <div className="absolute inset-0 bg-gradient-to-br from-forest/5 to-emerald/10 mix-blend-multiply" />
             {/* Floating stat cards with green accent */}
@@ -71,7 +91,7 @@ const SpecificationDrawer = ({ onRegister }: Props) => {
 
           <div className="space-y-5 mb-12">
             {benefits.map((b, i) => (
-              <motion.div key={b.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.5 + i * 0.25 }} whileHover={{ x: 8 }} className="p-5 bg-surface-container-low rounded-xl flex items-center gap-5 group transition-all cursor-pointer hover:bg-forest/5 border border-transparent hover:border-emerald/10">
+              <motion.div key={b.title} initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1, delay: 0.5 + i * 0.25 }} whileHover={{ x: 8 }} className="p-5 bg-transparent rounded-xl flex items-center gap-5 group transition-all cursor-pointer hover:bg-forest/5 border border-transparent hover:border-emerald/10">
                 <motion.div whileHover={{ rotate: 15, scale: 1.15 }} className="w-12 h-12 rounded-xl bg-forest/8 flex items-center justify-center group-hover:bg-forest/15 transition-colors flex-shrink-0">
                   <span className="material-symbols-outlined text-2xl text-emerald" data-icon={b.icon}>{b.icon}</span>
                 </motion.div>

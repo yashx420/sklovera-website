@@ -8,13 +8,23 @@ import ProductImage from './ProductImage';
 import ProductDetail from './ProductDetail';
 import { motion, type Variants } from 'framer-motion';
 
-type Props = { onBrowseAll?: () => void };
+type Props = {
+  onBrowseAll?: () => void;
+  /** How many cards to show. Defaults to 8 (two rows of 4). */
+  limit?: number;
+  /** How many of the curated picks to skip — lets a second instance render different SKUs. */
+  skip?: number;
+  /** Override the section heading for variants like a single-row strip. */
+  title?: string;
+  kicker?: string;
+};
 
-const pickFeatured = (products: Product[], limit = 8): Product[] => {
+const pickFeatured = (products: Product[], take: number, skip = 0): Product[] => {
   const approved = products.filter((p) => p.status === 'approved');
   if (!approved.length) return [];
+  const need = take + skip;
   const withImg = approved.filter((p) => p.imageKey);
-  const pool = withImg.length >= limit ? withImg : approved;
+  const pool = withImg.length >= need ? withImg : approved;
   const byCollection = new Map<string, Product[]>();
   for (const p of pool) {
     const key = p.collection ?? '__none__';
@@ -25,17 +35,17 @@ const pickFeatured = (products: Product[], limit = 8): Product[] => {
   const picks: Product[] = [];
   const iterators = Array.from(byCollection.values()).map((l) => l[Symbol.iterator]());
   let exhausted = false;
-  while (picks.length < limit && !exhausted) {
+  while (picks.length < need && !exhausted) {
     exhausted = true;
     for (const it of iterators) {
       const next = it.next();
-      if (!next.done) { picks.push(next.value); exhausted = false; if (picks.length >= limit) break; }
+      if (!next.done) { picks.push(next.value); exhausted = false; if (picks.length >= need) break; }
     }
   }
-  return picks;
+  return picks.slice(skip, skip + take);
 };
 
-const FeaturedProducts = ({ onBrowseAll }: Props) => {
+const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks" }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
   const [selected, setSelected] = useState<Product | null>(null);
@@ -48,7 +58,7 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
     return () => window.removeEventListener('sklovera:products-updated', refresh);
   }, []);
 
-  const featured = useMemo(() => pickFeatured(products), [products]);
+  const featured = useMemo(() => pickFeatured(products, limit, skip), [products, limit, skip]);
   if (!featured.length) return null;
 
   const tier = tierFromRole(user.role);
@@ -85,9 +95,9 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
         <motion.div initial={{ opacity: 0, y: 20 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1.2 }} className="flex flex-col sm:flex-row justify-between items-start sm:items-end gap-4 mb-8 sm:mb-12">
           <div>
             <span className="inline-flex items-center gap-2 text-on-surface-variant font-medium tracking-wide text-xs sm:text-sm mb-2 sm:mb-4">
-              <span className="w-6 h-px bg-emerald/50" />Editor's Picks
+              <span className="w-6 h-px bg-emerald/50" />{kicker}
             </span>
-            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary green-accent-line pb-2">Featured Products</h2>
+            <h2 className="font-headline text-3xl sm:text-4xl lg:text-5xl italic text-primary green-accent-line pb-2">{title}</h2>
           </div>
           {onBrowseAll && (
             <button onClick={onBrowseAll} className="text-emerald font-semibold flex items-center gap-2 group hover:gap-3 transition-all duration-300">
@@ -96,7 +106,7 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
             </button>
           )}
         </motion.div>
-        <motion.div variants={containerV} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+        <motion.div variants={containerV} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {featured.map((p) => {
             const price = shopper ? computeUnitPrice(p.priceEur, tier) : null;
             return (
@@ -111,12 +121,23 @@ const FeaturedProducts = ({ onBrowseAll }: Props) => {
                 <h3 className="font-headline italic text-lg sm:text-2xl text-primary leading-snug relative z-10">{p.name}</h3>
                 {p.collection && <div className="text-xs uppercase tracking-widest text-secondary font-semibold relative z-10">{p.collection}</div>}
                 <div className="mt-auto flex items-end justify-between pt-4 gap-3 relative z-10">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">{shopper ? 'Price' : 'EXW'}</div>
-                    <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                      {shopper && price ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
+                  {shopper ? (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Price</div>
+                      <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                        {price ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                      </div>
                     </div>
-                  </div>
+                  ) : user.role === 'admin' ? (
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
+                      <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                        {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="flex-1" />
+                  )}
                   <div className="flex flex-col gap-1">
                     {shopper && (
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToBag(p.id, 1); }} className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold">Add to bag</motion.button>

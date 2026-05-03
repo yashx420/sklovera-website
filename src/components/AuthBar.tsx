@@ -20,7 +20,7 @@ const AuthBar = ({ onSignInClick }: Props) => {
     return (
       <button
         onClick={onSignInClick}
-        className="text-xs font-semibold tracking-wide px-4 py-2 rounded-md bg-primary text-surface hover:opacity-90 transition"
+        className="text-xs font-semibold tracking-wide px-5 py-2.5 rounded-md bg-primary text-surface hover:shadow-lg hover:shadow-primary/20 transition-all duration-300 active:scale-95"
       >
         Sign in
       </button>
@@ -35,7 +35,7 @@ const AuthBar = ({ onSignInClick }: Props) => {
       </div>
       <button
         onClick={() => logout()}
-        className="text-xs font-semibold tracking-wide px-3 py-2 rounded-md bg-surface-container-low text-primary hover:bg-surface-container transition"
+        className="text-xs font-semibold tracking-wide px-3 py-2 rounded-md bg-surface-container-low text-primary hover:bg-surface-container-high transition-colors border border-outline-variant/30 active:scale-95"
       >
         Sign out
       </button>

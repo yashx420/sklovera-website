@@ -11,6 +11,7 @@ export type PricingConfig = {
   freightPct: number;       // applied to EXW
   dutyPct: number;          // applied to EXW + freight
   handlingPct: number;      // applied to EXW + freight + duty
+  palletSurchargeInr: number; // flat INR per imported pallet
   margin: Record<Tier, number>; // fraction, e.g. 0.15 = 15% on landed
   volumeBreaks: VolumeBreak[];  // sorted ascending by minUnits
 };
@@ -20,6 +21,7 @@ export const DEFAULT_CONFIG: PricingConfig = {
   freightPct: 0.08,
   dutyPct: 0.1,
   handlingPct: 0.03,
+  palletSurchargeInr: 10000,
   margin: { b2b: 0.18, retail: 0.32, b2c: 0.55 },
   volumeBreaks: [
     { minUnits: 0, discountPct: 0 },
@@ -99,6 +101,9 @@ export type QuoteBreakdown = {
   marginEur: number;
   discountEur: number;
   totalEur: number;
+  productSubtotalInr: number;
+  palletCount: number;
+  palletSurchargeInr: number;
   totalInr: number;
   fxEurToInr: number;
   computedAt: number;
@@ -146,6 +151,7 @@ export const computeQuote = (
   let totalEur = 0;
   let fulfilledUnitsIndia = 0;
   let fulfilledUnitsIntl = 0;
+  let palletCount = 0;
 
   const lines: LineBreakdown[] = items.map((i) => {
     const plan = planById.get(i.productId);
@@ -157,6 +163,9 @@ export const computeQuote = (
     const importShare = billableQty > 0 ? fromIntl / billableQty : 0;
     fulfilledUnitsIndia += fromIndia;
     fulfilledUnitsIntl += fromIntl;
+    if (i.pcsPerPallet && i.pcsPerPallet > 0 && fromIntl > 0) {
+      palletCount += Math.ceil(fromIntl / i.pcsPerPallet);
+    }
 
     const exw = i.priceEurRef ?? 0;
     const lineExw = exw * billableQty;
@@ -217,7 +226,10 @@ export const computeQuote = (
     marginEur: round2(marginEur),
     discountEur: round2(discountEur),
     totalEur: round2(totalEur),
-    totalInr: round2(totalEur * cfg.fxEurToInr),
+    productSubtotalInr: round2(totalEur * cfg.fxEurToInr),
+    palletCount,
+    palletSurchargeInr: round2(palletCount * cfg.palletSurchargeInr),
+    totalInr: round2(totalEur * cfg.fxEurToInr + palletCount * cfg.palletSurchargeInr),
     fxEurToInr: cfg.fxEurToInr,
     computedAt: Date.now(),
   };

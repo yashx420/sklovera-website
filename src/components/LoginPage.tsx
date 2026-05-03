@@ -28,6 +28,8 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);
 
+  const [showRoleModal, setShowRoleModal] = useState(false);
+
   // Subtle parallax on the editorial side image.
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
   useEffect(() => {
@@ -43,9 +45,14 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
   const submitCustomer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
+    setShowRoleModal(true);
+  };
+
+  const handleRoleSelect = (type: 'b2b' | 'b2c') => {
+    setShowRoleModal(false);
     setBusy(true);
     setTimeout(() => {
-      loginAsCustomer(email, name);
+      loginAsCustomer(email, name, type);
       onDone();
     }, 350);
   };
@@ -272,6 +279,69 @@ const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
           Atelier · Volume MMXXVI
         </div>
       </motion.div>
+
+      {/* Role Selection Modal */}
+      <AnimatePresence>
+        {showRoleModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-surface/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-surface-container-lowest rounded-[32px] p-6 sm:p-10 max-w-3xl w-full shadow-2xl border border-outline-variant/30 relative overflow-hidden"
+            >
+              <div className="absolute inset-0 bg-gradient-to-b from-surface/50 to-transparent pointer-events-none" />
+              
+              <div className="relative z-10 flex justify-between items-start mb-10">
+                <div>
+                  <h3 className="text-3xl sm:text-4xl font-headline italic text-primary mb-2">How will you use Sklovera?</h3>
+                  <p className="text-on-surface-variant max-w-md">Customize your sourcing experience and access the right set of tools for your procurement needs.</p>
+                </div>
+                <button onClick={() => setShowRoleModal(false)} className="w-10 h-10 rounded-full bg-surface-container flex items-center justify-center hover:bg-surface-container-high transition-colors">
+                  <span className="material-symbols-outlined text-on-surface-variant">close</span>
+                </button>
+              </div>
+
+              <div className="relative z-10 grid grid-cols-1 sm:grid-cols-2 gap-6">
+                <button onClick={() => handleRoleSelect('b2b')} className="text-left p-6 sm:p-8 rounded-3xl bg-surface-container-low hover:bg-surface-container-high border border-transparent hover:border-primary/20 transition-all duration-300 group flex flex-col items-start gap-6 h-full relative overflow-hidden shadow-sm hover:shadow-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center group-hover:scale-110 group-hover:rotate-3 transition-transform duration-500">
+                    <span className="material-symbols-outlined text-primary text-3xl" data-icon="domain">domain</span>
+                  </div>
+                  <div>
+                    <div className="font-headline text-2xl text-primary mb-3">Corporate & Wholesale</div>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">For architects, designers, retailers, and hospitality procurement. Access RFQ tools, volume pricing, and bulk logistics options.</p>
+                  </div>
+                  <div className="mt-auto pt-4 flex items-center gap-2 text-primary font-bold text-sm tracking-wide">
+                    Select Corporate
+                    <span className="material-symbols-outlined text-sm group-hover:translate-x-2 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+                  </div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-bl-[100px] -z-10 group-hover:bg-primary/10 transition-colors duration-500" />
+                </button>
+
+                <button onClick={() => handleRoleSelect('b2c')} className="text-left p-6 sm:p-8 rounded-3xl bg-surface-container-low hover:bg-surface-container-high border border-transparent hover:border-emerald/30 transition-all duration-300 group flex flex-col items-start gap-6 h-full relative overflow-hidden shadow-sm hover:shadow-xl">
+                  <div className="w-16 h-16 rounded-2xl bg-emerald/10 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500">
+                    <span className="material-symbols-outlined text-emerald text-3xl" data-icon="person">person</span>
+                  </div>
+                  <div>
+                    <div className="font-headline text-2xl text-primary mb-3">Personal Collection</div>
+                    <p className="text-sm text-on-surface-variant leading-relaxed">For individual connoisseurs and home curators. Shop directly with transparent pricing and standard shipping to your door.</p>
+                  </div>
+                  <div className="mt-auto pt-4 flex items-center gap-2 text-emerald font-bold text-sm tracking-wide">
+                    Select Personal
+                    <span className="material-symbols-outlined text-sm group-hover:translate-x-2 transition-transform" data-icon="arrow_forward">arrow_forward</span>
+                  </div>
+                  <div className="absolute top-0 right-0 w-32 h-32 bg-emerald/5 rounded-bl-[100px] -z-10 group-hover:bg-emerald/10 transition-colors duration-500" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </section>
   );
 };

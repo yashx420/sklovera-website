@@ -94,6 +94,12 @@ const AdminPricing = () => {
               value={cfg.handlingPct}
               onChange={(v) => update({ handlingPct: v })}
             />
+            <Field
+              label="Pallet surcharge (INR per imported pallet)"
+              value={cfg.palletSurchargeInr}
+              onChange={(v) => update({ palletSurchargeInr: v })}
+              step={500}
+            />
           </div>
 
           <div className="bg-surface-container-lowest rounded-xl p-6 space-y-4">

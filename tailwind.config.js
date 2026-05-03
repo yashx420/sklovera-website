@@ -78,7 +78,16 @@ export default {
         "headline": ["Noto Serif", "serif"],
         "body": ["Manrope", "sans-serif"],
         "label": ["Manrope", "sans-serif"]
-      }
+      },
+      keyframes: {
+        ticker: {
+          '0%': { transform: 'translateX(0)' },
+          '100%': { transform: 'translateX(-50%)' },
+        },
+      },
+      animation: {
+        ticker: 'ticker 20s linear infinite',
+      },
     },
   },
   plugins: [],

@@ -134,6 +134,12 @@ export const generateQuotePdf = (rfq: Rfq, q: QuoteBreakdown): void => {
   if (q.discountEur > 0) {
     totalsRow(`Volume discount (${pct(q.volumeBreak.discountPct)})`, `- ${eur(q.discountEur)}`);
   }
+  if (q.palletCount > 0) {
+    totalsRow(
+      `Pallet surcharge (${q.palletCount} pallet${q.palletCount === 1 ? '' : 's'})`,
+      inr(q.palletSurchargeInr),
+    );
+  }
   y += 4;
   doc.setDrawColor(180, 178, 174);
   doc.line(labelX, y, rightX, y);

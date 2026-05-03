@@ -17,7 +17,7 @@ const Footer = ({ onRegisterVendor }: Props) => (
       <div className="absolute bottom-[10%] left-[5%] sm:left-[10%] w-[150px] h-[150px] sm:w-[250px] sm:h-[250px] rounded-full animate-float-slow" style={{ opacity: 0.04, background: 'radial-gradient(circle, #2d6a4f 0%, transparent 70%)' }} />
     </div>
 
-    <div className="w-full px-4 sm:px-8 lg:px-12 py-12 sm:py-16 lg:py-24 flex flex-col gap-8 sm:gap-12 max-w-[1920px] mx-auto relative">
+    <div className="w-full px-4 sm:px-8 lg:px-12 pt-12 sm:pt-16 lg:pt-24 pb-8 sm:pb-12 lg:pb-16 flex flex-col gap-8 sm:gap-12 max-w-[1920px] mx-auto relative">
       {/* Partner CTA */}
       <motion.div
         initial={{ opacity: 0, y: 30 }}
@@ -97,7 +97,7 @@ const Footer = ({ onRegisterVendor }: Props) => (
         whileInView={{ opacity: 1 }}
         viewport={{ once: true }}
         transition={{ duration: 1.6, delay: 0.8 }}
-        className="pt-12 sm:pt-24 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-8 text-center sm:text-left"
+        className="pt-10 sm:pt-16 flex flex-col sm:flex-row justify-between items-center gap-4 sm:gap-8 text-center sm:text-left"
         style={{ borderTop: '1px solid rgba(82,183,136,0.15)' }}
       >
         <span className="font-serif italic text-2xl flex items-center gap-2" style={{ color: '#f5f5f4' }}>

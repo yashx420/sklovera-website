@@ -24,6 +24,7 @@ import SupplierInventory from './components/SupplierInventory';
 import AdminVendors from './components/AdminVendors';
 import StandardsPage from './components/StandardsPage';
 import VendorRegister from './components/VendorRegister';
+import ClientTicker from './components/ClientTicker';
 import { LOW_STOCK_THRESHOLD, totalStock } from './lib/fulfillment';
 import { currentUser, onAuthChange, type Role } from './lib/auth';
 import { loadProducts } from './lib/products';
@@ -196,6 +197,13 @@ function App() {
     };
   }, []);
 
+  const [scrolled, setScrolled] = useState(false);
+  useEffect(() => {
+    const handleScroll = () => setScrolled(window.scrollY > 20);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
   const tabs = useMemo(() => tabsForRole(role), [role]);
 
   useEffect(() => {
@@ -216,9 +224,13 @@ function App() {
         initial={{ y: -80, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
         transition={{ duration: 1.4, ease: [0.16, 1, 0.3, 1] }}
-        className="bg-surface/80 backdrop-blur-md text-on-surface docked full-width top-0 sticky z-50 shadow-[0px_24px_48px_rgba(26,28,27,0.06)]"
+        className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+          scrolled 
+            ? 'bg-surface/95 backdrop-blur-xl shadow-[0px_24px_48px_rgba(26,28,27,0.08)] border-b border-outline-variant/20' 
+            : 'bg-surface/70 backdrop-blur-md border-b border-transparent'
+        }`}
       >
-        <div className="flex justify-between items-center w-full px-3 sm:px-4 xl:px-12 py-3 sm:py-4 max-w-[1920px] mx-auto gap-2 sm:gap-4">
+        <div className={`flex justify-between items-center w-full px-3 sm:px-4 xl:px-12 max-w-[1920px] mx-auto gap-2 sm:gap-4 transition-all duration-500 ${scrolled ? 'py-2 sm:py-2.5' : 'py-3 sm:py-4'}`}>
           <div className="flex flex-1 min-w-0 items-center gap-2 sm:gap-4 xl:gap-8">
             <a className="text-xl font-serif italic text-primary tracking-tight flex items-center gap-4 cursor-pointer flex-shrink-0" onClick={() => setView('home')}>
               <motion.img
@@ -399,7 +411,7 @@ function App() {
       </motion.nav>
 
       <AnimatePresence mode="wait">
-        <motion.div key={view} variants={pageVariants} initial="initial" animate="animate" exit="exit">
+        <motion.div key={view} variants={pageVariants} initial="initial" animate="animate" exit="exit" className="pt-32 sm:pt-20">
           {view === 'login' && (
             <LoginPage
               onDone={() => setView('home')}
@@ -409,9 +421,14 @@ function App() {
           {view === 'home' && (
             <>
               <HeroSection onViewCatalog={() => setView('catalog')} onViewStandards={() => setView('standards')} />
-              <FeaturedProducts onBrowseAll={() => setView('catalog')} />
               <TrustIndicators />
               <FeaturedCollections onExplore={() => setView('catalog')} />
+              <FeaturedProducts
+                onBrowseAll={() => setView('catalog')}
+                limit={5}
+                kicker="More from the Atelier"
+                title="Newly Curated"
+              />
               <SpecificationDrawer onRegister={() => setView('vendor-register')} />
             </>
           )}
@@ -450,6 +467,7 @@ function App() {
         onCheckout={() => { setBagOpen(false); setView('checkout'); }}
       />
 
+      <ClientTicker />
       <Footer onRegisterVendor={() => setView('vendor-register')} />
     </div>
   );

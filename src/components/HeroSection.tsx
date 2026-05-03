@@ -56,7 +56,7 @@ const HeroSection = ({ onViewCatalog, onViewStandards }: Props) => {
           style={{ background: 'linear-gradient(135deg, transparent 40%, #2d6a4f 45%, #52b788 50%, #2d6a4f 55%, transparent 60%)' }}
         />
         
-
+        
         
         {/* Expanded dots pattern */}
         <div className="absolute bottom-[15%] right-[5%] grid grid-cols-6 gap-4 opacity-[0.12] hidden lg:grid">

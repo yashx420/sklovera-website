@@ -142,6 +142,7 @@ export type HydratedBagItem = {
   collection?: string;
   quantity: number;
   priceEurRef?: number;
+  pcsPerPallet?: number;
   inStock: number;
 };
 
@@ -159,6 +160,7 @@ export const hydrateBag = (entries: BagEntry[], products: Product[]): HydratedBa
       collection: p.collection,
       quantity: e.quantity,
       priceEurRef: p.priceEur,
+      pcsPerPallet: p.pcsPerPallet,
       inStock: (p.stockIndia ?? 0) + (p.stockIntl ?? 0),
     });
   }
@@ -173,6 +175,7 @@ export const bagToQuoteInput = (items: HydratedBagItem[]) =>
     collection: i.collection,
     imageKey: i.imageKey,
     priceEurRef: i.priceEurRef,
+    pcsPerPallet: i.pcsPerPallet,
     quantity: i.quantity,
   }));
 

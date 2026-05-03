@@ -59,8 +59,11 @@ export const loginAsCustomer = (
   const trimmedEmail = email.trim().toLowerCase();
   const match = loadAllUsers().find((u) => u.email.toLowerCase() === trimmedEmail);
   if (match) {
-    login(match);
-    return match;
+    // Update role based on selection to allow switching in demo
+    const updated = { ...match, role: buyerType };
+    upsertUser(updated);
+    login(updated);
+    return updated;
   }
   const cleanName = name?.trim() || trimmedEmail.split('@')[0].replace(/[._-]+/g, ' ');
   const user: User = {

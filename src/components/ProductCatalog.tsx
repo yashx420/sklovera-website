@@ -129,16 +129,23 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
                 const price = shopper ? computeUnitPrice(p.priceEur, tier) : null;
                 return (
                   <div className="mt-auto flex items-end justify-between pt-2 gap-2">
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                        {shopper ? 'Price' : 'EXW'}
+                    {shopper ? (
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Price</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {price ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                        </div>
                       </div>
-                      <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                        {shopper && price
-                          ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`
-                          : p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
+                    ) : user.role === 'admin' ? (
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
+                        </div>
                       </div>
-                    </div>
+                    ) : (
+                      <div className="flex-1" />
+                    )}
                     <div className="flex flex-col gap-1">
                       {shopper && (
                         <motion.button

@@ -77,8 +77,8 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
             <Row label="Carton" value={product.cartonType ? `${product.cartonType}${product.pcsPerCarton ? ` · ${product.pcsPerCarton} pcs` : ''}` : undefined} />
             <Row label="Pcs per pallet" value={product.pcsPerPallet} />
             <Row label="Logo capable" value={product.logoCapable ? 'Yes' : undefined} />
-            <Row label="Unit price (EXW)" value={product.priceEur !== undefined ? `€ ${product.priceEur.toFixed(2)}` : undefined} />
-            <Row label="Unit price (USD)" value={product.priceUsd !== undefined ? `$ ${product.priceUsd.toFixed(2)}` : undefined} />
+            {adminView && <Row label="Unit price (EXW)" value={product.priceEur !== undefined ? `€ ${product.priceEur.toFixed(2)}` : undefined} />}
+            {adminView && <Row label="Unit price (USD)" value={product.priceUsd !== undefined ? `$ ${product.priceUsd.toFixed(2)}` : undefined} />}
             <Row label="Inventory" value={product.inventory?.toLocaleString()} />
             {adminView && <Row label="Supplier" value={product.supplier} />}
             {adminView && <Row label="Status" value={product.status} />}

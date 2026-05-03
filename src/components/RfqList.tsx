@@ -338,6 +338,16 @@ const RfqList = ({ scope }: Props) => {
                               <span className="text-right">– € {selected.quoteBreakdown.discountEur.toFixed(2)}</span>
                             </>
                           )}
+                          {selected.quoteBreakdown.palletCount > 0 && (
+                            <>
+                              <span>
+                                Pallet surcharge ({selected.quoteBreakdown.palletCount} pallet{selected.quoteBreakdown.palletCount === 1 ? '' : 's'})
+                              </span>
+                              <span className="text-right">
+                                ₹ {selected.quoteBreakdown.palletSurchargeInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                              </span>
+                            </>
+                          )}
                         </div>
                       </details>
                       {selected.adminNote && <div className="text-sm">{selected.adminNote}</div>}
