@@ -10,12 +10,14 @@ import {
   type RfqItem,
 } from '../lib/rfq';
 import { loadProducts } from '../lib/products';
+import { currentUser } from '../lib/auth';
 import ProductImage from './ProductImage';
 
 type Props = { open: boolean; onClose: () => void; onCheckout: () => void };
 
 const RfqCart = ({ open, onClose, onCheckout }: Props) => {
   const [items, setItems] = useState<RfqItem[]>([]);
+  const user = currentUser();
 
   useEffect(() => {
     const refresh = () => {
@@ -134,7 +136,7 @@ const RfqCart = ({ open, onClose, onCheckout }: Props) => {
                           >
                             Remove
                           </button>
-                          {i.priceEurRef !== undefined && (
+                          {user.role === 'admin' && i.priceEurRef !== undefined && (
                             <div className="ml-auto text-right">
                               <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
                                 Ref · EXW
@@ -154,17 +156,19 @@ const RfqCart = ({ open, onClose, onCheckout }: Props) => {
 
             {items.length > 0 && (
               <div className="border-t border-outline-variant/20 p-8 space-y-4">
-                <div className="flex items-end justify-between">
-                  <div>
-                    <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                      Reference subtotal
-                    </div>
-                    <div className="font-headline text-3xl text-primary">€ {totalEur.toFixed(2)}</div>
-                    <div className="text-[10px] text-on-surface-variant mt-1">
-                      Final pricing provided in the quote. Freight, duties, and tier margins are applied by the Sklovera pricing engine.
+                {user.role === 'admin' && (
+                  <div className="flex items-end justify-between">
+                    <div>
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                        Reference subtotal
+                      </div>
+                      <div className="font-headline text-3xl text-primary">€ {totalEur.toFixed(2)}</div>
+                      <div className="text-[10px] text-on-surface-variant mt-1">
+                        Final pricing provided in the quote. Freight, duties, and tier margins are applied by the Sklovera pricing engine.
+                      </div>
                     </div>
                   </div>
-                </div>
+                )}
                 <div className="flex gap-2">
                   <button
                     onClick={onCheckout}
