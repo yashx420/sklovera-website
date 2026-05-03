@@ -125,7 +125,7 @@ const RfqReview = ({ onSignIn, onSubmitted }: Props) => {
                   )}
                   <div className="text-sm text-on-surface-variant mt-1">Qty: {i.quantity}</div>
                 </div>
-                {i.priceEurRef !== undefined && (
+                {user.role === 'admin' && i.priceEurRef !== undefined && (
                   <div className="text-right">
                     <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Ref</div>
                     <div className="font-headline text-2xl text-primary">
@@ -183,15 +183,17 @@ const RfqReview = ({ onSignIn, onSubmitted }: Props) => {
               />
             </div>
 
-            <div className="pt-4 border-t border-outline-variant/20">
-              <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                Reference subtotal
+            {user.role === 'admin' && (
+              <div className="pt-4 border-t border-outline-variant/20">
+                <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                  Reference subtotal
+                </div>
+                <div className="font-headline text-3xl text-primary">€ {totalEur.toFixed(2)}</div>
+                <div className="text-[10px] text-on-surface-variant mt-1">
+                  Indicative only. Binding quote returned by sourcing desk.
+                </div>
               </div>
-              <div className="font-headline text-3xl text-primary">€ {totalEur.toFixed(2)}</div>
-              <div className="text-[10px] text-on-surface-variant mt-1">
-                Indicative only. Binding quote returned by sourcing desk.
-              </div>
-            </div>
+            )}
 
             {error && (
               <div className="rounded-md bg-error-container text-on-error-container px-3 py-2 text-xs">
