@@ -1,6 +1,7 @@
 import * as XLSX from 'xlsx';
 import { extractImages, indexImagesByRow } from './xlsxImages';
 import { deleteImage, putImage } from './images';
+import seededProducts from './seededProducts.json';
 
 export type ProductStatus = 'pending' | 'approved' | 'rejected';
 
@@ -254,14 +255,51 @@ export const parseWorkbookWithImages = async (
   return parsed;
 };
 
+export const detectCategory = (name: string): string => {
+  const n = name.toLowerCase();
+  if (n.includes('wine glass') || n.includes('wine') || n.includes('goblet') || n.includes('tasting')) {
+    if (n.includes('decanter')) return 'Decanters & Carafes';
+    return 'Wine Glasses';
+  }
+  if (n.includes('champagne') || n.includes('prosecco') || n.includes('flute')) {
+    return 'Champagne Glasses';
+  }
+  if (n.includes('martini') || n.includes('cocktail') || n.includes('gin') || n.includes('margarita') || n.includes('margharita') || n.includes('drink glass') || n.includes('nick & nora') || n.includes('coupette') || n.includes('copa')) {
+    return 'Cocktail Glasses';
+  }
+  if (n.includes('whisky') || n.includes('whiskey') || n.includes('liqueur') || n.includes('liquer') || n.includes('shot') || n.includes('vodka') || n.includes('cognac') || n.includes('tequila') || n.includes('schnapps')) {
+    return 'Spirits & Whisky';
+  }
+  if (n.includes('beer') || n.includes('cider')) {
+    return 'Beer Glasses';
+  }
+  if (n.includes('tumbler') || n.includes('highball') || n.includes('soft drink') || n.includes('water') || n.includes('juice')) {
+    return 'Tumblers & Highballs';
+  }
+  if (n.includes('decanter') || n.includes('carafe') || n.includes('jug')) {
+    return 'Decanters & Carafes';
+  }
+  if (n.includes('bowl') || n.includes('plate') || n.includes('stand') || n.includes('dome') || n.includes('vessel') || n.includes('vase') || n.includes('cup') || n.includes('dessert') || n.includes('ice cream')) {
+    return 'Tableware & Accessories';
+  }
+  if (n.includes('set')) {
+    return 'Glassware Sets';
+  }
+  return 'Glassware';
+};
+
 export const loadProducts = (): Product[] => {
   try {
-    const raw = localStorage.getItem(STORAGE_KEY);
-    if (!raw) return [];
+    let raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(seededProducts));
+      raw = JSON.stringify(seededProducts);
+    }
     const arr = JSON.parse(raw) as Product[];
     return arr.map((p) => {
       const next: Product = { ...p };
       if (!next.status) next.status = 'approved' as ProductStatus; // Part 1 records
+      next.category = detectCategory(next.name);
       // Part 6: split legacy aggregate inventory onto international warehouse.
       if (next.stockIntl === undefined && next.inventory !== undefined) next.stockIntl = next.inventory;
       if (next.stockIndia === undefined) next.stockIndia = 0;

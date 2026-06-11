@@ -8,7 +8,7 @@ import {
   type User,
 } from '../lib/auth';
 
-type Props = { onDone: () => void; onRegisterVendor?: () => void };
+type Props = { onDone: () => void; onRegisterVendor?: () => void; defaultMode?: Mode };
 
 type Mode = 'customer' | 'vendor' | 'admin';
 
@@ -22,8 +22,14 @@ const stagger: Variants = {
   show: { opacity: 1, transition: { staggerChildren: 0.12, delayChildren: 0.1 } },
 };
 
-const LoginPage = ({ onDone, onRegisterVendor }: Props) => {
-  const [mode, setMode] = useState<Mode>('customer');
+const LoginPage = ({ onDone, onRegisterVendor, defaultMode }: Props) => {
+  const [mode, setMode] = useState<Mode>(defaultMode || 'customer');
+
+  useEffect(() => {
+    if (defaultMode) {
+      setMode(defaultMode);
+    }
+  }, [defaultMode]);
   const [email, setEmail] = useState('');
   const [name, setName] = useState('');
   const [busy, setBusy] = useState(false);

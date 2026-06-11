@@ -20,6 +20,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
   const query = onSearchChange ? searchQuery : localQuery;
   const setQuery = onSearchChange || setLocalQuery;
   const [collection, setCollection] = useState<string>('all');
+  const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selected, setSelected] = useState<Product | null>(null);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
@@ -48,10 +49,28 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
     return ['all', ...Array.from(s).sort()];
   }, [visible]);
 
+  // Compute unique categories dynamically from visible products
+  const categories = useMemo(() => {
+    const map = new Map<string, { count: number; imageKey?: string }>();
+    visible.forEach((p) => {
+      const cat = p.category || 'Glassware';
+      const existing = map.get(cat) || { count: 0, imageKey: undefined };
+      existing.count += 1;
+      if (!existing.imageKey && p.imageKey) {
+        existing.imageKey = p.imageKey;
+      }
+      map.set(cat, existing);
+    });
+    return Array.from(map.entries())
+      .map(([name, data]) => ({ name, ...data }))
+      .sort((a, b) => b.count - a.count);
+  }, [visible]);
+
   const filtered = useMemo(() => {
     const q = query.trim().toLowerCase();
     return visible.filter((p) => {
       if (collection !== 'all' && p.collection !== collection) return false;
+      if (selectedCategory !== 'all' && p.category !== selectedCategory) return false;
       if (!q) return true;
       return (
         p.sku.toLowerCase().includes(q) ||
@@ -59,7 +78,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
         (p.collection ?? '').toLowerCase().includes(q)
       );
     });
-  }, [visible, query, collection]);
+  }, [visible, query, collection, selectedCategory]);
 
   if (!visible.length) {
     return (
@@ -108,10 +127,75 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
           </div>
         </motion.div>
 
-        <motion.div variants={containerVariants} initial="hidden" animate="show" key={`${query}-${collection}`} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+        {/* Dynamic Category Cards */}
+        <div className="mb-12 border-b border-outline-variant/10 pb-8">
+          <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Browse by Category</span>
+          <div className="flex gap-4 overflow-x-auto pb-4 scrollbar-none select-none scroll-smooth -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12">
+            {/* All Curation Card */}
+            <motion.div
+              whileHover={{ y: -4, scale: 1.02 }}
+              onClick={() => setSelectedCategory('all')}
+              className={`flex-shrink-0 cursor-pointer rounded-2xl p-4 w-40 sm:w-44 flex flex-col justify-between transition-all duration-300 border ${
+                selectedCategory === 'all'
+                  ? 'bg-primary text-surface border-transparent shadow-[0_12px_24px_rgba(48,48,48,0.15)]'
+                  : 'bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/10'
+              }`}
+            >
+              <div className="w-full aspect-square flex items-center justify-center rounded-xl bg-surface-container-lowest/30 mb-3 text-inherit">
+                <span className="material-symbols-outlined text-4xl text-inherit" data-icon="grid_view">grid_view</span>
+              </div>
+              <div>
+                <h4 className="font-headline italic text-lg leading-tight mb-1 text-inherit">All Curation</h4>
+                <span className="text-[10px] uppercase tracking-widest opacity-60 font-semibold">{visible.length} items</span>
+              </div>
+            </motion.div>
+
+            {/* Category Cards */}
+            {categories.map((cat) => (
+              <motion.div
+                key={cat.name}
+                whileHover={{ y: -4, scale: 1.02 }}
+                onClick={() => setSelectedCategory(cat.name)}
+                className={`flex-shrink-0 cursor-pointer rounded-2xl p-4 w-40 sm:w-44 flex flex-col justify-between transition-all duration-300 border ${
+                  selectedCategory === cat.name
+                    ? 'bg-primary text-surface border-transparent shadow-[0_12px_24px_rgba(48,48,48,0.15)]'
+                    : 'bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/10'
+                }`}
+              >
+                <div className="w-full aspect-square flex items-center justify-center rounded-xl bg-surface-container-lowest/50 p-4 mb-3 relative overflow-hidden">
+                  {cat.imageKey ? (
+                    <ProductImage 
+                      imageKey={cat.imageKey} 
+                      alt={cat.name} 
+                      className="max-h-[85%] max-w-[85%] object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.03)] [image-rendering:-webkit-optimize-contrast] filter contrast-[1.04] saturate-[1.02]" 
+                    />
+                  ) : (
+                    <span className="material-symbols-outlined text-3xl opacity-40" data-icon="wine_bar">wine_bar</span>
+                  )}
+                </div>
+                <div>
+                  <h4 className="font-headline italic text-lg leading-tight mb-1 text-inherit">{cat.name}</h4>
+                  <span className="text-[10px] uppercase tracking-widest opacity-60 font-semibold">{cat.count} items</span>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+
+        <motion.div variants={containerVariants} initial="hidden" animate="show" key={`${query}-${collection}-${selectedCategory}`} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
           {filtered.map((p) => (
-            <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xl cursor-pointer">
-              <ProductImage imageKey={p.imageKey} alt={p.name} className="aspect-square w-full object-contain rounded-md bg-surface-container"/>
+            <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xl cursor-pointer border border-outline-variant/5">
+              
+              {/* Constrained & padded image layout block to prevent pixelation */}
+              <div className="aspect-square w-full flex items-center justify-center rounded-xl bg-surface-container-low p-4 sm:p-6 overflow-hidden relative group">
+                <div className="absolute inset-0 bg-gradient-to-tr from-surface-container/5 to-surface-container-high/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                <ProductImage 
+                  imageKey={p.imageKey} 
+                  alt={p.name} 
+                  className="max-h-[80%] max-w-[80%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.03)] [image-rendering:-webkit-optimize-contrast] filter contrast-[1.04] saturate-[1.02] group-hover:scale-105 transition-transform duration-500" 
+                />
+              </div>
+
               <div className="flex items-center justify-between text-xs">
                 <span className="font-mono text-on-surface-variant">{p.sku}</span>
                 {p.category && (<span className="text-tertiary-fixed font-semibold uppercase tracking-wider">{p.category}</span>)}

@@ -25,6 +25,7 @@ import AdminVendors from './components/AdminVendors';
 import StandardsPage from './components/StandardsPage';
 import VendorRegister from './components/VendorRegister';
 import ClientTicker from './components/ClientTicker';
+import OnboardingModal from './components/OnboardingModal';
 import { LOW_STOCK_THRESHOLD, totalStock } from './lib/fulfillment';
 import { currentUser, onAuthChange, type Role } from './lib/auth';
 import { loadProducts } from './lib/products';
@@ -108,7 +109,17 @@ const pageVariants: Variants = {
 function App() {
   const [view, setView] = useState<View>('home');
   const [role, setRole] = useState<Role>(() => currentUser().role);
+  const [onboardingOpen, setOnboardingOpen] = useState(false);
+  const [loginMode, setLoginMode] = useState<'customer' | 'vendor' | 'admin'>('customer');
   const [pendingCount, setPendingCount] = useState(0);
+
+  useEffect(() => {
+    const user = currentUser();
+    const seen = localStorage.getItem('sklovera.onboarding-seen');
+    if (user.role === 'guest' && seen !== 'true') {
+      setOnboardingOpen(true);
+    }
+  }, []);
   const [revisionCount, setRevisionCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);
   const [rfqCount, setRfqCount] = useState(0);
@@ -348,7 +359,7 @@ function App() {
                   )}
                 </button>
               )}
-              <AuthBar onSignInClick={() => setView('login')} />
+              <AuthBar onSignInClick={() => setOnboardingOpen(true)} />
             </div>
           </div>
         </div>
@@ -414,8 +425,12 @@ function App() {
         <motion.div key={view} variants={pageVariants} initial="initial" animate="animate" exit="exit" className="pt-32 sm:pt-20">
           {view === 'login' && (
             <LoginPage
+              defaultMode={loginMode}
               onDone={() => setView('home')}
-              onRegisterVendor={() => setView('vendor-register')}
+              onRegisterVendor={() => {
+                setLoginMode('vendor');
+                setView('vendor-register');
+              }}
             />
           )}
           {view === 'home' && (
@@ -446,12 +461,12 @@ function App() {
           {view === 'admin-inventory' && <AdminInventory />}
           {view === 'rfqs' && <RfqList scope="mine" />}
           {view === 'rfq-review' && (
-            <RfqReview onSignIn={() => setView('login')} onSubmitted={() => setView('rfqs')} />
+            <RfqReview onSignIn={() => { setLoginMode('customer'); setView('login'); }} onSubmitted={() => setView('rfqs')} />
           )}
           {view === 'orders' && <Orders scope="mine" />}
           {view === 'admin-orders' && <Orders scope="admin" />}
           {view === 'checkout' && (
-            <Checkout onSignIn={() => setView('login')} onOrderPlaced={() => setView('orders')} />
+            <Checkout onSignIn={() => { setLoginMode('customer'); setView('login'); }} onOrderPlaced={() => setView('orders')} />
           )}
         </motion.div>
       </AnimatePresence>
@@ -469,6 +484,24 @@ function App() {
 
       <ClientTicker />
       <Footer onRegisterVendor={() => setView('vendor-register')} />
+
+      <OnboardingModal
+        isOpen={onboardingOpen}
+        onClose={() => setOnboardingOpen(false)}
+        onSelectRole={(choice) => {
+          if (choice === 'vendor-register') {
+            setView('vendor-register');
+          } else if (choice === 'vendor-login') {
+            setLoginMode('vendor');
+            setView('login');
+          } else if (choice === 'customer-login') {
+            setLoginMode('customer');
+            setView('login');
+          } else if (choice === 'guest') {
+            setView('catalog');
+          }
+        }}
+      />
     </div>
   );
 }
