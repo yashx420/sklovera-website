@@ -30,7 +30,13 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
     const handleWheel = (e: WheelEvent) => {
       if (e.deltaY !== 0) {
         e.preventDefault();
-        el.scrollLeft += e.deltaY;
+        let delta = e.deltaY;
+        if (e.deltaMode === 1) { // line mode (Firefox)
+          delta *= 40;
+        } else if (e.deltaMode === 2) { // page mode
+          delta *= el.clientWidth;
+        }
+        el.scrollLeft += delta;
       }
     };
     el.addEventListener('wheel', handleWheel, { passive: false });
@@ -148,7 +154,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Browse by Category</span>
           <div 
             ref={scrollContainerRef}
-            className="flex gap-4 overflow-x-auto pb-4 scrollbar-none select-none scroll-smooth -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
+            className="flex gap-4 overflow-x-auto pb-4 scrollbar-none select-none -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
           >
             {/* All Curation Card */}
             <motion.div
