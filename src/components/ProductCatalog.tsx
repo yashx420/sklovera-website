@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState, useRef } from 'react';
+import { useEffect, useMemo, useState } from 'react';
 import { clearProducts, loadProducts, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
 import { addToBag, isShopper } from '../lib/shop';
@@ -22,11 +22,10 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
   const [collection, setCollection] = useState<string>('all');
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [selected, setSelected] = useState<Product | null>(null);
-  const scrollContainerRef = useRef<HTMLDivElement>(null);
+  const [scrollEl, setScrollEl] = useState<HTMLDivElement | null>(null);
 
   useEffect(() => {
-    const el = scrollContainerRef.current;
-    if (!el) return;
+    if (!scrollEl) return;
     const handleWheel = (e: WheelEvent) => {
       if (e.deltaY !== 0) {
         e.preventDefault();
@@ -34,16 +33,16 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
         if (e.deltaMode === 1) { // line mode (Firefox)
           delta *= 40;
         } else if (e.deltaMode === 2) { // page mode
-          delta *= el.clientWidth;
+          delta *= scrollEl.clientWidth;
         }
-        el.scrollLeft += delta;
+        scrollEl.scrollLeft += delta;
       }
     };
-    el.addEventListener('wheel', handleWheel, { passive: false });
+    scrollEl.addEventListener('wheel', handleWheel, { passive: false });
     return () => {
-      el.removeEventListener('wheel', handleWheel);
+      scrollEl.removeEventListener('wheel', handleWheel);
     };
-  }, []);
+  }, [scrollEl]);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
 
@@ -153,7 +152,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
         <div className="mb-12 border-b border-outline-variant/10 pb-8">
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Browse by Category</span>
           <div 
-            ref={scrollContainerRef}
+            ref={setScrollEl}
             className="flex gap-4 overflow-x-auto pb-4 scrollbar-none select-none -mx-4 px-4 sm:-mx-8 sm:px-8 lg:-mx-12 lg:px-12"
           >
             {/* All Curation Card */}
