@@ -6,6 +6,7 @@ import { computeUnitPrice, tierFromRole } from '../lib/pricing';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductDetail from './ProductDetail';
 import ProductImage from './ProductImage';
+import ProductCarousel from './ProductCarousel';
 import { motion, type Variants } from 'framer-motion';
 
 type Props = {
@@ -59,10 +60,15 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
 
   // Catalog is the customer-facing view for everyone, admins included.
   // Admins manage non-approved products from the Approvals tab.
-  const visible = useMemo(
-    () => products.filter((p) => p.status === 'approved'),
-    [products],
-  );
+  const visible = useMemo(() => {
+    const hasImage = (p: Product) => (p.imageKey || p.images?.length ? 0 : 1);
+    const isAmber = (p: Product) => (p.supplierId === 'sup-amber' ? 0 : 1);
+    return products
+      .filter((p) => p.status === 'approved')
+      // Products with images first (no-image pushed to the bottom);
+      // Amber surfaced ahead of others within each group. Stable otherwise.
+      .sort((a, b) => hasImage(a) - hasImage(b) || isAmber(a) - isAmber(b));
+  }, [products]);
 
   const collections = useMemo(() => {
     const s = new Set<string>();
@@ -186,12 +192,18 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
                     : 'bg-surface-container-low hover:bg-surface-container text-on-surface border-outline-variant/10'
                 }`}
               >
-                <div className="w-full aspect-square flex items-center justify-center rounded-xl bg-surface-container-lowest/50 p-4 mb-3 relative overflow-hidden">
+                <div className={`w-full aspect-square flex items-center justify-center rounded-xl mb-3 relative overflow-hidden ${
+                  cat.imageKey?.includes('/images/products/') ? 'bg-white' : 'bg-surface-container-lowest/50'
+                }`}>
                   {cat.imageKey ? (
-                    <ProductImage 
-                      imageKey={cat.imageKey} 
-                      alt={cat.name} 
-                      className="max-h-[85%] max-w-[85%] object-contain drop-shadow-[0_4px_8px_rgba(0,0,0,0.03)] [image-rendering:-webkit-optimize-contrast] filter contrast-[1.04] saturate-[1.02]" 
+                    <ProductImage
+                      imageKey={cat.imageKey}
+                      alt={cat.name}
+                      className={
+                        cat.imageKey.includes('/images/amber/')
+                          ? 'w-full h-full object-cover' // Amber lifestyle shots fill the tile
+                          : 'w-full h-full object-contain p-2' // product cutouts stay uncropped
+                      }
                     />
                   ) : (
                     <span className="material-symbols-outlined text-3xl opacity-40" data-icon="wine_bar">wine_bar</span>
@@ -210,19 +222,32 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
           {filtered.map((p) => (
             <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xl cursor-pointer border border-outline-variant/5">
               
-              {/* Constrained & padded image layout block to prevent pixelation */}
-              <div className="aspect-square w-full flex items-center justify-center rounded-xl bg-surface-container-low p-4 sm:p-6 overflow-hidden relative group">
-                <div className="absolute inset-0 bg-gradient-to-tr from-surface-container/5 to-surface-container-high/15 opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
-                <ProductImage 
-                  imageKey={p.imageKey} 
-                  alt={p.name} 
-                  className="max-h-[80%] max-w-[80%] object-contain drop-shadow-[0_4px_12px_rgba(0,0,0,0.03)] [image-rendering:-webkit-optimize-contrast] filter contrast-[1.04] saturate-[1.02] group-hover:scale-105 transition-transform duration-500" 
+              {/* Image tile — Amber lifestyle shots fill the frame (cover); product
+                  cutouts stay contained so the whole product is visible (no cropping). */}
+              <div className={`aspect-[4/5] w-full rounded-xl overflow-hidden relative group ${
+                p.supplierId === 'sup-amber'
+                  ? 'bg-gradient-to-b from-surface-container-low to-surface-container'
+                  : 'bg-white'
+              }`}>
+                <ProductCarousel
+                  images={p.images}
+                  imageKey={p.imageKey}
+                  alt={p.name}
+                  className={
+                    p.supplierId === 'sup-amber'
+                      ? 'w-full h-full object-cover group-hover:scale-[1.06] transition-transform duration-700 ease-out'
+                      : 'w-full h-full object-contain p-4 sm:p-5 group-hover:scale-[1.03] transition-transform duration-700 ease-out'
+                  }
                 />
+                {p.supplierId === 'sup-amber' && (
+                  <div className="pointer-events-none absolute inset-0 bg-gradient-to-t from-black/15 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500" />
+                )}
+                <div className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-black/5 rounded-xl" />
               </div>
 
-              <div className="flex items-center justify-between text-xs">
-                <span className="font-mono text-on-surface-variant">{p.sku}</span>
-                {p.category && (<span className="text-tertiary-fixed font-semibold uppercase tracking-wider">{p.category}</span>)}
+              <div className="flex items-start justify-between gap-2 text-xs">
+                <span className="font-mono text-on-surface-variant min-w-0 break-all">{p.sku}</span>
+                {p.category && (<span className="text-tertiary-fixed font-semibold uppercase tracking-wider text-right shrink-0 max-w-[45%]">{p.category}</span>)}
               </div>
               <h3 className="font-headline italic text-xl text-primary leading-snug">{p.name}</h3>
               {p.collection && (<div className="text-xs uppercase tracking-widest text-secondary font-semibold">{p.collection}</div>)}

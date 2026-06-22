@@ -22,3 +22,12 @@ dist-ssr
 *.njsproj
 *.sln
 *.sw?
+
+# Local tooling (not committed)
+.tools/
+
+# Large source assets — not needed at runtime (processed copies live in public/images/)
+public/*.zip
+public/amber/
+public/solbika/
+public/*.xlsx

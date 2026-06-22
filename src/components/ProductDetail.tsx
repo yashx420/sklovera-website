@@ -4,7 +4,7 @@ import { addToCart } from '../lib/rfq';
 import { addToBag, isShopper } from '../lib/shop';
 import { computeUnitPrice, tierFromRole } from '../lib/pricing';
 import type { Role } from '../lib/auth';
-import ProductImage from './ProductImage';
+import ProductCarousel from './ProductCarousel';
 import { motion, AnimatePresence } from 'framer-motion';
 
 type Props = { product: Product | null; role: Role; onClose: () => void };
@@ -62,8 +62,24 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
               <div className="text-xs uppercase tracking-widest text-secondary font-semibold mb-6">{product.collection}</div>
             )}
           </motion.div>
-          <motion.div initial={{ opacity: 0, scale: 0.95 }} animate={{ opacity: 1, scale: 1 }} transition={{ delay: 0.4 }}>
-            <ProductImage imageKey={product.imageKey} alt={product.name} className="w-full aspect-video object-contain rounded-md mb-8 bg-surface-container"/>
+          <motion.div
+            initial={{ opacity: 0, scale: 0.95 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ delay: 0.4 }}
+            className={`relative group mb-8 w-full rounded-xl overflow-hidden ring-1 ring-inset ${
+              product.supplierId === 'sup-amber'
+                // Portrait frame for Amber's vertical lifestyle shots — fills the
+                // frame with no surrounding negative space; dark bg blends the edges.
+                ? 'aspect-[2/3] max-w-[300px] mx-auto bg-neutral-900 ring-white/5'
+                : 'aspect-[4/3] bg-gradient-to-b from-surface-container-low to-surface-container ring-black/5'
+            }`}
+          >
+            <ProductCarousel
+              imageKey={product.imageKey}
+              images={product.images}
+              alt={product.name}
+              className={product.supplierId === 'sup-amber' ? 'w-full h-full object-contain' : 'w-full h-full object-contain p-4 sm:p-6'}
+            />
           </motion.div>
 
           <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="space-y-0">

@@ -14,6 +14,8 @@ const EVT = 'sklovera:auth-updated';
 const SEED_DEMO: User[] = [
   { id: 'admin-1', role: 'admin', email: 'admin@sklovera.com', displayName: 'Sklovera Admin' },
   { id: 'sup-krosno', role: 'supplier', email: 'sales@krosno.com', displayName: 'Krosno Glass' },
+  { id: 'sup-amber', role: 'supplier', email: 'sales@amberglass.com', displayName: 'Amber Glass' },
+  { id: 'sup-solbika', role: 'supplier', email: 'sales@solbika.com', displayName: 'Solbika' },
   { id: 'sup-generic', role: 'supplier', email: 'supplier@example.com', displayName: 'Demo Supplier' },
   { id: 'b2b-1', role: 'b2b', email: 'buyer@hotelgroup.com', displayName: 'Hotel Group Procurement' },
   { id: 'retail-1', role: 'retail', email: 'owner@boutique.com', displayName: 'Boutique Retailer' },
@@ -34,7 +36,19 @@ const persistUsers = (users: User[]) => {
 const loadAllUsers = (): User[] => {
   try {
     const raw = localStorage.getItem(USERS_KEY);
-    if (raw) return JSON.parse(raw) as User[];
+    if (raw) {
+      const stored = JSON.parse(raw) as User[];
+      // Merge in any seed accounts added after this user's first run
+      // (e.g. new vendors) so they don't get stranded behind stale storage.
+      const ids = new Set(stored.map((u) => u.id));
+      const missing = SEED_DEMO.filter((u) => !ids.has(u.id));
+      if (missing.length) {
+        const merged = [...stored, ...missing];
+        persistUsers(merged);
+        return merged;
+      }
+      return stored;
+    }
   } catch {
     /* ignore */
   }

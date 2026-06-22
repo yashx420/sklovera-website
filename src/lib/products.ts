@@ -2,6 +2,8 @@ import * as XLSX from 'xlsx';
 import { extractImages, indexImagesByRow } from './xlsxImages';
 import { deleteImage, putImage } from './images';
 import seededProducts from './seededProducts.json';
+import { AMBER_PRODUCTS } from './amberSeed';
+import { SOLBIKA_PRODUCTS } from './solbikaSeed';
 
 export type ProductStatus = 'pending' | 'approved' | 'rejected';
 
@@ -43,6 +45,7 @@ export type Product = {
   reviewedAt?: number;
   reviewNote?: string;
   imageKey?: string;
+  images?: string[];         // multiple photos → rendered as a carousel
   rowIndex?: number;
   pendingRevision?: ProductRevision;
   createdAt: number;
@@ -76,6 +79,40 @@ export type ParseIssue = { row: number; message: string };
 export type ParseResult = { products: Product[]; issues: ParseIssue[] };
 
 const STORAGE_KEY = 'sklovera.products.v1';
+// Per-vendor seed flags. Bump the version when a vendor's seed changes (e.g.
+// new photos/categories) so the upsert re-runs exactly once for existing users.
+// Amber v3: HoReCa photos + categories. Solbika v1: initial import.
+const VENDOR_SEEDS: { flag: string; products: Product[] }[] = [
+  { flag: 'sklovera.products.seed.amber.v3', products: AMBER_PRODUCTS },
+  { flag: 'sklovera.products.seed.solbika.v1', products: SOLBIKA_PRODUCTS },
+];
+
+/** Suppliers whose seed ships meaningful browse categories (don't re-derive). */
+const CATEGORIED_SUPPLIERS = new Set(['sup-amber', 'sup-solbika']);
+
+/**
+ * Upsert each vendor's demo catalog into stored products exactly once per seed
+ * version. Seed products overwrite any existing entry with the same id (so
+ * updated fields like photos land); everything else is preserved.
+ */
+const seedVendorsOnce = (existing: Product[]): Product[] => {
+  try {
+    let current = existing;
+    let changed = false;
+    for (const { flag, products } of VENDOR_SEEDS) {
+      if (localStorage.getItem(flag)) continue;
+      const byId = new Map(current.map((p) => [p.id, p]));
+      for (const p of products) byId.set(p.id, p);
+      localStorage.setItem(flag, '1');
+      current = Array.from(byId.values());
+      changed = true;
+    }
+    if (changed) localStorage.setItem(STORAGE_KEY, JSON.stringify(current));
+    return current;
+  } catch {
+    return existing;
+  }
+};
 
 const num = (v: unknown): number | undefined => {
   if (v === null || v === undefined || v === '') return undefined;
@@ -295,11 +332,16 @@ export const loadProducts = (): Product[] => {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(seededProducts));
       raw = JSON.stringify(seededProducts);
     }
-    const arr = JSON.parse(raw) as Product[];
+    const arr = seedVendorsOnce(JSON.parse(raw) as Product[]);
     return arr.map((p) => {
       const next: Product = { ...p };
       if (!next.status) next.status = 'approved' as ProductStatus; // Part 1 records
-      next.category = detectCategory(next.name);
+      // Amber/Solbika ship meaningful seed categories; Krosno's stored category
+      // is a tier label ("PREMIUM"…), so re-derive those from the product name.
+      next.category =
+        next.supplierId && CATEGORIED_SUPPLIERS.has(next.supplierId) && next.category
+          ? next.category
+          : detectCategory(next.name);
       // Part 6: split legacy aggregate inventory onto international warehouse.
       if (next.stockIntl === undefined && next.inventory !== undefined) next.stockIntl = next.inventory;
       if (next.stockIndia === undefined) next.stockIndia = 0;

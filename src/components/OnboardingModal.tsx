@@ -88,12 +88,12 @@ const OnboardingModal = ({ isOpen, onClose, onSelectRole }: Props) => {
             {/* Split cards for options */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8 w-full">
               
-              {/* Option A: Vendor */}
+              {/* Option A: Vendor (secondary, shown second) */}
               <motion.div
-                initial={{ opacity: 0, x: -30 }}
+                initial={{ opacity: 0, x: 30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.3, type: 'spring', stiffness: 100, damping: 20 }}
-                className="flex flex-col p-8 rounded-[32px] bg-surface-container-low/75 border border-outline-variant/20 hover:border-primary/20 hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
+                transition={{ delay: 0.35, type: 'spring', stiffness: 100, damping: 20 }}
+                className="order-2 flex flex-col p-8 rounded-[32px] bg-surface-container-low/60 border border-outline-variant/20 hover:border-primary/20 hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
               >
                 <div className="absolute top-0 right-0 w-24 h-24 bg-primary/5 rounded-bl-[80px] -z-10 group-hover:bg-primary/10 transition-colors duration-500" />
                 
@@ -129,16 +129,19 @@ const OnboardingModal = ({ isOpen, onClose, onSelectRole }: Props) => {
                 </div>
               </motion.div>
 
-              {/* Option B: Buyer */}
+              {/* Option B: Buyer (primary, shown first & emphasized) */}
               <motion.div
-                initial={{ opacity: 0, x: 30 }}
+                initial={{ opacity: 0, x: -30 }}
                 animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.35, type: 'spring', stiffness: 100, damping: 20 }}
-                className="flex flex-col p-8 rounded-[32px] bg-surface-container-low/75 border border-outline-variant/20 hover:border-secondary/20 hover:shadow-xl transition-all duration-500 group relative overflow-hidden"
+                transition={{ delay: 0.25, type: 'spring', stiffness: 100, damping: 20 }}
+                className="order-1 flex flex-col p-8 rounded-[32px] bg-secondary/[0.05] border-2 border-secondary/40 ring-1 ring-secondary/10 shadow-xl hover:shadow-2xl transition-all duration-500 group relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/5 rounded-bl-[80px] -z-10 group-hover:bg-secondary/10 transition-colors duration-500" />
+                <div className="absolute top-5 right-5 z-10 text-[10px] uppercase tracking-[0.2em] font-bold text-on-secondary bg-secondary px-3 py-1 rounded-full shadow-sm">
+                  Most common
+                </div>
+                <div className="absolute top-0 right-0 w-24 h-24 bg-secondary/10 rounded-bl-[80px] -z-10 group-hover:bg-secondary/20 transition-colors duration-500" />
 
-                <div className="w-16 h-16 rounded-2xl bg-secondary/10 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500 mb-6">
+                <div className="w-16 h-16 rounded-2xl bg-secondary/15 flex items-center justify-center group-hover:scale-110 group-hover:-rotate-3 transition-transform duration-500 mb-6">
                   <span className="material-symbols-outlined text-secondary text-3xl" data-icon="shopping_bag">shopping_bag</span>
                 </div>
 

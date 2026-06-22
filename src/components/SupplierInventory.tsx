@@ -11,6 +11,7 @@ import { LOW_STOCK_THRESHOLD, totalStock } from '../lib/fulfillment';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductImage from './ProductImage';
 import ProductEditDialog from './ProductEditDialog';
+import ProductDetail from './ProductDetail';
 
 type StatusFilter = ProductStatus | 'all';
 
@@ -27,6 +28,7 @@ const SupplierInventory = () => {
   const [statusFilter, setStatusFilter] = useState<StatusFilter>('all');
   const [drafts, setDrafts] = useState<Record<string, string>>({});
   const [editing, setEditing] = useState<Product | null>(null);
+  const [viewing, setViewing] = useState<Product | null>(null);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
 
@@ -179,11 +181,17 @@ const SupplierInventory = () => {
                     return (
                       <tr key={p.id} className="border-t border-outline-variant/10">
                         <td className="px-3 py-2">
-                          <ProductImage
-                            imageKey={p.imageKey}
-                            alt={p.name}
-                            className="w-12 h-12 object-contain rounded-md bg-surface-container"
-                          />
+                          <button
+                            onClick={() => setViewing(p)}
+                            title="View product details"
+                            className="block rounded-md overflow-hidden hover:ring-2 hover:ring-secondary/40 transition"
+                          >
+                            <ProductImage
+                              imageKey={p.imageKey}
+                              alt={p.name}
+                              className="w-12 h-12 object-contain rounded-md bg-surface-container"
+                            />
+                          </button>
                         </td>
                         <td className="px-4 py-2">
                           <span className={`text-[10px] uppercase tracking-wider px-2 py-1 rounded ${statusBadge(p.status)}`}>
@@ -191,7 +199,14 @@ const SupplierInventory = () => {
                           </span>
                         </td>
                         <td className="px-4 py-2 font-mono text-xs">{p.sku}</td>
-                        <td className="px-4 py-2">{p.name}</td>
+                        <td className="px-4 py-2">
+                          <button
+                            onClick={() => setViewing(p)}
+                            className="text-left hover:text-secondary hover:underline underline-offset-2 transition"
+                          >
+                            {p.name}
+                          </button>
+                        </td>
                         <td className="px-4 py-2">{p.collection ?? '—'}</td>
                         <td className="px-4 py-2 text-right">
                           <input
@@ -244,6 +259,7 @@ const SupplierInventory = () => {
         )}
 
         <ProductEditDialog product={editing} onClose={() => setEditing(null)} />
+        <ProductDetail product={viewing} role={user.role} onClose={() => setViewing(null)} />
       </div>
     </section>
   );
