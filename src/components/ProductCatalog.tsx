@@ -2,7 +2,6 @@ import { useEffect, useMemo, useState } from 'react';
 import { clearProducts, loadProducts, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
 import { addToBag, isShopper } from '../lib/shop';
-import { computeUnitPrice, tierFromRole } from '../lib/pricing';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductDetail from './ProductDetail';
 import ProductImage from './ProductImage';
@@ -257,28 +256,9 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
                 {p.inventory !== undefined && <span>{p.inventory.toLocaleString()} in stock</span>}
               </div>
               {(() => {
-                const tier = tierFromRole(user.role);
                 const shopper = isShopper(user.role);
-                const price = shopper ? computeUnitPrice(p.priceEur, tier) : null;
                 return (
-                  <div className="mt-auto flex items-end justify-between pt-2 gap-2">
-                    {shopper ? (
-                      <div>
-                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Price</div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {price ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
-                        </div>
-                      </div>
-                    ) : user.role === 'admin' ? (
-                      <div>
-                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
-                        </div>
-                      </div>
-                    ) : (
-                      <div className="flex-1" />
-                    )}
+                  <div className="mt-auto flex items-end justify-end pt-2 gap-2">
                     <div className="flex flex-col gap-1">
                       {shopper && (
                         <motion.button
