@@ -31,7 +31,7 @@ const ProductImage = ({ imageKey, alt, className, fallbackIcon = 'wine_bar' }: P
   }, [imageKey]);
 
   if (url) {
-    return <img src={url} alt={alt} className={className} loading="lazy" />;
+    return <img src={url} alt={alt} className={className} loading="lazy" decoding="async" />;
   }
   return (
     <div className={`flex flex-col items-center justify-center bg-surface-container-low/50 rounded-xl text-center p-3 sm:p-4 w-full h-full min-h-[100px] border border-outline-variant/10 ${className ?? ''}`}>

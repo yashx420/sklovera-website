@@ -29,6 +29,7 @@ import OnboardingModal from './components/OnboardingModal';
 import { LOW_STOCK_THRESHOLD, totalStock } from './lib/fulfillment';
 import { currentUser, onAuthChange, type Role } from './lib/auth';
 import { loadProducts } from './lib/products';
+import { prefetchImages } from './lib/imagePrefetch';
 import { loadCart, loadRfqs, onCartChange, onRfqChange } from './lib/rfq';
 import { isShopper, loadBag, loadOrders, onBagChange, onOrdersChange } from './lib/shop';
 
@@ -158,6 +159,18 @@ function App() {
     refresh();
     window.addEventListener('sklovera:products-updated', refresh);
     return () => window.removeEventListener('sklovera:products-updated', refresh);
+  }, []);
+
+  // Warm the image cache in the background once the app is up, so catalog
+  // imagery is ready before the user scrolls or opens a product.
+  useEffect(() => {
+    const t = setTimeout(() => {
+      const urls = loadProducts()
+        .filter((p) => p.status === 'approved')
+        .flatMap((p) => [p.imageKey, ...(p.images ?? [])]);
+      prefetchImages(urls);
+    }, 1200);
+    return () => clearTimeout(t);
   }, []);
 
   useEffect(() => {
