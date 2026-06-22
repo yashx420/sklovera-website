@@ -103,18 +103,18 @@ const AdminVendors = () => {
 
   if (user.role !== 'admin') {
     return (
-      <section className="py-32 px-12 text-center">
-        <h2 className="font-headline text-4xl italic text-primary mb-4">Admin access only</h2>
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Admin access only</h2>
       </section>
     );
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1400px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Administration</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-2">Vendors</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-2">Vendors</h2>
           <p className="text-on-surface-variant mb-10 max-w-2xl">
             Onboard new suppliers and manage existing ones. Sign-in for the demo is by account
             selection on the login page; production auth comes with the backend.
@@ -236,8 +236,8 @@ const AdminVendors = () => {
             No vendors yet. Add one above.
           </div>
         ) : (
-          <div className="rounded-xl bg-surface-container-lowest overflow-hidden">
-            <table className="w-full text-sm">
+          <div className="rounded-xl bg-surface-container-lowest overflow-x-auto">
+            <table className="w-full text-sm min-w-[640px]">
               <thead className="bg-surface-container text-on-surface-variant">
                 <tr>
                   <th className="text-left px-4 py-3 font-semibold">Vendor</th>

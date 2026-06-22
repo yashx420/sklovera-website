@@ -66,8 +66,8 @@ const AdminInventory = () => {
 
   if (user.role !== 'admin') {
     return (
-      <section className="py-32 px-12 text-center">
-        <h2 className="font-headline text-4xl italic text-primary mb-4">Admin access only</h2>
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Admin access only</h2>
         <p className="text-on-surface-variant">Sign in as admin to manage warehouse stock.</p>
       </section>
     );
@@ -85,11 +85,11 @@ const AdminInventory = () => {
   );
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1600px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Administration</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-2">Inventory</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-2">Inventory</h2>
           <p className="text-on-surface-variant mb-8 max-w-2xl">
             Dual-warehouse stock. India pulls first; import covers the rest. Supplier uploads populate
             international stock automatically.
@@ -108,7 +108,7 @@ const AdminInventory = () => {
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             placeholder="Search SKU or description"
-            className="bg-surface-container-low px-4 py-3 rounded-md outline-none w-72"
+            className="bg-surface-container-low px-4 py-3 rounded-md outline-none w-full sm:w-72"
           />
           {(['all', 'low', 'out'] as const).map((f) => (
             <button

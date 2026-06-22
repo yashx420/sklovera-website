@@ -70,10 +70,10 @@ const RfqReview = ({ onSignIn, onSubmitted }: Props) => {
 
   if (items.length === 0) {
     return (
-      <section className="py-32 px-12">
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12">
         <div className="max-w-[720px] mx-auto text-center">
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">RFQ</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-4">Your cart is empty</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-4">Your cart is empty</h2>
           <p className="text-on-surface-variant">Browse the catalog and add SKUs to request a quote.</p>
         </div>
       </section>
@@ -81,11 +81,11 @@ const RfqReview = ({ onSignIn, onSubmitted }: Props) => {
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1200px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Request for Quotation</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-2">Review & Submit</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-2">Review & Submit</h2>
           <p className="text-on-surface-variant mb-10 max-w-2xl">
             Your RFQ goes to the Sklovera sourcing desk. Final pricing (freight, duties, tier margins) is
             returned as a formal quote — supplier identities are not shared.

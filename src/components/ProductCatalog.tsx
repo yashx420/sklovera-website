@@ -172,7 +172,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
               }`}
             >
               <div className="w-full aspect-square flex items-center justify-center rounded-xl bg-surface-container-lowest/30 mb-3 text-inherit">
-                <span className="material-symbols-outlined text-4xl text-inherit" data-icon="grid_view">grid_view</span>
+                <span className="material-symbols-outlined text-3xl sm:text-4xl text-inherit" data-icon="grid_view">grid_view</span>
               </div>
               <div>
                 <h4 className="font-headline italic text-lg leading-tight mb-1 text-inherit">All Curation</h4>

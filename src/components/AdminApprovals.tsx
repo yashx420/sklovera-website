@@ -91,9 +91,9 @@ const AdminApprovals = () => {
 
   if (user.role !== 'admin') {
     return (
-      <section className="py-32 px-12 text-center">
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }}>
-          <h2 className="font-headline text-4xl italic text-primary mb-4">Admin access only</h2>
+          <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Admin access only</h2>
           <p className="text-on-surface-variant">Sign in as admin to review supplier submissions.</p>
         </motion.div>
       </section>
@@ -101,11 +101,11 @@ const AdminApprovals = () => {
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1600px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Administration</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-8">Product Approvals</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-8">Product Approvals</h2>
         </motion.div>
 
         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="flex flex-wrap items-center gap-2 mb-6">

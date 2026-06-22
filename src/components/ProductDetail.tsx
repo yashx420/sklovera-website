@@ -57,7 +57,7 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
           </motion.button>
           <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <div className="text-xs font-mono text-on-surface-variant mb-2">{product.sku}</div>
-            <h3 className="font-headline text-4xl italic text-primary mb-2">{product.name}</h3>
+            <h3 className="font-headline text-3xl sm:text-4xl italic text-primary mb-2">{product.name}</h3>
             {product.collection && (
               <div className="text-xs uppercase tracking-widest text-secondary font-semibold mb-6">{product.collection}</div>
             )}

@@ -104,14 +104,14 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
           <span className="text-secondary font-semibold tracking-widest text-xs uppercase block mb-4">
             Payment confirmed
           </span>
-          <h2 className="font-headline text-5xl italic text-primary mb-4">Thank you.</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-4">Thank you.</h2>
           <p className="text-on-surface-variant mb-8">
             Order <span className="font-mono text-primary">{placed.id}</span> is paid. We've sent a
             receipt to {placed.buyerEmail}. You can track fulfilment from My Orders.
           </p>
           <div className="inline-block bg-surface-container-lowest rounded-xl p-6 text-left mb-8">
             <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Amount</div>
-            <div className="font-headline text-4xl text-primary">
+            <div className="font-headline text-3xl sm:text-4xl text-primary">
               ₹ {placed.payment.amountInr.toLocaleString('en-IN')}
             </div>
             <div className="text-xs text-on-surface-variant mt-2">
@@ -133,10 +133,10 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
 
   if (items.length === 0) {
     return (
-      <section className="py-32 px-12">
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12">
         <div className="max-w-[720px] mx-auto text-center">
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Checkout</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-4">Your bag is empty</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-4">Your bag is empty</h2>
           <p className="text-on-surface-variant">Browse the catalog to add glassware.</p>
         </div>
       </section>
@@ -144,11 +144,11 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1200px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Checkout</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-2">Ship &amp; Pay</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-2">Ship &amp; Pay</h2>
           <p className="text-on-surface-variant mb-10 max-w-2xl">
             Pricing includes freight, duty, and handling. Stock ships from India warehouse first; any
             shortfall is filled via our international supplier network.

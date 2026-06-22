@@ -71,7 +71,7 @@ const TrustIndicators = () => {
               <span className="w-8 h-px bg-emerald" />
               The Provenance
             </span>
-            <h2 className="font-headline text-4xl italic text-primary green-accent-line pb-2">European Quality Certified.</h2>
+            <h2 className="font-headline text-3xl sm:text-4xl italic text-primary green-accent-line pb-2">European Quality Certified.</h2>
             <p className="text-on-surface-variant leading-relaxed">Every piece in our collection is sourced from century-old glassworks across the Czech Republic, Italy, and Poland.</p>
             
             {/* Green certification badge */}

@@ -75,7 +75,7 @@ const VendorRegister = ({ onDone }: Props) => {
             </span>
             <span className="h-px w-12 bg-secondary" />
           </motion.div>
-          <motion.h2 variants={fade} className="font-headline italic text-5xl text-primary mb-4">
+          <motion.h2 variants={fade} className="font-headline italic text-3xl sm:text-5xl text-primary mb-4">
             Thank you, {submitted.contactName}.
           </motion.h2>
           <motion.p variants={fade} className="text-on-surface-variant mb-8">
@@ -117,7 +117,7 @@ const VendorRegister = ({ onDone }: Props) => {
         <div className="absolute inset-0 bg-gradient-to-t from-primary/30 via-transparent to-transparent" />
       </motion.div>
 
-      <div className="relative max-w-[1400px] mx-auto px-12 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
+      <div className="relative max-w-[1400px] mx-auto px-5 sm:px-8 lg:px-12 py-20 grid grid-cols-1 lg:grid-cols-12 gap-12">
         <motion.div
           variants={stagger}
           initial="hidden"

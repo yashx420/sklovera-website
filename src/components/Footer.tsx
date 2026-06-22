@@ -31,7 +31,7 @@ const Footer = ({ onRegisterVendor }: Props) => (
           <span className="text-[10px] uppercase font-semibold" style={{ letterSpacing: '0.4em', color: '#52b788' }}>
             Become a Sklovera partner
           </span>
-          <h3 className="font-headline italic text-4xl mt-3" style={{ color: '#f5f5f4' }}>
+          <h3 className="font-headline italic text-3xl sm:text-4xl mt-3" style={{ color: '#f5f5f4' }}>
             Are you a glassware atelier?
           </h3>
           <p className="mt-3 leading-relaxed" style={{ color: '#a8a29e' }}>
@@ -57,7 +57,7 @@ const Footer = ({ onRegisterVendor }: Props) => (
       {/* Newsletter + Links */}
       <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 sm:gap-12">
         <motion.div initial={{ opacity: 0, y: 30 }} whileInView={{ opacity: 1, y: 0 }} viewport={{ once: true }} transition={{ duration: 1.4 }} className="col-span-1 lg:col-span-4">
-          <h2 className="font-headline italic text-4xl mb-8" style={{ color: '#f5f5f4' }}>Newsletter</h2>
+          <h2 className="font-headline italic text-3xl sm:text-4xl mb-8" style={{ color: '#f5f5f4' }}>Newsletter</h2>
           <p className="mb-8 max-w-sm" style={{ color: '#a8a29e' }}>Join our professional network for first access to new collections and global sourcing reports.</p>
           <div className="flex flex-col gap-4">
             <div className="relative">

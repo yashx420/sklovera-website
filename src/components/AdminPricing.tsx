@@ -60,19 +60,19 @@ const AdminPricing = () => {
 
   if (user.role !== 'admin') {
     return (
-      <section className="py-32 px-12 text-center">
-        <h2 className="font-headline text-4xl italic text-primary mb-4">Admin access only</h2>
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Admin access only</h2>
         <p className="text-on-surface-variant">Sign in as admin to configure the pricing engine.</p>
       </section>
     );
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1200px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Administration</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-2">Pricing Engine</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-2">Pricing Engine</h2>
           <p className="text-on-surface-variant mb-10 max-w-2xl">
             Landed cost, tier margins, volume discounts, and FX — consumed by the auto-quote pipeline.
           </p>
@@ -123,7 +123,8 @@ const AdminPricing = () => {
               + Add break
             </button>
           </div>
-          <table className="w-full text-sm">
+          <div className="overflow-x-auto">
+          <table className="w-full text-sm min-w-[480px]">
             <thead className="text-on-surface-variant text-[10px] uppercase tracking-wider">
               <tr>
                 <th className="text-left py-2">Min units (total)</th>
@@ -173,6 +174,7 @@ const AdminPricing = () => {
               ))}
             </tbody>
           </table>
+          </div>
         </div>
 
         <div className="flex items-center gap-3">

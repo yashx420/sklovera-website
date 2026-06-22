@@ -61,27 +61,27 @@ const Orders = ({ scope }: Props) => {
 
   if (scope === 'mine' && (user.role === 'guest' || user.role === 'supplier')) {
     return (
-      <section className="py-32 px-12 text-center">
-        <h2 className="font-headline text-4xl italic text-primary mb-4">Sign in to see your orders</h2>
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Sign in to see your orders</h2>
       </section>
     );
   }
   if (scope === 'admin' && user.role !== 'admin') {
     return (
-      <section className="py-32 px-12 text-center">
-        <h2 className="font-headline text-4xl italic text-primary mb-4">Admin access only</h2>
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Admin access only</h2>
       </section>
     );
   }
 
   return (
-    <section className="py-20 px-12">
+    <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1600px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">
             {scope === 'admin' ? 'Administration' : 'Account'}
           </span>
-          <h2 className="font-headline text-5xl italic text-primary mb-8">
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-8">
             {scope === 'admin' ? 'Orders Queue' : 'My Orders'}
           </h2>
         </motion.div>

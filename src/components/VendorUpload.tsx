@@ -66,10 +66,10 @@ const VendorUpload = ({ onDone }: Props) => {
 
   if (user.role !== 'supplier') {
     return (
-      <section className="py-32 px-12">
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 1.2 }} className="max-w-[720px] mx-auto text-center">
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">Supplier Portal</span>
-          <h2 className="font-headline text-5xl italic text-primary mb-4">Supplier access only</h2>
+          <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-4">Supplier access only</h2>
           <p className="text-on-surface-variant">
             Sign in as a supplier to upload catalog spreadsheets. Uploaded products enter a pending
             queue for admin review before appearing on the site.
@@ -91,7 +91,7 @@ const VendorUpload = ({ onDone }: Props) => {
           className="mb-10"
         >
           <span className="text-on-surface-variant font-medium tracking-widest text-xs uppercase block mb-3">Supplier Portal</span>
-          <h2 className="font-headline text-4xl md:text-5xl italic text-primary mb-3">Upload Product Catalog</h2>
+          <h2 className="font-headline text-3xl sm:text-4xl md:text-5xl italic text-primary mb-3">Upload Product Catalog</h2>
           <p className="text-on-surface-variant max-w-xl text-sm leading-relaxed">
             Drop a supplier offer spreadsheet. Each row becomes a product that enters the admin approval queue.
           </p>
@@ -172,7 +172,7 @@ const VendorUpload = ({ onDone }: Props) => {
             <motion.span
               animate={{ rotate: dragActive ? 15 : 0, scale: dragActive ? 1.15 : 1 }}
               transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-              className="material-symbols-outlined text-6xl text-primary/20 mb-4 block group-hover:text-primary/40 transition-colors"
+              className="material-symbols-outlined text-4xl sm:text-6xl text-primary/20 mb-4 block group-hover:text-primary/40 transition-colors"
               data-icon="cloud_upload"
             >
               cloud_upload
