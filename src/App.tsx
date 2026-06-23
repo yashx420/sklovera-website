@@ -31,7 +31,7 @@ import { currentUser, onAuthChange, type Role } from './lib/auth';
 import { loadProducts } from './lib/products';
 import { prefetchImages } from './lib/imagePrefetch';
 import { loadCart, loadRfqs, onCartChange, onRfqChange } from './lib/rfq';
-import { isShopper, loadBag, loadOrders, onBagChange, onOrdersChange } from './lib/shop';
+import { hydrateBag, isShopper, loadBag, loadOrders, onBagChange, onOrdersChange } from './lib/shop';
 
 type View =
   | 'home'
@@ -181,9 +181,17 @@ function App() {
   }, []);
 
   useEffect(() => {
-    const refresh = () => setBagCount(loadBag().reduce((s, e) => s + e.quantity, 0));
+    const refresh = () =>
+      setBagCount(
+        hydrateBag(loadBag(), loadProducts()).reduce(
+          (s, i) => s + Math.max(1, Math.round(i.quantity / i.boxSize)),
+          0,
+        ),
+      );
     refresh();
-    return onBagChange(refresh);
+    window.addEventListener('sklovera:products-updated', refresh);
+    const off = onBagChange(refresh);
+    return () => { window.removeEventListener('sklovera:products-updated', refresh); off(); };
   }, []);
 
   useEffect(() => {

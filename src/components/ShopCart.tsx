@@ -52,7 +52,10 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
       ),
     [items, tier, discount],
   );
-  const totalQty = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items]);
+  const totalQty = useMemo(
+    () => items.reduce((s, i) => s + Math.max(1, Math.round(i.quantity / i.boxSize)), 0),
+    [items],
+  );
 
   return (
     <AnimatePresence>
@@ -83,7 +86,7 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
               <div>
                 <div className="text-[10px] uppercase tracking-widest text-on-surface-variant">Shopping bag</div>
                 <h3 className="font-headline text-3xl italic text-primary">
-                  {totalQty} {totalQty === 1 ? 'item' : 'items'}
+                  {totalQty} {totalQty === 1 ? 'box' : 'boxes'}
                 </h3>
               </div>
               <button onClick={onClose} className="text-on-surface-variant hover:text-primary text-xl">
@@ -101,6 +104,7 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
                 <ul className="space-y-4">
                   {items.map((i) => {
                     const unit = computeUnitPrice(i.priceEurRef, tier, undefined, discount).inr;
+                    const boxes = Math.max(1, Math.round(i.quantity / i.boxSize));
                     return (
                       <li key={i.productId} className="flex gap-4 p-3 rounded-lg bg-surface-container-lowest">
                         <ProductImage
@@ -113,6 +117,9 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
                           <div className="font-headline italic text-lg text-primary leading-tight truncate">
                             {i.name}
                           </div>
+                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                            {i.boxSize} pcs / box · {i.quantity} pcs total
+                          </div>
                           {i.inStock === 0 && (
                             <div className="text-[10px] uppercase tracking-wider text-on-error-container">
                               Out of stock — will ship as backorder
@@ -120,19 +127,20 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
                           )}
                           <div className="flex items-center gap-3 mt-2">
                             <div className="flex items-center bg-surface-container rounded-md overflow-hidden">
-                              <button onClick={() => updateBagQty(i.productId, i.quantity - 1)} className="px-2 py-1 text-primary hover:bg-surface-container-high">–</button>
+                              <button onClick={() => updateBagQty(i.productId, (boxes - 1) * i.boxSize)} className="px-2 py-1 text-primary hover:bg-surface-container-high">–</button>
                               <input
                                 type="number"
                                 min={1}
-                                value={i.quantity}
+                                value={boxes}
                                 onChange={(e) => {
                                   const n = parseInt(e.target.value, 10);
-                                  if (!Number.isNaN(n)) updateBagQty(i.productId, n);
+                                  if (!Number.isNaN(n)) updateBagQty(i.productId, Math.max(0, n) * i.boxSize);
                                 }}
                                 className="w-12 bg-transparent text-center text-sm outline-none"
                               />
-                              <button onClick={() => updateBagQty(i.productId, i.quantity + 1)} className="px-2 py-1 text-primary hover:bg-surface-container-high">+</button>
+                              <button onClick={() => updateBagQty(i.productId, (boxes + 1) * i.boxSize)} className="px-2 py-1 text-primary hover:bg-surface-container-high">+</button>
                             </div>
+                            <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">{boxes === 1 ? 'box' : 'boxes'}</span>
                             <button
                               onClick={() => removeFromBag(i.productId)}
                               className="text-[11px] text-on-surface-variant hover:text-primary hover:underline"

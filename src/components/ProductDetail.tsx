@@ -117,7 +117,7 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
             ) : (
               <div className="mt-8 space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">Quantity</span>
+                  <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">{role === 'b2c' || role === 'b2b' || role === 'retail' ? 'Boxes' : 'Quantity'}</span>
                   <div className="flex items-center bg-surface-container rounded-md overflow-hidden">
                     <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1 text-primary hover:bg-surface-container-high">–</button>
                     <input
@@ -136,16 +136,18 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                 {(() => {
                   const tier = tierFromRole(role);
                   const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
+                  const boxSize = product.pcsPerBox ?? product.pcsPerCarton ?? 1;
                   const price = computeUnitPrice(product.priceEur, tier, undefined, getApprovedDiscount(currentUser().email));
+                  const boxInr = price.inr * boxSize;
                   return (
                     <>
                       {buyer && (
                         <div className="flex items-end justify-between pb-3 border-b border-outline-variant/20">
                           <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                            Price · {tier.toUpperCase()}
+                            Box of {boxSize} · {tier.toUpperCase()}
                           </div>
                           <div className="font-headline text-3xl text-primary">
-                            ₹ {price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
+                            ₹ {boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                           </div>
                         </div>
                       )}
@@ -154,10 +156,10 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                           <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
-                            onClick={() => { addToBag(product.id, qty); setAdded(true); setTimeout(() => setAdded(false), 1600); }}
+                            onClick={() => { addToBag(product.id, qty * boxSize); setAdded(true); setTimeout(() => setAdded(false), 1600); }}
                             className="flex-1 bg-primary text-surface py-3 rounded-md font-semibold"
                           >
-                            {added ? 'Added to bag ✓' : `Add to bag · ₹ ${(price.inr * qty).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
+                            {added ? 'Added to bag ✓' : `Add ${qty} ${qty === 1 ? 'box' : 'boxes'} · ₹ ${(boxInr * qty).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                           </motion.button>
                         ) : (
                           <motion.button

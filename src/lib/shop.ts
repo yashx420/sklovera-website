@@ -141,7 +141,8 @@ export type HydratedBagItem = {
   name: string;
   imageKey?: string;
   collection?: string;
-  quantity: number;
+  quantity: number;        // stored in units (always a multiple of boxSize)
+  boxSize: number;         // units per box (for box-based display/stepping)
   priceEurRef?: number;
   pcsPerPallet?: number;
   inStock: number;
@@ -160,6 +161,7 @@ export const hydrateBag = (entries: BagEntry[], products: Product[]): HydratedBa
       imageKey: p.imageKey,
       collection: p.collection,
       quantity: e.quantity,
+      boxSize: (p.pcsPerBox ?? p.pcsPerCarton ?? 1) || 1,
       priceEurRef: p.priceEur,
       pcsPerPallet: p.pcsPerPallet,
       inStock: (p.stockIndia ?? 0) + (p.stockIntl ?? 0),

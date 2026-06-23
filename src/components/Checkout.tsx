@@ -233,7 +233,9 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
                     <div className="flex-1 min-w-0 text-sm">
                       <div className="font-mono text-[10px] text-on-surface-variant">{i.sku}</div>
                       <div className="text-primary truncate">{i.name}</div>
-                      <div className="text-xs text-on-surface-variant">Qty {i.quantity}</div>
+                      <div className="text-xs text-on-surface-variant">
+                        {Math.max(1, Math.round(i.quantity / i.boxSize))} {Math.round(i.quantity / i.boxSize) === 1 ? 'box' : 'boxes'} · {i.quantity} pcs
+                      </div>
                     </div>
                     <div className="text-right text-sm font-semibold text-primary">
                       ₹ {(unit * i.quantity).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
