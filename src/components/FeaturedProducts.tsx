@@ -1,8 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { loadProducts, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
-import { addToBag, isShopper } from '../lib/shop';
+import { addToBag } from '../lib/shop';
 import { computeUnitPrice, tierFromRole } from '../lib/pricing';
+import { getApprovedDiscount, onBusinessChange } from '../lib/business';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductImage from './ProductImage';
 import ProductDetail from './ProductDetail';
@@ -48,6 +49,7 @@ const pickFeatured = (products: Product[], take: number, skip = 0): Product[] =>
 const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks" }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
+  const [discount, setDiscount] = useState(0);
   const [selected, setSelected] = useState<Product | null>(null);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
@@ -57,13 +59,20 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
     window.addEventListener('sklovera:products-updated', refresh);
     return () => window.removeEventListener('sklovera:products-updated', refresh);
   }, []);
+  useEffect(() => {
+    const refresh = () => setDiscount(getApprovedDiscount(currentUser().email));
+    refresh();
+    const offAuth = onAuthChange(refresh);
+    const offBiz = onBusinessChange(refresh);
+    return () => { offAuth(); offBiz(); };
+  }, []);
 
   const featured = useMemo(() => pickFeatured(products, limit, skip), [products, limit, skip]);
   if (!featured.length) return null;
 
   const tier = tierFromRole(user.role);
-  const shopper = isShopper(user.role);
-  const showRfqCta = user.role === 'b2b' || user.role === 'retail' || user.role === 'admin';
+  const buyer = user.role === 'b2c' || user.role === 'b2b' || user.role === 'retail';
+  const showRfqCta = user.role === 'guest' || user.role === 'b2b' || user.role === 'retail' || user.role === 'admin';
 
   const containerV: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.2 } } };
   const itemV: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 150, damping: 18 } } };
@@ -108,7 +117,8 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
         </motion.div>
         <motion.div variants={containerV} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {featured.map((p) => {
-            const price = shopper ? computeUnitPrice(p.priceEur, tier) : null;
+            const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
+            const boxInr = buyer ? computeUnitPrice(p.priceEur, tier, undefined, discount).inr * boxSize : 0;
             return (
               <motion.article key={p.id} variants={itemV} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 cursor-pointer transition-shadow hover:shadow-xl relative group overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-forest/0 via-emerald/3 to-jade/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
@@ -121,11 +131,14 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
                 <h3 className="font-headline italic text-lg sm:text-2xl text-primary leading-snug relative z-10">{p.name}</h3>
                 {p.collection && <div className="text-xs uppercase tracking-widest text-secondary font-semibold relative z-10">{p.collection}</div>}
                 <div className="mt-auto flex items-end justify-between pt-4 gap-3 relative z-10">
-                  {shopper ? (
-                    <div>
-                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Price</div>
+                  {buyer ? (
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                        Box of {boxSize}
+                        {discount > 0 && <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discount}%</span>}
+                      </div>
                       <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                        {price ? `₹ ${price.inr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                        {p.priceEur !== undefined ? `₹ ${boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
                       </div>
                     </div>
                   ) : user.role === 'admin' ? (
@@ -139,8 +152,8 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
                     <div className="flex-1" />
                   )}
                   <div className="flex flex-col gap-1">
-                    {shopper && (
-                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToBag(p.id, 1); }} className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold">Add to bag</motion.button>
+                    {buyer && (
+                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToBag(p.id, boxSize); }} className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold">Add to bag</motion.button>
                     )}
                     {showRfqCta && (
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToCart(p.id, 1); }} className="text-xs bg-forest/8 text-emerald px-3 py-2 rounded-md font-semibold hover:bg-forest/15 transition-colors">Add to RFQ</motion.button>

@@ -11,6 +11,14 @@ import {
 } from '../lib/auth';
 import { loadProducts, type Product } from '../lib/products';
 import {
+  loadBusinessApplications,
+  onBusinessChange,
+  reviewBusinessApplication,
+  MIN_DISCOUNT,
+  MAX_DISCOUNT,
+  type BusinessApplication,
+} from '../lib/business';
+import {
   loadApplications,
   onApplicationsChange,
   setApplicationStatus,
@@ -44,6 +52,14 @@ const AdminVendors = () => {
     const refresh = () => setApplications(loadApplications());
     refresh();
     return onApplicationsChange(refresh);
+  }, []);
+
+  const [bizApps, setBizApps] = useState<BusinessApplication[]>(() => loadBusinessApplications());
+  const [discountDrafts, setDiscountDrafts] = useState<Record<string, number>>({});
+  useEffect(() => {
+    const refresh = () => setBizApps(loadBusinessApplications());
+    refresh();
+    return onBusinessChange(refresh);
   }, []);
 
   const vendors = useMemo(() => users.filter((u) => u.role === 'supplier'), [users]);
@@ -198,6 +214,80 @@ const AdminVendors = () => {
                     </div>
                   </div>
                 ))}
+            </div>
+          </div>
+        )}
+
+        {bizApps.length > 0 && (
+          <div className="bg-surface-container-lowest rounded-xl p-6 mb-8">
+            <h3 className="font-headline italic text-2xl text-primary mb-4">
+              Bulk Discount Requests
+              {bizApps.some((a) => a.status === 'pending') && (
+                <span className="ml-3 text-xs uppercase tracking-wider text-on-surface-variant">
+                  {bizApps.filter((a) => a.status === 'pending').length} awaiting review
+                </span>
+              )}
+            </h3>
+            <div className="space-y-3">
+              {bizApps.map((a) => {
+                const draft = discountDrafts[a.id] ?? (a.discountPct || 20);
+                return (
+                  <div key={a.id} className="rounded-lg bg-surface-container-low p-5">
+                    <div className="flex flex-wrap items-start justify-between gap-4">
+                      <div className="min-w-0">
+                        <div className="flex items-center gap-2">
+                          <span className="font-headline italic text-2xl text-primary">{a.companyName}</span>
+                          <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-tertiary-fixed/40 text-primary">{a.businessType}</span>
+                          {a.status === 'approved' && (
+                            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-secondary-container text-on-secondary-container">approved · −{a.discountPct}%</span>
+                          )}
+                          {a.status === 'rejected' && (
+                            <span className="text-[10px] uppercase tracking-wider px-2 py-0.5 rounded bg-error-container text-on-error-container">rejected</span>
+                          )}
+                        </div>
+                        <div className="text-sm text-on-surface-variant mt-1">{a.email}</div>
+                        {a.website && (
+                          <a className="text-xs underline text-secondary" href={a.website} target="_blank" rel="noreferrer">{a.website}</a>
+                        )}
+                        <div className="mt-2 text-xs text-on-surface-variant italic max-w-xl">"{a.description}"</div>
+                      </div>
+                      <div className="flex flex-col items-end gap-2 shrink-0">
+                        <label className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                          Discount: <span className="font-bold text-primary">{draft}%</span>
+                        </label>
+                        <input
+                          type="range"
+                          min={MIN_DISCOUNT}
+                          max={MAX_DISCOUNT}
+                          step={1}
+                          value={draft}
+                          onChange={(e) => setDiscountDrafts((d) => ({ ...d, [a.id]: Number(e.target.value) }))}
+                          className="w-40 accent-secondary"
+                        />
+                        <div className="flex gap-2">
+                          <button
+                            onClick={() => reviewBusinessApplication(a.id, 'approved', draft)}
+                            className="text-xs bg-secondary text-on-secondary px-4 py-2 rounded-md font-semibold"
+                          >
+                            {a.status === 'approved' ? 'Update discount' : `Approve at ${draft}%`}
+                          </button>
+                          {a.status !== 'rejected' && (
+                            <button
+                              onClick={() => {
+                                const note = prompt('Reason (shown to the applicant):') ?? undefined;
+                                reviewBusinessApplication(a.id, 'rejected', 0, note);
+                              }}
+                              className="text-xs text-on-surface-variant hover:text-primary hover:underline"
+                            >
+                              Reject
+                            </button>
+                          )}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
         )}

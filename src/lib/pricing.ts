@@ -120,13 +120,14 @@ export const computeUnitPrice = (
   exwEur: number | undefined,
   tier: Tier,
   cfg: PricingConfig = loadPricingConfig(),
+  accountDiscountPct = 0,
 ): { eur: number; inr: number } => {
   const exw = exwEur ?? 0;
   const freight = exw * cfg.freightPct;
   const duty = (exw + freight) * cfg.dutyPct;
   const handling = (exw + freight + duty) * cfg.handlingPct;
   const landed = exw + freight + duty + handling;
-  const margined = landed * (1 + (cfg.margin[tier] ?? 0));
+  const margined = landed * (1 + (cfg.margin[tier] ?? 0)) * (1 - accountDiscountPct / 100);
   return { eur: round2(margined), inr: round2(margined * cfg.fxEurToInr) };
 };
 
@@ -135,7 +136,9 @@ export const computeQuote = (
   tier: Tier,
   cfg: PricingConfig = loadPricingConfig(),
   plans?: FulfillmentPlan[],
+  accountDiscountPct = 0,
 ): QuoteBreakdown => {
+  const acctFactor = 1 - accountDiscountPct / 100;
   const totalUnits = items.reduce((s, i) => s + i.quantity, 0);
   const vb = volumeDiscount(cfg.volumeBreaks, totalUnits);
   const margin = cfg.margin[tier] ?? 0;
@@ -178,8 +181,11 @@ export const computeQuote = (
     const lineHandling = lineHandlingBase * cfg.handlingPct;
     const lineLanded = lineHandlingBase + lineHandling;
     const lineMargined = lineLanded * (1 + margin);
-    const lineDiscount = lineMargined * vb.discountPct;
-    const lineFinal = lineMargined - lineDiscount;
+    const volumeDisc = lineMargined * vb.discountPct;
+    const lineFinalPreAcct = lineMargined - volumeDisc;
+    const lineFinal = lineFinalPreAcct * acctFactor;
+    // account (business) discount stacks on top of the volume break
+    const lineDiscount = volumeDisc + (lineFinalPreAcct - lineFinal);
     const unitFinal = billableQty > 0 ? lineFinal / billableQty : 0;
     void importShare;
 

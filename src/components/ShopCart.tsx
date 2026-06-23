@@ -11,14 +11,18 @@ import {
 } from '../lib/shop';
 import { loadProducts } from '../lib/products';
 import { computeUnitPrice, tierFromRole } from '../lib/pricing';
+import { getApprovedDiscount, onBusinessChange } from '../lib/business';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductImage from './ProductImage';
+import BulkPricingPanel from './BulkPricingPanel';
 
 type Props = { open: boolean; onClose: () => void; onCheckout: () => void };
 
 const ShopCart = ({ open, onClose, onCheckout }: Props) => {
   const [user, setUser] = useState<User>(() => currentUser());
   const [items, setItems] = useState<HydratedBagItem[]>([]);
+
+  const [discount, setDiscount] = useState(0);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
   useEffect(() => {
@@ -31,15 +35,22 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
       window.removeEventListener('sklovera:products-updated', refresh);
     };
   }, []);
+  useEffect(() => {
+    const refresh = () => setDiscount(getApprovedDiscount(currentUser().email));
+    refresh();
+    const offAuth = onAuthChange(refresh);
+    const offBiz = onBusinessChange(refresh);
+    return () => { offAuth(); offBiz(); };
+  }, []);
 
   const tier = tierFromRole(user.role);
   const totalInr = useMemo(
     () =>
       items.reduce(
-        (s, i) => s + computeUnitPrice(i.priceEurRef, tier).inr * i.quantity,
+        (s, i) => s + computeUnitPrice(i.priceEurRef, tier, undefined, discount).inr * i.quantity,
         0,
       ),
-    [items, tier],
+    [items, tier, discount],
   );
   const totalQty = useMemo(() => items.reduce((s, i) => s + i.quantity, 0), [items]);
 
@@ -89,7 +100,7 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
               ) : (
                 <ul className="space-y-4">
                   {items.map((i) => {
-                    const unit = computeUnitPrice(i.priceEurRef, tier).inr;
+                    const unit = computeUnitPrice(i.priceEurRef, tier, undefined, discount).inr;
                     return (
                       <li key={i.productId} className="flex gap-4 p-3 rounded-lg bg-surface-container-lowest">
                         <ProductImage
@@ -145,8 +156,14 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
 
             {items.length > 0 && (
               <div className="border-t border-outline-variant/20 p-8 space-y-4">
+                <BulkPricingPanel user={user} />
                 <div>
-                  <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Subtotal · {tier.toUpperCase()} pricing</div>
+                  <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-2">
+                    Subtotal · {tier.toUpperCase()} pricing
+                    {discount > 0 && (
+                      <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">bulk −{discount}%</span>
+                    )}
+                  </div>
                   <div className="font-headline text-3xl text-primary">
                     ₹ {totalInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                   </div>

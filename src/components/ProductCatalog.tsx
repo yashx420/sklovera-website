@@ -1,7 +1,9 @@
 import { useEffect, useMemo, useState } from 'react';
 import { clearProducts, loadProducts, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
-import { addToBag, isShopper } from '../lib/shop';
+import { addToBag } from '../lib/shop';
+import { computeUnitPrice, tierFromRole } from '../lib/pricing';
+import { getApprovedDiscount, onBusinessChange } from '../lib/business';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductDetail from './ProductDetail';
 import ProductImage from './ProductImage';
@@ -45,6 +47,16 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
   }, [scrollEl]);
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
+
+  // Approved bulk discount for the signed-in buyer (0 if none).
+  const [accountDiscount, setAccountDiscount] = useState(0);
+  useEffect(() => {
+    const refresh = () => setAccountDiscount(getApprovedDiscount(currentUser().email));
+    refresh();
+    const offAuth = onAuthChange(refresh);
+    const offBiz = onBusinessChange(refresh);
+    return () => { offAuth(); offBiz(); };
+  }, []);
 
   useEffect(() => {
     const refresh = () => setProducts(loadProducts());
@@ -256,21 +268,48 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
                 {p.inventory !== undefined && <span>{p.inventory.toLocaleString()} in stock</span>}
               </div>
               {(() => {
-                const shopper = isShopper(user.role);
+                const role = user.role;
+                const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
+                const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
+                const boxInr = computeUnitPrice(p.priceEur, tierFromRole(role), undefined, accountDiscount).inr * boxSize;
+                const showBag = buyer || role === 'admin';
+                const showRfq = role === 'guest' || role === 'b2b' || role === 'retail' || role === 'admin';
                 return (
-                  <div className="mt-auto flex items-end justify-end pt-2 gap-2">
-                    <div className="flex flex-col gap-1">
-                      {shopper && (
+                  <div className="mt-auto flex items-end justify-between pt-2 gap-2">
+                    {buyer ? (
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                          Box of {boxSize}
+                          {accountDiscount > 0 && (
+                            <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{accountDiscount}%</span>
+                          )}
+                        </div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {p.priceEur !== undefined ? `₹ ${boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                        </div>
+                      </div>
+                    ) : role === 'admin' ? (
+                      <div>
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex-1" />
+                    )}
+                    <div className="flex flex-col gap-1 shrink-0">
+                      {showBag && (
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}
-                          onClick={(e) => { e.stopPropagation(); addToBag(p.id, 1); }}
+                          onClick={(e) => { e.stopPropagation(); addToBag(p.id, boxSize); }}
                           className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold"
                         >
                           Add to bag
                         </motion.button>
                       )}
-                      {(user.role === 'b2b' || user.role === 'retail' || user.role === 'admin') && (
+                      {showRfq && (
                         <motion.button
                           whileHover={{ scale: 1.05 }}
                           whileTap={{ scale: 0.95 }}

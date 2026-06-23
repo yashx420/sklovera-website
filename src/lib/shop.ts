@@ -2,6 +2,7 @@ import type { Product } from './products';
 import { loadProducts, saveProducts } from './products';
 import { planLine, type FulfillmentPlan } from './fulfillment';
 import { computeQuote, loadPricingConfig, tierFromRole, type QuoteBreakdown, type Tier } from './pricing';
+import { getApprovedDiscount } from './business';
 import type { Role, User } from './auth';
 
 // ---------- Shop cart (B2C direct purchase) ----------
@@ -215,7 +216,8 @@ export const placeOrder = (input: PlaceOrderInput): Order => {
   }
 
   const tier: Tier = tierFromRole(user.role);
-  const quote = computeQuote(quoteItems, tier, loadPricingConfig(), plans);
+  const discount = getApprovedDiscount(user.email);
+  const quote = computeQuote(quoteItems, tier, loadPricingConfig(), plans, discount);
 
   // Zip quote.lines with plans for persisted order lines.
   const planById = new Map(plans.map((p) => [p.productId, p]));

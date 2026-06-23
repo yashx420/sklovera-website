@@ -11,6 +11,7 @@ import {
 } from '../lib/shop';
 import { loadProducts } from '../lib/products';
 import { computeUnitPrice, tierFromRole } from '../lib/pricing';
+import { getApprovedDiscount } from '../lib/business';
 import { gatewayBlurb, gatewayLabel, processPayment } from '../lib/payments';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import ProductImage from './ProductImage';
@@ -48,10 +49,11 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
   }, [user, shipping.name]);
 
   const tier = tierFromRole(user.role);
+  const discount = getApprovedDiscount(user.email);
   const totalInr = useMemo(
     () =>
-      items.reduce((s, i) => s + computeUnitPrice(i.priceEurRef, tier).inr * i.quantity, 0),
-    [items, tier],
+      items.reduce((s, i) => s + computeUnitPrice(i.priceEurRef, tier, undefined, discount).inr * i.quantity, 0),
+    [items, tier, discount],
   );
 
   const canPay =
@@ -220,7 +222,7 @@ const Checkout = ({ onSignIn, onOrderPlaced }: Props) => {
             <h3 className="font-headline italic text-2xl text-primary">Order summary</h3>
             <ul className="space-y-3 max-h-[320px] overflow-y-auto pr-2">
               {items.map((i) => {
-                const unit = computeUnitPrice(i.priceEurRef, tier).inr;
+                const unit = computeUnitPrice(i.priceEurRef, tier, undefined, discount).inr;
                 return (
                   <li key={i.productId} className="flex gap-3">
                     <ProductImage

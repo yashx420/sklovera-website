@@ -1,9 +1,10 @@
 import { useState } from 'react';
 import { removeProducts, setProductStatus, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
-import { addToBag, isShopper } from '../lib/shop';
+import { addToBag } from '../lib/shop';
 import { computeUnitPrice, tierFromRole } from '../lib/pricing';
-import type { Role } from '../lib/auth';
+import { getApprovedDiscount } from '../lib/business';
+import { currentUser, type Role } from '../lib/auth';
 import ProductCarousel from './ProductCarousel';
 import { motion, AnimatePresence } from 'framer-motion';
 
@@ -134,11 +135,11 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                 </div>
                 {(() => {
                   const tier = tierFromRole(role);
-                  const shopper = isShopper(role);
-                  const price = computeUnitPrice(product.priceEur, tier);
+                  const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
+                  const price = computeUnitPrice(product.priceEur, tier, undefined, getApprovedDiscount(currentUser().email));
                   return (
                     <>
-                      {shopper && (
+                      {buyer && (
                         <div className="flex items-end justify-between pb-3 border-b border-outline-variant/20">
                           <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
                             Price · {tier.toUpperCase()}
@@ -149,7 +150,7 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                         </div>
                       )}
                       <div className="flex gap-3">
-                        {shopper ? (
+                        {buyer ? (
                           <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
