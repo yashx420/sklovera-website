@@ -118,7 +118,10 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
         <motion.div variants={containerV} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {featured.map((p) => {
             const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
-            const boxInr = buyer ? computeUnitPrice(p.priceEur, tier, undefined, discount).inr * boxSize : 0;
+            const unitInr = buyer ? computeUnitPrice(p.priceEur, tier, undefined, discount).inr : 0;
+            const boxInr = unitInr * boxSize;
+            const pro = discount > 0;
+            const inr0 = (n: number) => `₹ ${n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 })}`;
             return (
               <motion.article key={p.id} variants={itemV} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 cursor-pointer transition-shadow hover:shadow-xl relative group overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-forest/0 via-emerald/3 to-jade/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
@@ -132,15 +135,27 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
                 {p.collection && <div className="text-xs uppercase tracking-widest text-secondary font-semibold relative z-10">{p.collection}</div>}
                 <div className="mt-auto flex items-end justify-between pt-4 gap-3 relative z-10">
                   {buyer ? (
-                    <div className="min-w-0">
-                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
-                        Box of {boxSize}
-                        {discount > 0 && <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discount}%</span>}
+                    pro ? (
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                          Per unit
+                          <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discount}%</span>
+                        </div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {p.priceEur !== undefined ? inr0(unitInr) : '—'}
+                        </div>
+                        {p.priceEur !== undefined && (
+                          <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>
+                        )}
                       </div>
-                      <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                        {p.priceEur !== undefined ? `₹ ${boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                    ) : (
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                          {p.priceEur !== undefined ? inr0(boxInr) : '—'}
+                        </div>
                       </div>
-                    </div>
+                    )
                   ) : user.role === 'admin' ? (
                     <div>
                       <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>

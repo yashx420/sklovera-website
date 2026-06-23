@@ -88,7 +88,8 @@ const BulkPricingPanel = ({ user }: { user: User }) => {
         <div className="flex-1">
           <div className="text-sm font-semibold text-primary">Are you a retailer or distributor?</div>
           <div className="text-xs text-on-surface-variant mt-0.5">
-            Bulk buyers qualify for <span className="font-semibold text-secondary">20% to 50% off</span>. Apply once for approval — your discount then applies to every order.
+            Bulk buyers qualify for <span className="font-semibold text-secondary">20% to 50% off</span>. Once approved you'll see
+            <span className="font-semibold text-primary"> per-unit pricing</span> (alongside box pricing) with your discount applied to every order.
           </div>
           {app?.status === 'rejected' && (
             <div className="text-[11px] text-on-error-container bg-error-container/60 rounded px-2 py-1 mt-2">

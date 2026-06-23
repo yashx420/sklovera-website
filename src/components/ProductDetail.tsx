@@ -137,18 +137,34 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                   const tier = tierFromRole(role);
                   const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
                   const boxSize = product.pcsPerBox ?? product.pcsPerCarton ?? 1;
-                  const price = computeUnitPrice(product.priceEur, tier, undefined, getApprovedDiscount(currentUser().email));
+                  const discountPct = getApprovedDiscount(currentUser().email);
+                  const pro = discountPct > 0; // approved retailer / distributor
+                  const price = computeUnitPrice(product.priceEur, tier, undefined, discountPct);
                   const boxInr = price.inr * boxSize;
+                  const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 });
                   return (
                     <>
                       {buyer && (
-                        <div className="flex items-end justify-between pb-3 border-b border-outline-variant/20">
-                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                            Box of {boxSize} · {tier.toUpperCase()}
-                          </div>
-                          <div className="font-headline text-3xl text-primary">
-                            ₹ {boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}
-                          </div>
+                        <div className="pb-3 border-b border-outline-variant/20">
+                          {pro ? (
+                            <div className="flex items-end justify-between">
+                              <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                                Per unit
+                                <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discountPct}%</span>
+                              </div>
+                              <div className="text-right">
+                                <div className="font-headline text-3xl text-primary">₹ {fmt(price.inr)}</div>
+                                <div className="text-[10px] text-on-surface-variant">₹ {fmt(boxInr)} / box of {boxSize}</div>
+                              </div>
+                            </div>
+                          ) : (
+                            <div className="flex items-end justify-between">
+                              <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
+                                Box of {boxSize} · {tier.toUpperCase()}
+                              </div>
+                              <div className="font-headline text-3xl text-primary">₹ {fmt(boxInr)}</div>
+                            </div>
+                          )}
                         </div>
                       )}
                       <div className="flex gap-3">

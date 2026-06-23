@@ -271,23 +271,36 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
                 const role = user.role;
                 const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
                 const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
-                const boxInr = computeUnitPrice(p.priceEur, tierFromRole(role), undefined, accountDiscount).inr * boxSize;
+                const unitInr = computeUnitPrice(p.priceEur, tierFromRole(role), undefined, accountDiscount).inr;
+                const boxInr = unitInr * boxSize;
+                const pro = accountDiscount > 0; // approved retailer / distributor
+                const inr0 = (n: number) => `₹ ${n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 })}`;
                 const showBag = buyer || role === 'admin';
                 const showRfq = role === 'guest' || role === 'b2b' || role === 'retail' || role === 'admin';
                 return (
                   <div className="mt-auto flex items-end justify-between pt-2 gap-2">
                     {buyer ? (
-                      <div className="min-w-0">
-                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
-                          Box of {boxSize}
-                          {accountDiscount > 0 && (
+                      pro ? (
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                            Per unit
                             <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{accountDiscount}%</span>
+                          </div>
+                          <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                            {p.priceEur !== undefined ? inr0(unitInr) : '—'}
+                          </div>
+                          {p.priceEur !== undefined && (
+                            <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>
                           )}
                         </div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {p.priceEur !== undefined ? `₹ ${boxInr.toLocaleString('en-IN', { maximumFractionDigits: 0 })}` : '—'}
+                      ) : (
+                        <div className="min-w-0">
+                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
+                          <div className="font-headline text-2xl text-primary whitespace-nowrap">
+                            {p.priceEur !== undefined ? inr0(boxInr) : '—'}
+                          </div>
                         </div>
-                      </div>
+                      )
                     ) : role === 'admin' ? (
                       <div>
                         <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>

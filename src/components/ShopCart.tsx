@@ -152,6 +152,11 @@ const ShopCart = ({ open, onClose, onCheckout }: Props) => {
                               <div className="text-sm font-semibold text-primary">
                                 ₹ {(unit * i.quantity).toLocaleString('en-IN', { maximumFractionDigits: 0 })}
                               </div>
+                              {discount > 0 && (
+                                <div className="text-[10px] text-on-surface-variant">
+                                  ₹ {unit.toLocaleString('en-IN', { maximumFractionDigits: unit < 100 ? 1 : 0 })} / unit
+                                </div>
+                              )}
                             </div>
                           </div>
                         </div>
