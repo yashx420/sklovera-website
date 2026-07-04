@@ -10,6 +10,7 @@ type Props = {
   alt: string;
   className?: string;
   fallbackIcon?: string;
+  onAspect?: (ratio: number) => void;
 };
 
 /**
@@ -18,13 +19,13 @@ type Props = {
  * Arrow/dot controls stop propagation so they work inside a clickable card.
  * Requires a positioned (relative) ancestor for the absolute controls.
  */
-const ProductCarousel = ({ images, imageKey, alt, className, fallbackIcon }: Props) => {
+const ProductCarousel = ({ images, imageKey, alt, className, fallbackIcon, onAspect }: Props) => {
   const list = images && images.length ? images : imageKey ? [imageKey] : [];
   const [idx, setIdx] = useState(0);
 
   if (list.length <= 1) {
     return (
-      <ProductImage imageKey={list[0] ?? imageKey} alt={alt} className={className} fallbackIcon={fallbackIcon} />
+      <ProductImage imageKey={list[0] ?? imageKey} alt={alt} className={className} fallbackIcon={fallbackIcon} onAspect={onAspect} />
     );
   }
 
@@ -50,7 +51,7 @@ const ProductCarousel = ({ images, imageKey, alt, className, fallbackIcon }: Pro
           transition={{ duration: 0.25 }}
           className="contents"
         >
-          <ProductImage imageKey={list[idx]} alt={`${alt} (${idx + 1}/${list.length})`} className={className} fallbackIcon={fallbackIcon} />
+          <ProductImage imageKey={list[idx]} alt={`${alt} (${idx + 1}/${list.length})`} className={className} fallbackIcon={fallbackIcon} onAspect={onAspect} />
         </motion.div>
       </AnimatePresence>
 

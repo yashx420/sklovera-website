@@ -7,9 +7,11 @@ type Props = {
   className?: string;
   /** Fallback icon shown when there is no image. */
   fallbackIcon?: string;
+  /** Reports the image's natural width/height ratio once loaded. */
+  onAspect?: (ratio: number) => void;
 };
 
-const ProductImage = ({ imageKey, alt, className, fallbackIcon = 'wine_bar' }: Props) => {
+const ProductImage = ({ imageKey, alt, className, fallbackIcon = 'wine_bar', onAspect }: Props) => {
   const [url, setUrl] = useState<string | undefined>(undefined);
 
   useEffect(() => {
@@ -31,7 +33,19 @@ const ProductImage = ({ imageKey, alt, className, fallbackIcon = 'wine_bar' }: P
   }, [imageKey]);
 
   if (url) {
-    return <img src={url} alt={alt} className={className} loading="lazy" decoding="async" />;
+    return (
+      <img
+        src={url}
+        alt={alt}
+        className={className}
+        loading="lazy"
+        decoding="async"
+        onLoad={(e) => {
+          const t = e.currentTarget;
+          if (onAspect && t.naturalWidth > 0 && t.naturalHeight > 0) onAspect(t.naturalWidth / t.naturalHeight);
+        }}
+      />
+    );
   }
   return (
     <div className={`flex flex-col items-center justify-center bg-surface-container-low/50 rounded-xl text-center p-3 sm:p-4 w-full h-full min-h-[100px] border border-outline-variant/10 ${className ?? ''}`}>

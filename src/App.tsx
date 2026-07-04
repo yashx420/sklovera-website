@@ -30,6 +30,7 @@ import { LOW_STOCK_THRESHOLD, totalStock } from './lib/fulfillment';
 import { currentUser, onAuthChange, type Role } from './lib/auth';
 import { loadProducts } from './lib/products';
 import { prefetchImages } from './lib/imagePrefetch';
+import { refreshFxRates } from './lib/fx';
 import { loadCart, loadRfqs, onCartChange, onRfqChange } from './lib/rfq';
 import { hydrateBag, isShopper, loadBag, loadOrders, onBagChange, onOrdersChange } from './lib/shop';
 
@@ -123,6 +124,11 @@ function App() {
     if (user.role === 'guest' && seen !== 'true') {
       setOnboardingOpen(true);
     }
+  }, []);
+
+  // Keep the EUR→INR (and USD→EUR) conversion current from live ECB rates.
+  useEffect(() => {
+    void refreshFxRates();
   }, []);
   const [revisionCount, setRevisionCount] = useState(0);
   const [cartCount, setCartCount] = useState(0);

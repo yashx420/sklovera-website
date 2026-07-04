@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { removeProducts, setProductStatus, type Product } from '../lib/products';
 import { addToCart } from '../lib/rfq';
 import { addToBag } from '../lib/shop';
@@ -21,6 +21,8 @@ const Row = ({ label, value }: { label: string; value: React.ReactNode }) =>
 const ProductDetail = ({ product, role, onClose, onRequireAuth }: Props) => {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
+  const [aspect, setAspect] = useState<number>();
+  useEffect(() => setAspect(undefined), [product?.id]);
   if (!product) return null;
   const adminView = role === 'admin';
 
@@ -67,19 +69,23 @@ const ProductDetail = ({ product, role, onClose, onRequireAuth }: Props) => {
             initial={{ opacity: 0, scale: 0.95 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.4 }}
-            className={`relative group mb-8 w-full rounded-xl overflow-hidden ring-1 ring-inset ${
-              product.supplierId === 'sup-amber'
-                // Portrait frame for Amber's vertical lifestyle shots — fills the
-                // frame with no surrounding negative space; dark bg blends the edges.
-                ? 'aspect-[2/3] max-w-[300px] mx-auto bg-neutral-900 ring-white/5'
-                : 'aspect-[4/3] bg-gradient-to-b from-surface-container-low to-surface-container ring-black/5'
+            style={{
+              // Match the card to the image's own aspect (square → square,
+              // portrait → portrait, landscape → landscape). Cap portrait width
+              // so tall shots don't overwhelm the drawer.
+              aspectRatio: aspect ?? 4 / 3,
+              maxWidth: aspect !== undefined && aspect < 0.95 ? 320 : undefined,
+            }}
+            className={`relative group mb-8 w-full mx-auto rounded-xl overflow-hidden ring-1 ring-inset ${
+              product.supplierId === 'sup-amber' ? 'bg-neutral-900 ring-white/5' : 'bg-white ring-black/5'
             }`}
           >
             <ProductCarousel
               imageKey={product.imageKey}
               images={product.images}
               alt={product.name}
-              className={product.supplierId === 'sup-amber' ? 'w-full h-full object-contain' : 'w-full h-full object-contain p-4 sm:p-6'}
+              onAspect={setAspect}
+              className="w-full h-full object-contain"
             />
           </motion.div>
 

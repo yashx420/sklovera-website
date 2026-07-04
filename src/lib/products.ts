@@ -4,6 +4,7 @@ import { deleteImage, putImage } from './images';
 import seededProducts from './seededProducts.json';
 import { AMBER_PRODUCTS } from './amberSeed';
 import { SOLBIKA_PRODUCTS } from './solbikaSeed';
+import { getUsdToEur } from './fx';
 
 export type ProductStatus = 'pending' | 'approved' | 'rejected';
 
@@ -342,6 +343,11 @@ export const loadProducts = (): Product[] => {
         next.supplierId && CATEGORIED_SUPPLIERS.has(next.supplierId) && next.category
           ? next.category
           : detectCategory(next.name);
+      // Amber sheets are USD-priced; derive EUR from the live USD→EUR rate so
+      // its prices track the market (falls back to the seeded value).
+      if (next.supplierId === 'sup-amber' && next.priceUsd !== undefined) {
+        next.priceEur = Math.round(next.priceUsd * getUsdToEur() * 100) / 100;
+      }
       // Part 6: split legacy aggregate inventory onto international warehouse.
       if (next.stockIntl === undefined && next.inventory !== undefined) next.stockIntl = next.inventory;
       if (next.stockIndia === undefined) next.stockIndia = 0;
