@@ -1,6 +1,15 @@
 import { useEffect, useMemo, useState } from 'react';
 import { motion } from 'framer-motion';
-import { loadRfqs, onRfqChange, updateRfqStatus, type Rfq, type RfqStatus } from '../lib/rfq';
+import {
+  loadRfqs,
+  onRfqChange,
+  updateRfqStatus,
+  sendToVendor,
+  vendorCounter,
+  vendorApprove,
+  type Rfq,
+  type RfqStatus,
+} from '../lib/rfq';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import { computeQuote, loadPricingConfig, type Tier } from '../lib/pricing';
 import { generateQuotePdf } from '../lib/quotePdf';
@@ -8,18 +17,20 @@ import { planFulfillment, type FulfillmentPlan } from '../lib/fulfillment';
 import { loadProducts } from '../lib/products';
 import ProductImage from './ProductImage';
 
-type Props = { scope: 'mine' | 'admin' };
+type Props = { scope: 'mine' | 'admin' | 'vendor' };
 
 const STATUS_COLORS: Record<RfqStatus, string> = {
   submitted: 'bg-tertiary-fixed/40 text-primary',
   in_review: 'bg-secondary-container text-on-secondary-container',
+  vendor_review: 'bg-tertiary-fixed/40 text-primary',
+  vendor_countered: 'bg-secondary-container text-on-secondary-container',
   quoted: 'bg-primary text-surface',
   accepted: 'bg-secondary-container text-on-secondary-container',
   declined: 'bg-error-container text-on-error-container',
   closed: 'bg-surface-container-high text-on-surface-variant',
 };
 
-const STATUS_FLOW: RfqStatus[] = ['submitted', 'in_review', 'quoted', 'accepted', 'declined', 'closed'];
+const STATUS_FLOW: RfqStatus[] = ['submitted', 'in_review', 'vendor_review', 'vendor_countered', 'quoted', 'accepted', 'declined', 'closed'];
 
 const fmtDate = (ts: number) => new Date(ts).toLocaleDateString(undefined, {
   year: 'numeric',
@@ -33,7 +44,7 @@ const RfqList = ({ scope }: Props) => {
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<RfqStatus | 'all'>('all');
   const [quoteTotal, setQuoteTotal] = useState<string>('');
-  const [adminNote, setAdminNote] = useState<string>('');
+  const [negNote, setNegNote] = useState<string>('');
   const [tierOverride, setTierOverride] = useState<Tier>('b2b');
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
@@ -43,12 +54,29 @@ const RfqList = ({ scope }: Props) => {
     return onRfqChange(refresh);
   }, []);
 
+  // productId → owning vendor (id + name), for vendor scoping and routing.
+  const productVendor = useMemo(() => {
+    const m = new Map<string, { id: string; name: string }>();
+    for (const p of loadProducts()) if (p.supplierId) m.set(p.id, { id: p.supplierId, name: p.supplier ?? p.supplierId });
+    return m;
+  }, [rfqs]);
+
+  const rfqVendors = (r: Rfq) => {
+    const seen = new Map<string, string>();
+    for (const i of r.items) {
+      const v = productVendor.get(i.productId);
+      if (v) seen.set(v.id, v.name);
+    }
+    return Array.from(seen, ([id, name]) => ({ id, name }));
+  };
+
   const visible = useMemo(() => {
     let list = rfqs;
     if (scope === 'mine') list = list.filter((r) => r.buyerId === user.id);
+    if (scope === 'vendor') list = list.filter((r) => r.items.some((i) => productVendor.get(i.productId)?.id === user.id));
     if (statusFilter !== 'all') list = list.filter((r) => r.status === statusFilter);
     return list;
-  }, [rfqs, scope, statusFilter, user.id]);
+  }, [rfqs, scope, statusFilter, user.id, productVendor]);
 
   const selected = useMemo(() => rfqs.find((r) => r.id === selectedId) ?? null, [rfqs, selectedId]);
 
@@ -65,26 +93,46 @@ const RfqList = ({ scope }: Props) => {
   useEffect(() => {
     if (!selected) {
       setQuoteTotal('');
-      setAdminNote('');
+      setNegNote('');
       return;
     }
     setQuoteTotal(selected.quoteTotalEur !== undefined ? String(selected.quoteTotalEur) : '');
-    setAdminNote(selected.adminNote ?? '');
+    setNegNote('');
     setTierOverride(selected.quoteTier ?? 'b2b');
   }, [selectedId, selected]);
 
-  const runAutoQuote = () => {
+  const suggestQuote = () => {
     if (!selected) return;
     const plans = planFulfillment(selected.items, loadProducts());
     const q = computeQuote(selected.items, tierOverride, loadPricingConfig(), plans);
-    updateRfqStatus(selected.id, 'quoted', {
-      adminNote,
-      quoteTotalEur: q.totalEur,
-      quoteTotalInr: q.totalInr,
-      quoteBreakdown: q,
-      quoteTier: tierOverride,
-    });
     setQuoteTotal(String(q.totalEur));
+  };
+
+  const parsedTotal = () => {
+    const n = parseFloat(quoteTotal);
+    return Number.isFinite(n) ? n : NaN;
+  };
+
+  const doSendToVendor = () => {
+    if (!selected) return;
+    const n = parsedTotal();
+    if (!Number.isFinite(n)) return;
+    sendToVendor(selected.id, { totalEur: n, note: negNote || undefined, byName: user.displayName, vendorId: rfqVendors(selected)[0]?.id });
+    setNegNote('');
+  };
+
+  const doVendorCounter = () => {
+    if (!selected) return;
+    const n = parsedTotal();
+    if (!Number.isFinite(n)) return;
+    vendorCounter(selected.id, { totalEur: n, note: negNote || undefined, byName: user.displayName });
+    setNegNote('');
+  };
+
+  const doVendorApprove = () => {
+    if (!selected) return;
+    vendorApprove(selected.id, { byName: user.displayName, note: negNote || undefined, fxEurToInr: loadPricingConfig().fxEurToInr });
+    setNegNote('');
   };
 
   const downloadPdf = () => {
@@ -96,7 +144,7 @@ const RfqList = ({ scope }: Props) => {
     const base = scope === 'mine' ? rfqs.filter((r) => r.buyerId === user.id) : rfqs;
     const c: Record<RfqStatus | 'all', number> = {
       all: base.length,
-      submitted: 0, in_review: 0, quoted: 0, accepted: 0, declined: 0, closed: 0,
+      submitted: 0, in_review: 0, vendor_review: 0, vendor_countered: 0, quoted: 0, accepted: 0, declined: 0, closed: 0,
     };
     for (const r of base) c[r.status]++;
     return c;
@@ -118,16 +166,24 @@ const RfqList = ({ scope }: Props) => {
       </section>
     );
   }
+  if (scope === 'vendor' && user.role !== 'supplier') {
+    return (
+      <section className="py-20 sm:py-32 px-5 sm:px-8 lg:px-12 text-center">
+        <h2 className="font-headline text-3xl sm:text-4xl italic text-primary mb-4">Supplier access only</h2>
+        <p className="text-on-surface-variant">Sign in as a supplier to review RFQ quotes.</p>
+      </section>
+    );
+  }
 
   return (
     <section className="py-20 px-5 sm:px-8 lg:px-12">
       <div className="max-w-[1600px] mx-auto">
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.8 }}>
           <span className="text-on-surface-variant font-medium tracking-wide text-sm block mb-4">
-            {scope === 'admin' ? 'Administration' : 'Procurement'}
+            {scope === 'admin' ? 'Administration' : scope === 'vendor' ? 'Supplier Portal' : 'Procurement'}
           </span>
           <h2 className="font-headline text-3xl sm:text-5xl italic text-primary mb-8">
-            {scope === 'admin' ? 'RFQ Queue' : 'My RFQs'}
+            {scope === 'admin' ? 'RFQ Queue' : scope === 'vendor' ? 'Quote Approvals' : 'My RFQs'}
           </h2>
         </motion.div>
 
@@ -361,92 +417,165 @@ const RfqList = ({ scope }: Props) => {
                     </div>
                   )}
 
+                  {/* Admin ↔ vendor counter-quote history */}
+                  {(scope === 'admin' || scope === 'vendor') && selected.vendorThread && selected.vendorThread.length > 0 && (
+                    <div className="border-t border-outline-variant/20 pt-6 space-y-3">
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Vendor negotiation</div>
+                      <div className="space-y-2">
+                        {selected.vendorThread.map((m, idx) => (
+                          <div key={idx} className={`flex ${m.by === 'vendor' ? 'justify-end' : 'justify-start'}`}>
+                            <div className={`max-w-[80%] rounded-lg px-4 py-2 ${m.by === 'vendor' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-low text-primary'}`}>
+                              <div className="text-[10px] uppercase tracking-wider opacity-70">
+                                {m.by === 'vendor' ? (m.byName ?? 'Vendor') : 'Sklovera'}{m.approved ? ' · approved ✓' : ''}
+                              </div>
+                              <div className="font-headline text-lg">€ {m.totalEur.toFixed(2)}</div>
+                              {m.note && <div className="text-xs opacity-80 mt-0.5">{m.note}</div>}
+                              <div className="text-[9px] opacity-50 mt-1">{fmtDate(m.at)}</div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
                   {scope === 'admin' && (
                     <div className="border-t border-outline-variant/20 pt-6 space-y-4">
-                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">
-                        Admin actions
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Admin actions</div>
+                      <div className="text-xs text-on-surface-variant">
+                        Vendor(s): <span className="text-primary font-medium">{rfqVendors(selected).map((v) => v.name).join(', ') || '—'}</span>
                       </div>
-                      <div className="grid grid-cols-3 gap-3">
-                        <div>
-                          <label className="text-xs text-on-surface-variant">Pricing tier</label>
-                          <select
-                            value={tierOverride}
-                            onChange={(e) => setTierOverride(e.target.value as Tier)}
-                            className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                          >
-                            <option value="b2b">B2B</option>
-                            <option value="retail">Retail</option>
-                            <option value="b2c">B2C</option>
-                          </select>
+
+                      {selected.status === 'quoted' ? (
+                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
+                          ✓ Vendor approved — the quote is now with the buyer.
                         </div>
-                        <div>
-                          <label className="text-xs text-on-surface-variant">Quote total (EUR, override)</label>
-                          <input
-                            type="number"
-                            value={quoteTotal}
-                            onChange={(e) => setQuoteTotal(e.target.value)}
-                            placeholder="Auto from engine"
-                            className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                          />
+                      ) : selected.status === 'vendor_review' ? (
+                        <div className="rounded-md bg-tertiary-fixed/30 text-primary px-4 py-3 text-sm">
+                          ⏳ Awaiting vendor approval · proposed € {selected.quoteTotalEur?.toFixed(2)}. You can re-send a new figure below.
                         </div>
-                        <div>
-                          <label className="text-xs text-on-surface-variant">Note to buyer</label>
-                          <input
-                            value={adminNote}
-                            onChange={(e) => setAdminNote(e.target.value)}
-                            placeholder="Valid 30 days, 60/40 payment terms…"
-                            className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                          />
-                        </div>
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={runAutoQuote}
-                          className="px-4 py-2 rounded-md text-xs font-semibold bg-secondary text-on-secondary"
-                        >
-                          Auto-quote &amp; send
-                        </button>
-                        {selected.quoteBreakdown && (
-                          <button
-                            onClick={downloadPdf}
-                            className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container"
-                          >
-                            Download PDF
+                      ) : null}
+
+                      {selected.status !== 'quoted' && (
+                        <>
+                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+                            <div>
+                              <label className="text-xs text-on-surface-variant">Pricing tier</label>
+                              <select
+                                value={tierOverride}
+                                onChange={(e) => setTierOverride(e.target.value as Tier)}
+                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
+                              >
+                                <option value="b2b">B2B</option>
+                                <option value="retail">Retail</option>
+                                <option value="b2c">B2C</option>
+                              </select>
+                            </div>
+                            <div>
+                              <label className="text-xs text-on-surface-variant">Quote total (EUR)</label>
+                              <input
+                                type="number"
+                                value={quoteTotal}
+                                onChange={(e) => setQuoteTotal(e.target.value)}
+                                placeholder="Suggest from engine"
+                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-on-surface-variant">Message to vendor</label>
+                              <input
+                                value={negNote}
+                                onChange={(e) => setNegNote(e.target.value)}
+                                placeholder="Target landed price…"
+                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <button onClick={suggestQuote} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container">
+                              Suggest from engine
+                            </button>
+                            <button
+                              onClick={doSendToVendor}
+                              disabled={!Number.isFinite(parsedTotal())}
+                              className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40"
+                            >
+                              {selected.status === 'vendor_countered' ? 'Send back to vendor' : 'Send to vendor for approval'}
+                            </button>
+                          </div>
+                          <div className="text-[11px] text-on-surface-variant">The vendor must approve before the quote is sent to the buyer.</div>
+                        </>
+                      )}
+
+                      <div className="flex flex-wrap gap-2 pt-2 border-t border-outline-variant/10">
+                        {selected.status === 'submitted' && (
+                          <button onClick={() => updateRfqStatus(selected.id, 'in_review')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container">
+                            Mark in review
                           </button>
                         )}
-                      </div>
-                      <div className="flex flex-wrap gap-2">
-                        <button
-                          onClick={() => updateRfqStatus(selected.id, 'in_review', { adminNote })}
-                          className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container"
-                        >
-                          Mark in review
-                        </button>
-                        <button
-                          onClick={() => {
-                            const n = parseFloat(quoteTotal);
-                            updateRfqStatus(selected.id, 'quoted', {
-                              adminNote,
-                              quoteTotalEur: Number.isFinite(n) ? n : undefined,
-                            });
-                          }}
-                          className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface"
-                        >
-                          Send quote
-                        </button>
-                        <button
-                          onClick={() => updateRfqStatus(selected.id, 'declined', { adminNote })}
-                          className="px-4 py-2 rounded-md text-xs font-semibold bg-error-container text-on-error-container"
-                        >
+                        <button onClick={() => updateRfqStatus(selected.id, 'declined', { adminNote: negNote || undefined })} className="px-4 py-2 rounded-md text-xs font-semibold bg-error-container text-on-error-container">
                           Decline
                         </button>
-                        <button
-                          onClick={() => updateRfqStatus(selected.id, 'closed', { adminNote })}
-                          className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-on-surface-variant"
-                        >
+                        <button onClick={() => updateRfqStatus(selected.id, 'closed')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-on-surface-variant">
                           Close
                         </button>
                       </div>
+                    </div>
+                  )}
+
+                  {scope === 'vendor' && (
+                    <div className="border-t border-outline-variant/20 pt-6 space-y-4">
+                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Your response</div>
+                      {selected.status === 'vendor_review' ? (
+                        <>
+                          <div className="rounded-md bg-surface-container-low px-4 py-3">
+                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Sklovera proposes</div>
+                            <div className="font-headline text-3xl text-primary">€ {selected.quoteTotalEur?.toFixed(2)}</div>
+                          </div>
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="text-xs text-on-surface-variant">Counter total (EUR)</label>
+                              <input
+                                type="number"
+                                value={quoteTotal}
+                                onChange={(e) => setQuoteTotal(e.target.value)}
+                                className="mt-1 w-full bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm"
+                              />
+                            </div>
+                            <div>
+                              <label className="text-xs text-on-surface-variant">Message</label>
+                              <input
+                                value={negNote}
+                                onChange={(e) => setNegNote(e.target.value)}
+                                placeholder="Lead time 6 weeks…"
+                                className="mt-1 w-full bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm"
+                              />
+                            </div>
+                          </div>
+                          <div className="flex flex-wrap gap-2">
+                            <button onClick={doVendorApprove} className="px-4 py-2 rounded-md text-xs font-semibold bg-secondary text-on-secondary">
+                              Approve &amp; send to buyer
+                            </button>
+                            <button
+                              onClick={doVendorCounter}
+                              disabled={!Number.isFinite(parsedTotal())}
+                              className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40"
+                            >
+                              Counter
+                            </button>
+                          </div>
+                          <div className="text-[11px] text-on-surface-variant">Approving sends the quote to the buyer at € {selected.quoteTotalEur?.toFixed(2)}.</div>
+                        </>
+                      ) : selected.status === 'vendor_countered' ? (
+                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
+                          Your counter of € {selected.quoteTotalEur?.toFixed(2)} was sent. Awaiting Sklovera's response.
+                        </div>
+                      ) : selected.status === 'quoted' ? (
+                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
+                          ✓ You approved this quote — it's now with the buyer.
+                        </div>
+                      ) : (
+                        <div className="text-sm text-on-surface-variant">No action needed yet. Sklovera will send a quote for your approval.</div>
+                      )}
                     </div>
                   )}
 

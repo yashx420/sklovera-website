@@ -2,12 +2,25 @@ import type { Product } from './products';
 import type { QuoteBreakdown, Tier } from './pricing';
 
 export type RfqStatus =
-  | 'submitted'
-  | 'in_review'
-  | 'quoted'
+  | 'submitted'       // buyer submitted; awaiting admin
+  | 'in_review'       // admin looking at it
+  | 'vendor_review'   // admin sent a quote to the vendor; awaiting vendor
+  | 'vendor_countered'// vendor countered; awaiting admin
+  | 'quoted'          // vendor approved; quote now with the buyer
   | 'accepted'
   | 'declined'
   | 'closed';
+
+// One entry in the admin↔vendor counter-quote negotiation.
+export type QuoteParty = 'admin' | 'vendor';
+export type QuoteProposal = {
+  by: QuoteParty;
+  byName?: string;
+  totalEur: number;
+  note?: string;
+  approved?: boolean; // set on the vendor's final approval
+  at: number;
+};
 
 export type RfqItem = {
   productId: string;
@@ -38,6 +51,8 @@ export type Rfq = {
   quoteTotalInr?: number;
   quoteBreakdown?: QuoteBreakdown;
   quoteTier?: Tier;
+  vendorId?: string;              // vendor the negotiation is routed to
+  vendorThread?: QuoteProposal[]; // admin↔vendor counter-quote history
 };
 
 const CART_KEY = 'sklovera.rfq.cart.v1';
@@ -173,6 +188,88 @@ export const updateRfqStatus = (
       : r,
   );
   saveRfqs(list);
+};
+
+// ---------- Vendor counter-quote negotiation ----------
+
+const patchRfq = (id: string, fn: (r: Rfq) => Rfq): void => {
+  saveRfqs(loadRfqs().map((r) => (r.id === id ? fn(r) : r)));
+};
+
+const appendProposal = (r: Rfq, proposal: QuoteProposal): QuoteProposal[] => [
+  ...(r.vendorThread ?? []),
+  proposal,
+];
+
+/** Admin sends a proposed quote to the vendor for approval (or re-counters). */
+export const sendToVendor = (
+  id: string,
+  input: { totalEur: number; note?: string; byName?: string; vendorId?: string },
+): void => {
+  const now = Date.now();
+  patchRfq(id, (r) => ({
+    ...r,
+    status: 'vendor_review',
+    vendorId: input.vendorId ?? r.vendorId,
+    quoteTotalEur: input.totalEur,
+    vendorThread: appendProposal(r, {
+      by: 'admin',
+      byName: input.byName,
+      totalEur: input.totalEur,
+      note: input.note,
+      at: now,
+    }),
+    updatedAt: now,
+  }));
+};
+
+/** Vendor counters the admin's proposal with their own price. */
+export const vendorCounter = (
+  id: string,
+  input: { totalEur: number; note?: string; byName?: string },
+): void => {
+  const now = Date.now();
+  patchRfq(id, (r) => ({
+    ...r,
+    status: 'vendor_countered',
+    quoteTotalEur: input.totalEur,
+    vendorThread: appendProposal(r, {
+      by: 'vendor',
+      byName: input.byName,
+      totalEur: input.totalEur,
+      note: input.note,
+      at: now,
+    }),
+    updatedAt: now,
+  }));
+};
+
+/**
+ * Vendor approves the standing quote — this finalizes the negotiation and
+ * sends the approved RFQ to the buyer (status → quoted).
+ */
+export const vendorApprove = (
+  id: string,
+  input: { byName?: string; note?: string; fxEurToInr: number },
+): void => {
+  const now = Date.now();
+  patchRfq(id, (r) => {
+    const total = r.quoteTotalEur ?? 0;
+    return {
+      ...r,
+      status: 'quoted',
+      quoteTotalInr: Math.round(total * input.fxEurToInr * 100) / 100,
+      vendorThread: appendProposal(r, {
+        by: 'vendor',
+        byName: input.byName,
+        totalEur: total,
+        note: input.note,
+        approved: true,
+        at: now,
+      }),
+      updatedAt: now,
+    };
+  });
 };
 
 // ---------- Hydration helper ----------

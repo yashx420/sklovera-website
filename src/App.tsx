@@ -49,6 +49,7 @@ type View =
   | 'orders'
   | 'admin-orders'
   | 'supplier-inventory'
+  | 'vendor-rfqs'
   | 'admin-vendors'
   | 'vendor-register';
 
@@ -70,7 +71,7 @@ const tabsForRole = (role: Role): View[] => {
     case 'admin':
       return ['home', 'catalog', 'standards', 'admin', 'admin-rfqs', 'admin-orders', 'admin-inventory', 'admin-vendors', 'admin-pricing', 'vendor'];
     case 'supplier':
-      return ['home', 'catalog', 'standards', 'vendor', 'supplier-inventory'];
+      return ['home', 'catalog', 'standards', 'vendor', 'supplier-inventory', 'vendor-rfqs'];
     case 'b2c':
       return ['home', 'catalog', 'standards', 'orders'];
     case 'b2b':
@@ -97,6 +98,7 @@ const viewLabel: Record<View, string> = {
   orders: 'My Orders',
   'admin-orders': 'Orders',
   'supplier-inventory': 'My Inventory',
+  'vendor-rfqs': 'RFQ Approvals',
   'admin-vendors': 'Vendors',
   'vendor-register': 'Become a Vendor',
 };
@@ -481,6 +483,7 @@ function App() {
           {view === 'admin-pricing' && <AdminPricing />}
           {view === 'admin-inventory' && <AdminInventory />}
           {view === 'rfqs' && <RfqList scope="mine" />}
+          {view === 'vendor-rfqs' && <RfqList scope="vendor" />}
           {view === 'rfq-review' && (
             <RfqReview onSignIn={() => { setLoginMode('customer'); setView('login'); }} onSubmitted={() => setView('rfqs')} />
           )}
