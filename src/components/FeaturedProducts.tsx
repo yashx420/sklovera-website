@@ -19,10 +19,12 @@ type Props = {
   /** Override the section heading for variants like a single-row strip. */
   title?: string;
   kicker?: string;
+  /** Restrict the picks to a single vendor (e.g. "sup-amber"). */
+  onlySupplierId?: string;
 };
 
-const pickFeatured = (products: Product[], take: number, skip = 0): Product[] => {
-  const approved = products.filter((p) => p.status === 'approved');
+const pickFeatured = (products: Product[], take: number, skip = 0, supplierId?: string): Product[] => {
+  const approved = products.filter((p) => p.status === 'approved' && (!supplierId || p.supplierId === supplierId));
   if (!approved.length) return [];
   const need = take + skip;
   const withImg = approved.filter((p) => p.imageKey);
@@ -47,7 +49,7 @@ const pickFeatured = (products: Product[], take: number, skip = 0): Product[] =>
   return picks.slice(skip, skip + take);
 };
 
-const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks" }: Props) => {
+const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks", onlySupplierId }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
   const [discount, setDiscount] = useState(0);
@@ -68,7 +70,7 @@ const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, tit
     return () => { offAuth(); offBiz(); };
   }, []);
 
-  const featured = useMemo(() => pickFeatured(products, limit, skip), [products, limit, skip]);
+  const featured = useMemo(() => pickFeatured(products, limit, skip, onlySupplierId), [products, limit, skip, onlySupplierId]);
   if (!featured.length) return null;
 
   const tier = tierFromRole(user.role);

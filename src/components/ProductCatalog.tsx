@@ -119,6 +119,13 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange, onRequireAuth }: Pro
     });
   }, [visible, query, collection, selectedCategory]);
 
+  const PER_PAGE = 25;
+  const [page, setPage] = useState(1);
+  const totalPages = Math.max(1, Math.ceil(filtered.length / PER_PAGE));
+  useEffect(() => setPage(1), [query, collection, selectedCategory]);
+  const clampedPage = Math.min(page, totalPages);
+  const paged = filtered.slice((clampedPage - 1) * PER_PAGE, clampedPage * PER_PAGE);
+
   if (!visible.length) {
     return (
       <section className="py-16 sm:py-24 lg:py-32 px-4 sm:px-8 lg:px-12">
@@ -230,8 +237,8 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange, onRequireAuth }: Pro
           </div>
         </div>
 
-        <motion.div variants={containerVariants} initial="hidden" animate="show" key={`${query}-${collection}-${selectedCategory}`} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
-          {filtered.map((p) => (
+        <motion.div variants={containerVariants} initial="hidden" animate="show" key={`${query}-${collection}-${selectedCategory}-${clampedPage}`} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6">
+          {paged.map((p) => (
             <motion.article key={p.id} variants={cardVariants} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 transition-shadow hover:shadow-xl cursor-pointer border border-outline-variant/5">
               
               {/* Image tile — Amber lifestyle shots fill the frame (cover); product
@@ -322,6 +329,40 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange, onRequireAuth }: Pro
             </motion.article>
           ))}
         </motion.div>
+
+        {totalPages > 1 && (
+          <div className="mt-12 flex flex-wrap items-center justify-center gap-2">
+            <button
+              onClick={() => setPage((p) => Math.max(1, p - 1))}
+              disabled={clampedPage === 1}
+              className="px-3 py-2 rounded-md text-sm font-semibold bg-surface-container-low text-primary hover:bg-surface-container disabled:opacity-30 disabled:pointer-events-none"
+            >
+              ← Prev
+            </button>
+            {Array.from({ length: totalPages }, (_, i) => i + 1)
+              .filter((n) => n === 1 || n === totalPages || Math.abs(n - clampedPage) <= 2)
+              .map((n, idx, arr) => (
+                <span key={n} className="flex items-center">
+                  {idx > 0 && arr[idx - 1] !== n - 1 && <span className="px-1 text-on-surface-variant">…</span>}
+                  <button
+                    onClick={() => setPage(n)}
+                    className={`min-w-[38px] px-3 py-2 rounded-md text-sm font-semibold transition ${
+                      n === clampedPage ? 'bg-primary text-surface' : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                    }`}
+                  >
+                    {n}
+                  </button>
+                </span>
+              ))}
+            <button
+              onClick={() => setPage((p) => Math.min(totalPages, p + 1))}
+              disabled={clampedPage === totalPages}
+              className="px-3 py-2 rounded-md text-sm font-semibold bg-surface-container-low text-primary hover:bg-surface-container disabled:opacity-30 disabled:pointer-events-none"
+            >
+              Next →
+            </button>
+          </div>
+        )}
 
         <ProductDetail product={selected} role={user.role} onClose={() => setSelected(null)} onRequireAuth={onRequireAuth} />
       </div>

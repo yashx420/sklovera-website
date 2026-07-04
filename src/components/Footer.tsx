@@ -91,6 +91,66 @@ const Footer = ({ onRegisterVendor }: Props) => (
         </div>
       </div>
 
+      {/* Company contact */}
+      <motion.div
+        initial={{ opacity: 0, y: 20 }}
+        whileInView={{ opacity: 1, y: 0 }}
+        viewport={{ once: true }}
+        transition={{ duration: 1.2 }}
+        className="grid grid-cols-1 md:grid-cols-3 gap-8 pt-10 sm:pt-16"
+        style={{ borderTop: '1px solid rgba(82,183,136,0.15)' }}
+      >
+        <div>
+          <h4 className="font-headline italic text-2xl mb-4" style={{ color: '#f5f5f4' }}>Sklovera Enterprises LLP</h4>
+          <div className="space-y-2.5 text-sm">
+            {[
+              { icon: 'call', label: '+91 98928 11951', href: 'tel:+919892811951' },
+              { icon: 'call', label: '+48 734 151 386', href: 'tel:+48734151386' },
+              { icon: 'mail', label: 'Bharat@sklovera.com', href: 'mailto:Bharat@sklovera.com' },
+              { icon: 'language', label: 'www.sklovera.com', href: 'https://www.sklovera.com' },
+            ].map((c) => (
+              <a
+                key={c.label}
+                href={c.href}
+                target={c.icon === 'language' ? '_blank' : undefined}
+                rel="noreferrer"
+                className="flex items-center gap-2.5 transition-colors"
+                style={{ color: '#a8a29e' }}
+                onMouseOver={(e) => (e.currentTarget.style.color = '#52b788')}
+                onMouseOut={(e) => (e.currentTarget.style.color = '#a8a29e')}
+              >
+                <span className="material-symbols-outlined text-[18px]" style={{ color: '#52b788' }} data-icon={c.icon}>{c.icon}</span>
+                {c.label}
+              </a>
+            ))}
+          </div>
+        </div>
+
+        <div>
+          <h6 className="font-bold text-xs uppercase mb-3 flex items-center gap-2" style={{ letterSpacing: '0.1em', color: 'rgba(82,183,136,0.7)' }}>
+            <span className="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+            India Office
+          </h6>
+          <p className="text-sm leading-relaxed" style={{ color: '#a8a29e' }}>
+            104 Indralok, Swami Samarth Nagar,<br />
+            Lokhandwala, Andheri West,<br />
+            Mumbai 400053, India
+          </p>
+        </div>
+
+        <div>
+          <h6 className="font-bold text-xs uppercase mb-3 flex items-center gap-2" style={{ letterSpacing: '0.1em', color: 'rgba(82,183,136,0.7)' }}>
+            <span className="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+            Poland Office
+          </h6>
+          <p className="text-sm leading-relaxed" style={{ color: '#a8a29e' }}>
+            Łowicka 25,<br />
+            02-502 Warsaw,<br />
+            Poland
+          </p>
+        </div>
+      </motion.div>
+
       {/* Bottom Bar */}
       <motion.div
         initial={{ opacity: 0 }}

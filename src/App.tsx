@@ -472,9 +472,10 @@ function App() {
               <FeaturedProducts
                 onBrowseAll={() => setView('catalog')}
                 onRequireAuth={() => setOnboardingOpen(true)}
+                onlySupplierId="sup-amber"
                 limit={5}
-                kicker="More from the Atelier"
-                title="Newly Curated"
+                kicker="Amber Glass Line"
+                title="The Amber Collection"
               />
               <SpecificationDrawer onRegister={() => setView('vendor-register')} />
             </>
