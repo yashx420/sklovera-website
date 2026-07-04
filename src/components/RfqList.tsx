@@ -13,7 +13,7 @@ import {
   type VendorSegment,
 } from '../lib/rfq';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
-import { computeQuote, loadPricingConfig, type Tier } from '../lib/pricing';
+import { loadPricingConfig } from '../lib/pricing';
 import { generateQuotePdf } from '../lib/quotePdf';
 import { planFulfillment, type FulfillmentPlan } from '../lib/fulfillment';
 import { loadProducts } from '../lib/products';
@@ -52,9 +52,8 @@ const RfqList = ({ scope }: Props) => {
   const [rfqs, setRfqs] = useState<Rfq[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<RfqStatus | 'all'>('all');
-  const [tierOverride, setTierOverride] = useState<Tier>('b2b');
   // Per-segment negotiation drafts, keyed `${rfqId}:${vendorId}`.
-  const [segDrafts, setSegDrafts] = useState<Record<string, { total: string; note: string }>>({});
+  const [segDrafts, setSegDrafts] = useState<Record<string, { total: string; note: string; discount: string }>>({});
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
   useEffect(() => {
@@ -110,36 +109,38 @@ const RfqList = ({ scope }: Props) => {
       const groups = rfqGroups(selected);
       if (groups.length) ensureSegments(selected.id, groups);
     }
-    setTierOverride(selected.quoteTier ?? 'b2b');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, selected, scope]);
 
   const draftKey = (rfqId: string, vendorId: string) => `${rfqId}:${vendorId}`;
+  const emptyDraft = { total: '', note: '', discount: '' };
   const getDraft = (rfqId: string, seg: VendorSegment) =>
     segDrafts[draftKey(rfqId, seg.vendorId)] ?? {
+      ...emptyDraft,
       total: seg.currentTotalEur !== undefined ? String(seg.currentTotalEur) : '',
-      note: '',
     };
-  const setDraft = (rfqId: string, vendorId: string, patch: Partial<{ total: string; note: string }>) =>
+  const setDraft = (rfqId: string, vendorId: string, patch: Partial<{ total: string; note: string; discount: string }>) =>
     setSegDrafts((d) => {
       const k = draftKey(rfqId, vendorId);
-      return { ...d, [k]: { ...(d[k] ?? { total: '', note: '' }), ...patch } };
+      return { ...d, [k]: { ...(d[k] ?? emptyDraft), ...patch } };
     });
   const clearDraft = (rfqId: string, vendorId: string) =>
     setSegDrafts((d) => { const n = { ...d }; delete n[draftKey(rfqId, vendorId)]; return n; });
 
   const segItems = (r: Rfq, seg: VendorSegment) => r.items.filter((i) => seg.productIds.includes(i.productId));
+  // List price for a vendor's lines (reference EUR × quantity).
+  const segRefSubtotal = (r: Rfq, seg: VendorSegment) =>
+    Math.round(segItems(r, seg).reduce((s, i) => s + (i.priceEurRef ?? 0) * i.quantity, 0) * 100) / 100;
+  const segDiscountPct = (r: Rfq, seg: VendorSegment) =>
+    Math.min(100, Math.max(0, parseFloat(getDraft(r.id, seg).discount || '') || 0));
 
-  const suggestSeg = (r: Rfq, seg: VendorSegment) => {
-    const items = segItems(r, seg);
-    const plans = planFulfillment(items, loadProducts());
-    const q = computeQuote(items, tierOverride, loadPricingConfig(), plans);
-    setDraft(r.id, seg.vendorId, { total: String(q.totalEur) });
-  };
+  // Admin adds a discount % off the vendor's list price and sends it for review.
   const sendSeg = (r: Rfq, seg: VendorSegment) => {
-    const n = parseFloat(getDraft(r.id, seg).total);
-    if (!Number.isFinite(n)) return;
-    segmentSendToVendor(r.id, seg.vendorId, { totalEur: n, note: getDraft(r.id, seg).note || undefined, byName: user.displayName });
+    const list = segRefSubtotal(r, seg);
+    const pct = segDiscountPct(r, seg);
+    const total = Math.round(list * (1 - pct / 100) * 100) / 100;
+    const note = getDraft(r.id, seg).note || `${pct}% off list (€ ${list.toFixed(2)})`;
+    segmentSendToVendor(r.id, seg.vendorId, { totalEur: total, note, byName: user.displayName });
     clearDraft(r.id, seg.vendorId);
   };
   const counterSeg = (r: Rfq, seg: VendorSegment) => {
@@ -520,14 +521,22 @@ const RfqList = ({ scope }: Props) => {
                                 ) : (
                                   <>
                                     {seg.status === 'vendor_review' && (
-                                      <div className="text-[11px] text-on-surface-variant">⏳ Awaiting {seg.vendorName}. You can re-send a new figure.</div>
+                                      <div className="text-[11px] text-on-surface-variant">⏳ Awaiting {seg.vendorName}. You can re-send a new discount.</div>
                                     )}
+                                    <div className="text-xs text-on-surface-variant">
+                                      List price € {segRefSubtotal(selected, seg).toFixed(2)}
+                                      {' → '}
+                                      <span className="font-semibold text-primary">€ {(segRefSubtotal(selected, seg) * (1 - segDiscountPct(selected, seg) / 100)).toFixed(2)}</span>
+                                      {' '}after {segDiscountPct(selected, seg)}% off
+                                    </div>
                                     <div className="flex flex-wrap gap-2 items-center">
-                                      <input type="number" value={draft.total} onChange={(e) => setDraft(selected.id, seg.vendorId, { total: e.target.value })} placeholder="€ total" className="w-28 bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
-                                      <input value={draft.note} onChange={(e) => setDraft(selected.id, seg.vendorId, { note: e.target.value })} placeholder="Message to vendor" className="flex-1 min-w-[140px] bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
-                                      <button onClick={() => suggestSeg(selected, seg)} className="px-3 py-2 rounded-md text-xs font-semibold bg-surface-container text-primary hover:bg-surface-container-high">Suggest</button>
-                                      <button onClick={() => sendSeg(selected, seg)} disabled={!canSend} className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40">
-                                        {seg.status === 'vendor_countered' ? 'Send back' : 'Send to vendor'}
+                                      <div className="flex items-center bg-surface-container-lowest rounded-md overflow-hidden">
+                                        <input type="number" min={0} max={100} value={draft.discount} onChange={(e) => setDraft(selected.id, seg.vendorId, { discount: e.target.value })} placeholder="0" className="w-14 bg-transparent px-3 py-2 outline-none text-sm text-right" />
+                                        <span className="px-2 text-xs text-on-surface-variant">% off</span>
+                                      </div>
+                                      <input value={draft.note} onChange={(e) => setDraft(selected.id, seg.vendorId, { note: e.target.value })} placeholder="Message to vendor (optional)" className="flex-1 min-w-[140px] bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
+                                      <button onClick={() => sendSeg(selected, seg)} className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface">
+                                        {seg.status === 'vendor_countered' ? 'Send back' : 'Send discount for review'}
                                       </button>
                                     </div>
                                   </>
