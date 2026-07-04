@@ -21,6 +21,8 @@ type Props = {
   kicker?: string;
   /** Restrict the picks to a single vendor (e.g. "sup-amber"). */
   onlySupplierId?: string;
+  /** Hide the price on the cards (teaser mode). */
+  hidePrice?: boolean;
 };
 
 const pickFeatured = (products: Product[], take: number, skip = 0, supplierId?: string): Product[] => {
@@ -49,7 +51,7 @@ const pickFeatured = (products: Product[], take: number, skip = 0, supplierId?: 
   return picks.slice(skip, skip + take);
 };
 
-const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks", onlySupplierId }: Props) => {
+const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks", onlySupplierId, hidePrice }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
   const [discount, setDiscount] = useState(0);
@@ -129,7 +131,9 @@ const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, tit
               <motion.article key={p.id} variants={itemV} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 cursor-pointer transition-shadow hover:shadow-xl relative group overflow-hidden">
                 <div className="absolute inset-0 bg-gradient-to-br from-forest/0 via-emerald/3 to-jade/0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-xl" />
                 <div className="absolute top-3 right-3 w-2 h-2 rounded-full bg-jade/40 opacity-0 group-hover:opacity-100 transition-opacity duration-300 z-10" />
-                <ProductImage imageKey={p.imageKey} alt={p.name} className="aspect-[4/5] w-full object-contain rounded-md bg-surface-container relative z-10" />
+                <div className="aspect-[4/5] w-full rounded-md overflow-hidden bg-surface-container relative z-10">
+                  <ProductImage imageKey={p.imageKey} alt={p.name} className="w-full h-full object-cover" />
+                </div>
                 <div className="flex items-center justify-between text-xs mt-2 relative z-10">
                   <span className="font-mono text-on-surface-variant">{p.sku}</span>
                   {p.category && <span className="text-emerald font-semibold uppercase tracking-wider bg-forest/5 px-2 py-0.5 rounded">{p.category}</span>}
@@ -137,7 +141,9 @@ const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, tit
                 <h3 className="font-headline italic text-lg sm:text-2xl text-primary leading-snug relative z-10">{p.name}</h3>
                 {p.collection && <div className="text-xs uppercase tracking-widest text-secondary font-semibold relative z-10">{p.collection}</div>}
                 <div className="mt-auto flex items-end justify-between pt-4 gap-3 relative z-10">
-                  {bulk ? (
+                  {hidePrice ? (
+                    <div className="flex-1" />
+                  ) : bulk ? (
                     <div className="min-w-0">
                       <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
                         Per unit

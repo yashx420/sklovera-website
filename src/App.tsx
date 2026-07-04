@@ -473,9 +473,9 @@ function App() {
                 onBrowseAll={() => setView('catalog')}
                 onRequireAuth={() => setOnboardingOpen(true)}
                 onlySupplierId="sup-amber"
+                hidePrice
                 limit={5}
-                kicker="Amber Glass Line"
-                title="The Amber Collection"
+                title="Featured Products"
               />
               <SpecificationDrawer onRegister={() => setView('vendor-register')} />
             </>
