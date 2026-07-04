@@ -166,6 +166,8 @@ const SupplierInventory = () => {
                     <th className="text-left px-4 py-3 font-semibold">SKU</th>
                     <th className="text-left px-4 py-3 font-semibold">Description</th>
                     <th className="text-left px-4 py-3 font-semibold">Collection</th>
+                    <th className="text-right px-4 py-3 font-semibold">Unit EUR</th>
+                    <th className="text-right px-4 py-3 font-semibold">Unit USD</th>
                     <th className="text-right px-4 py-3 font-semibold">International</th>
                     <th className="text-right px-4 py-3 font-semibold">India</th>
                     <th className="text-right px-4 py-3 font-semibold">Total</th>
@@ -208,6 +210,8 @@ const SupplierInventory = () => {
                           </button>
                         </td>
                         <td className="px-4 py-2">{p.collection ?? '—'}</td>
+                        <td className="px-4 py-2 text-right whitespace-nowrap">{p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}</td>
+                        <td className="px-4 py-2 text-right whitespace-nowrap">{p.priceUsd !== undefined ? `$ ${p.priceUsd.toFixed(2)}` : '—'}</td>
                         <td className="px-4 py-2 text-right">
                           <input
                             type="number"

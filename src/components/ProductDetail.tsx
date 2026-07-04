@@ -25,6 +25,7 @@ const ProductDetail = ({ product, role, onClose, onRequireAuth }: Props) => {
   useEffect(() => setAspect(undefined), [product?.id]);
   if (!product) return null;
   const adminView = role === 'admin';
+  const showTrade = adminView || role === 'supplier'; // trade prices (EUR/USD)
 
   return (
     <AnimatePresence>
@@ -100,8 +101,8 @@ const ProductDetail = ({ product, role, onClose, onRequireAuth }: Props) => {
             <Row label="Carton" value={product.cartonType ? `${product.cartonType}${product.pcsPerCarton ? ` · ${product.pcsPerCarton} pcs` : ''}` : undefined} />
             <Row label="Pcs per pallet" value={product.pcsPerPallet} />
             <Row label="Logo capable" value={product.logoCapable ? 'Yes' : undefined} />
-            {adminView && <Row label="Unit price (EXW)" value={product.priceEur !== undefined ? `€ ${product.priceEur.toFixed(2)}` : undefined} />}
-            {adminView && <Row label="Unit price (USD)" value={product.priceUsd !== undefined ? `$ ${product.priceUsd.toFixed(2)}` : undefined} />}
+            {showTrade && <Row label="Unit price (EUR)" value={product.priceEur !== undefined ? `€ ${product.priceEur.toFixed(2)}` : undefined} />}
+            {showTrade && <Row label="Unit price (USD)" value={product.priceUsd !== undefined ? `$ ${product.priceUsd.toFixed(2)}` : undefined} />}
             <Row label="Inventory" value={product.inventory?.toLocaleString()} />
             {adminView && <Row label="Supplier" value={product.supplier} />}
             {adminView && <Row label="Status" value={product.status} />}

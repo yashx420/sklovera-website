@@ -293,6 +293,12 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange, onRequireAuth }: Pro
                         <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
                         <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? `€ ${p.priceEur!.toFixed(2)}` : '—'}</div>
                       </div>
+                    ) : role === 'supplier' ? (
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Unit price</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? `€ ${p.priceEur!.toFixed(2)}` : '—'}</div>
+                        {p.priceUsd !== undefined && <div className="text-[10px] text-on-surface-variant whitespace-nowrap">$ {p.priceUsd.toFixed(2)}</div>}
+                      </div>
                     ) : (
                       <div className="min-w-0">
                         <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
