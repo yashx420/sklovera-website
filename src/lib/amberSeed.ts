@@ -25,7 +25,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G100-3.jpg",
       "/images/amber/G100-4.jpg",
       "/images/amber/G100-5.png"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:G101",
@@ -47,7 +48,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G100-G101-1.jpg",
       "/images/amber/G101-2.jpg",
       "/images/amber/G101-3.jpg"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:G102",
@@ -73,7 +75,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G102-6.jpg",
       "/images/amber/G102-7.jpg",
       "/images/amber/G102-8.png"
-    ]
+    ],
+    "priceEur": 13.74
   },
   {
     "id": "sup-amber:G110",
@@ -96,7 +99,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G110-3.jpg",
       "/images/amber/G110-4.jpg",
       "/images/amber/G110-5.png"
-    ]
+    ],
+    "priceEur": 11.1
   },
   {
     "id": "sup-amber:G111",
@@ -117,7 +121,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G111-1.jpg",
       "/images/amber/G111-2.jpg",
       "/images/amber/G111-3.jpg"
-    ]
+    ],
+    "priceEur": 11.1
   },
   {
     "id": "sup-amber:G120",
@@ -138,7 +143,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G120-1.jpg",
       "/images/amber/G120-2.jpg",
       "/images/amber/G120-3.jpg"
-    ]
+    ],
+    "priceEur": 11.1
   },
   {
     "id": "sup-amber:G200",
@@ -162,7 +168,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G200-3.jpg",
       "/images/amber/G200-4.jpg",
       "/images/amber/G200-5.png"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:G201",
@@ -184,7 +191,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G200-G201-1.jpg",
       "/images/amber/G201-2.jpg",
       "/images/amber/G201-3.jpg"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:G202",
@@ -209,7 +217,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G202-4.jpg",
       "/images/amber/G202-6.jpg",
       "/images/amber/G202-7.png"
-    ]
+    ],
+    "priceEur": 13.74
   },
   {
     "id": "sup-amber:G300",
@@ -232,7 +241,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G300-2.jpg",
       "/images/amber/G300-3.jpg",
       "/images/amber/G300-4.png"
-    ]
+    ],
+    "priceEur": 9.6
   },
   {
     "id": "sup-amber:G301",
@@ -253,7 +263,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G301-1.jpg",
       "/images/amber/G301-2.jpg",
       "/images/amber/G301-3.jpg"
-    ]
+    ],
+    "priceEur": 9.6
   },
   {
     "id": "sup-amber:G410",
@@ -276,7 +287,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G410-2.jpg",
       "/images/amber/G410-3.jpeg",
       "/images/amber/G410-4.png"
-    ]
+    ],
+    "priceEur": 11.1
   },
   {
     "id": "sup-amber:G411",
@@ -297,7 +309,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G411-1.jpg",
       "/images/amber/G411-2.jpg",
       "/images/amber/G411-3.jpg"
-    ]
+    ],
+    "priceEur": 11.1
   },
   {
     "id": "sup-amber:G500",
@@ -322,7 +335,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G500-4.jpg",
       "/images/amber/G500-5.jpg",
       "/images/amber/G500-6.png"
-    ]
+    ],
+    "priceEur": 13.03
   },
   {
     "id": "sup-amber:G501",
@@ -345,7 +359,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G501-2.jpg",
       "/images/amber/G501-3.jpg",
       "/images/amber/G501-4.png"
-    ]
+    ],
+    "priceEur": 13.03
   },
   {
     "id": "sup-amber:G502",
@@ -371,7 +386,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G502-6.jpg",
       "/images/amber/G502-7.jpg",
       "/images/amber/G502-8.jpg"
-    ]
+    ],
+    "priceEur": 13.74
   },
   {
     "id": "sup-amber:G510",
@@ -393,7 +409,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G510-2.jpg",
       "/images/amber/G510-3.jpg",
       "/images/amber/G510-4.jpg"
-    ]
+    ],
+    "priceEur": 13.03
   },
   {
     "id": "sup-amber:G600",
@@ -414,7 +431,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G600-1.jpg",
       "/images/amber/G600-2.jpg",
       "/images/amber/G600-3.jpg"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:G601",
@@ -434,7 +452,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/G601-1.jpg",
       "/images/amber/G601-2.jpg"
-    ]
+    ],
+    "priceEur": 10.43
   },
   {
     "id": "sup-amber:G602",
@@ -457,7 +476,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G602-3.jpg",
       "/images/amber/G602-4.jpg",
       "/images/amber/G602-5.jpg"
-    ]
+    ],
+    "priceEur": 13.74
   },
   {
     "id": "sup-amber:G610",
@@ -479,7 +499,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/G610-2.jpg",
       "/images/amber/G610-3.jpg",
       "/images/amber/G610-4.jpg"
-    ]
+    ],
+    "priceEur": 12.09
   },
   {
     "id": "sup-amber:V100 (6 pcs inside)",
@@ -501,7 +522,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/V100-V101-1.jpg",
       "/images/amber/V100-2.jpg",
       "/images/amber/V100-3.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:V101 (6 pcs inside)",
@@ -523,7 +545,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/V100-V101-1.jpg",
       "/images/amber/V101-2.jpg",
       "/images/amber/V101-3.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:V102 (6 pcs inside)",
@@ -547,7 +570,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/V102-4.jpg",
       "/images/amber/V102-5.jpg",
       "/images/amber/V102-6.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:CG100 (2 pcs inside)",
@@ -573,7 +597,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/CG100-6.jpg",
       "/images/amber/CG100-7.jpg",
       "/images/amber/CG100-8.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:CG200 (2 pcs inside)",
@@ -594,7 +619,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/CG200-1.jpg",
       "/images/amber/CG200-2.jpg",
       "/images/amber/CG200-3.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:CG300 (2 pcs inside)",
@@ -615,7 +641,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/CG300-1.jpg",
       "/images/amber/CG300-2.jpg",
       "/images/amber/CG300-3.jpg"
-    ]
+    ],
+    "priceEur": 24.84
   },
   {
     "id": "sup-amber:Amber Set",
@@ -637,7 +664,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/Amber-Set-2.jpg",
       "/images/amber/Amber-Set-3.jpg",
       "/images/amber/Amber-Set-4.jpg"
-    ]
+    ],
+    "priceEur": 27.6
   },
   {
     "id": "sup-amber:Amber Box (2 pcs inside)",
@@ -659,7 +687,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/Amber-Box-2.jpg",
       "/images/amber/Amber-Box-3.jpg",
       "/images/amber/Amber-Box-4.png"
-    ]
+    ],
+    "priceEur": 19.32
   },
   {
     "id": "sup-amber:Amber Box II (2 pcs inside)",
@@ -688,7 +717,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/Amber-Box-II-black-3.jpg",
       "/images/amber/Amber-Box-II-4.jpg",
       "/images/amber/Amber-Box-II-5.jpg"
-    ]
+    ],
+    "priceEur": 19.32
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 1",
@@ -708,7 +738,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 2",
@@ -728,7 +759,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 3",
@@ -748,7 +780,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 4",
@@ -768,7 +801,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 5",
@@ -788,7 +822,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 6",
@@ -808,7 +843,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 7",
@@ -828,7 +864,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Crystal Box (2 pcs inside) - pattern no 8",
@@ -848,7 +885,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "images": [
       "/images/amber/Crystal-Box-1.jpg",
       "/images/amber/Crystal-Box-2.jpg"
-    ]
+    ],
+    "priceEur": 31.46
   },
   {
     "id": "sup-amber:Amber Box III (2 pcs inside)",
@@ -869,7 +907,8 @@ export const AMBER_PRODUCTS: Product[] = [
       "/images/amber/Amber-Box-III-1.jpg",
       "/images/amber/Amber-Box-III-2.jpg",
       "/images/amber/Amber-Box-III-3.jpg"
-    ]
+    ],
+    "priceEur": 19.32
   },
   {
     "id": "sup-amber:Model 19-2276A",
@@ -885,7 +924,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 5.3,
     "stockIntl": 1200,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Model 19-2670",
@@ -901,7 +941,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.2,
     "stockIntl": 1500,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Model 19-2350",
@@ -917,7 +958,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.75,
     "stockIntl": 2600,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Model 19-3104C",
@@ -933,7 +975,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.75,
     "stockIntl": 402,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Model 19-2872",
@@ -949,7 +992,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.2,
     "stockIntl": 1600,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Model 19-3223",
@@ -965,7 +1009,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.75,
     "stockIntl": 324,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Model 19-3254",
@@ -981,7 +1026,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.2,
     "stockIntl": 900,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Model 19-3388",
@@ -997,7 +1043,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.2,
     "stockIntl": 500,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Model 19-2338",
@@ -1013,7 +1060,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 3.35,
     "stockIntl": 900,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.08
   },
   {
     "id": "sup-amber:Model 19-3297",
@@ -1029,7 +1077,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 3.35,
     "stockIntl": 432,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.08
   },
   {
     "id": "sup-amber:Model 20-1037",
@@ -1045,7 +1094,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 10.1,
     "stockIntl": 2000,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 9.29
   },
   {
     "id": "sup-amber:Model 23-281A",
@@ -1061,7 +1111,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 5.3,
     "stockIntl": 497,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Model 12-180",
@@ -1077,7 +1128,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 5.3,
     "stockIntl": 580,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Model 20 - 1390C",
@@ -1093,7 +1145,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 4.2,
     "stockIntl": 1200,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Model 20-1453A",
@@ -1109,7 +1162,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 3.6,
     "stockIntl": 2680,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 3.31
   },
   {
     "id": "sup-amber:Model 20-3566",
@@ -1125,7 +1179,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "priceUsd": 3.05,
     "stockIntl": 1100,
     "cartonType": "x6 pcs in carton box",
-    "pcsPerCarton": 6
+    "pcsPerCarton": 6,
+    "priceEur": 2.81
   },
   {
     "id": "sup-amber:Glass/2350/300ml",
@@ -1144,7 +1199,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1029,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2350-300ml.jpeg"
+    "imageKey": "/images/amber/Glass-2350-300ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/2355/750ml",
@@ -1163,7 +1219,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2355-750ml.jpeg"
+    "imageKey": "/images/amber/Glass-2355-750ml.jpeg",
+    "priceEur": 4.97
   },
   {
     "id": "sup-amber:Glass/2670/600ml",
@@ -1182,7 +1239,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2670-600ml.jpeg"
+    "imageKey": "/images/amber/Glass-2670-600ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/2765/250ml",
@@ -1201,7 +1259,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 2583,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2765-250ml.jpeg"
+    "imageKey": "/images/amber/Glass-2765-250ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/2872/140ml",
@@ -1220,7 +1279,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1600,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2872-140ml.jpeg"
+    "imageKey": "/images/amber/Glass-2872-140ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/2878/1000ml",
@@ -1239,7 +1299,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 7000,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2878-1000ml.jpeg"
+    "imageKey": "/images/amber/Glass-2878-1000ml.jpeg",
+    "priceEur": 4.97
   },
   {
     "id": "sup-amber:Glass/2975/200ml",
@@ -1258,7 +1319,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1600,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2975-200ml.jpeg"
+    "imageKey": "/images/amber/Glass-2975-200ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/3104/optyk/280ml",
@@ -1277,7 +1339,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 2600,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3104-optyk-280ml.jpeg"
+    "imageKey": "/images/amber/Glass-3104-optyk-280ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/3500/250ml",
@@ -1296,7 +1359,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1100,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3500-250ml.jpeg"
+    "imageKey": "/images/amber/Glass-3500-250ml.jpeg",
+    "priceEur": 3.45
   },
   {
     "id": "sup-amber:Glass/3566/140ml",
@@ -1315,7 +1379,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1130,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3566-140ml.jpeg"
+    "imageKey": "/images/amber/Glass-3566-140ml.jpeg",
+    "priceEur": 2.81
   },
   {
     "id": "sup-amber:Glass/1113/B/250ml",
@@ -1334,7 +1399,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1100,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-1113-B-250ml.jpeg"
+    "imageKey": "/images/amber/Glass-1113-B-250ml.jpeg",
+    "priceEur": 3.45
   },
   {
     "id": "sup-amber:Glass/1390/C/optyk/300ml",
@@ -1353,7 +1419,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1200,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-1390-C-optyk-300ml.jpeg"
+    "imageKey": "/images/amber/Glass-1390-C-optyk-300ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/1453/300ml",
@@ -1372,7 +1439,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 6500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-1453-300ml.jpeg"
+    "imageKey": "/images/amber/Glass-1453-300ml.jpeg",
+    "priceEur": 3.31
   },
   {
     "id": "sup-amber:Glass/1453/A/350ml",
@@ -1391,7 +1459,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 2680,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-1453-A-350ml.jpeg"
+    "imageKey": "/images/amber/Glass-1453-A-350ml.jpeg",
+    "priceEur": 3.31
   },
   {
     "id": "sup-amber:Glass/1462/optyk/400ml",
@@ -1410,7 +1479,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 600,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-1462-optyk-400ml.jpeg"
+    "imageKey": "/images/amber/Glass-1462-optyk-400ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/292/C/300ml",
@@ -1429,7 +1499,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-292-C-300ml.jpeg"
+    "imageKey": "/images/amber/Glass-292-C-300ml.jpeg",
+    "priceEur": 3.31
   },
   {
     "id": "sup-amber:Glass/2276/A/optyk/600ml",
@@ -1448,7 +1519,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 1200,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2276-A-optyk-600ml.jpeg"
+    "imageKey": "/images/amber/Glass-2276-A-optyk-600ml.jpeg",
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Glass/180/500ml",
@@ -1467,7 +1539,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 580,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-180-500ml.jpeg"
+    "imageKey": "/images/amber/Glass-180-500ml.jpeg",
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Glass/259/500ml",
@@ -1486,7 +1559,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 800,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-259-500ml.jpeg"
+    "imageKey": "/images/amber/Glass-259-500ml.jpeg",
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Glass/313/700ml",
@@ -1505,7 +1579,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 450,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-313-700ml.jpeg"
+    "imageKey": "/images/amber/Glass-313-700ml.jpeg",
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Glass/23/281/A/500ml",
@@ -1524,7 +1599,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-23-281-A-500ml.jpeg"
+    "imageKey": "/images/amber/Glass-23-281-A-500ml.jpeg",
+    "priceEur": 4.88
   },
   {
     "id": "sup-amber:Glass/3388/A/270ml",
@@ -1543,7 +1619,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 500,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3388-A-270ml.jpeg"
+    "imageKey": "/images/amber/Glass-3388-A-270ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/3104/C/optyk/24/230ml",
@@ -1562,7 +1639,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 402,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3104-C-optyk-24-230ml.jpeg"
+    "imageKey": "/images/amber/Glass-3104-C-optyk-24-230ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/3104/C/optyk/8/230ml",
@@ -1581,7 +1659,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 678,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3104-C-optyk-8-230ml.jpeg"
+    "imageKey": "/images/amber/Glass-3104-C-optyk-8-230ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/3223/optyk/150ml",
@@ -1600,7 +1679,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 324,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3223-optyk-150ml.jpeg"
+    "imageKey": "/images/amber/Glass-3223-optyk-150ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/3224/optyk/150ml",
@@ -1619,7 +1699,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 396,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3224-optyk-150ml.jpeg"
+    "imageKey": "/images/amber/Glass-3224-optyk-150ml.jpeg",
+    "priceEur": 4.37
   },
   {
     "id": "sup-amber:Glass/3248/750ml",
@@ -1638,7 +1719,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 372,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3248-750ml.jpeg"
+    "imageKey": "/images/amber/Glass-3248-750ml.jpeg",
+    "priceEur": 5.89
   },
   {
     "id": "sup-amber:Glass/3254/F/280ml",
@@ -1657,7 +1739,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 900,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3254-F-280ml.jpeg"
+    "imageKey": "/images/amber/Glass-3254-F-280ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/3645/A/490ml",
@@ -1676,7 +1759,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 372,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3645-A-490ml.jpeg"
+    "imageKey": "/images/amber/Glass-3645-A-490ml.jpeg",
+    "priceEur": 3.59
   },
   {
     "id": "sup-amber:Glass/3645/B/600ml",
@@ -1695,7 +1779,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 280,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3645-B-600ml.jpeg"
+    "imageKey": "/images/amber/Glass-3645-B-600ml.jpeg",
+    "priceEur": 3.86
   },
   {
     "id": "sup-amber:Glass/3645/230ml",
@@ -1714,7 +1799,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 222,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3645-230ml.jpeg"
+    "imageKey": "/images/amber/Glass-3645-230ml.jpeg",
+    "priceEur": 3.4
   },
   {
     "id": "sup-amber:Glass/3297/A/140ml",
@@ -1733,7 +1819,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 352,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3297-A-140ml.jpeg"
+    "imageKey": "/images/amber/Glass-3297-A-140ml.jpeg",
+    "priceEur": 3.4
   },
   {
     "id": "sup-amber:Glass/3297/40ml",
@@ -1752,7 +1839,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 432,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3297-40ml.jpeg"
+    "imageKey": "/images/amber/Glass-3297-40ml.jpeg",
+    "priceEur": 3.08
   },
   {
     "id": "sup-amber:Glass/2338/160ml",
@@ -1771,7 +1859,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 900,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-2338-160ml.jpeg"
+    "imageKey": "/images/amber/Glass-2338-160ml.jpeg",
+    "priceEur": 3.08
   },
   {
     "id": "sup-amber:Glass/3053/200ml",
@@ -1790,7 +1879,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 510,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3053-200ml.jpeg"
+    "imageKey": "/images/amber/Glass-3053-200ml.jpeg",
+    "priceEur": 3.45
   },
   {
     "id": "sup-amber:Glass/3053/A/300ml",
@@ -1809,7 +1899,8 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 900,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3053-A-300ml.jpeg"
+    "imageKey": "/images/amber/Glass-3053-A-300ml.jpeg",
+    "priceEur": 3.59
   },
   {
     "id": "sup-amber:Glass/3307/345ml",
@@ -1828,6 +1919,7 @@ export const AMBER_PRODUCTS: Product[] = [
     "stockIntl": 378,
     "cartonType": "x6 pcs in carton box",
     "pcsPerCarton": 6,
-    "imageKey": "/images/amber/Glass-3307-345ml.jpeg"
+    "imageKey": "/images/amber/Glass-3307-345ml.jpeg",
+    "priceEur": 5.89
   }
 ];

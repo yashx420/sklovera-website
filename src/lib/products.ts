@@ -83,7 +83,7 @@ const STORAGE_KEY = 'sklovera.products.v1';
 // new photos/categories) so the upsert re-runs exactly once for existing users.
 // Amber v3: HoReCa photos + categories. Solbika v1: initial import.
 const VENDOR_SEEDS: { flag: string; products: Product[] }[] = [
-  { flag: 'sklovera.products.seed.amber.v3', products: AMBER_PRODUCTS },
+  { flag: 'sklovera.products.seed.amber.v4', products: AMBER_PRODUCTS },
   { flag: 'sklovera.products.seed.solbika.v1', products: SOLBIKA_PRODUCTS },
 ];
 

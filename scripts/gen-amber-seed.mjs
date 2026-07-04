@@ -288,6 +288,15 @@ for (const [k, group] of productByKey) {
 }
 console.log(`Copied ${copied} images; ${withImages} products now have photos.`);
 
+// The Amber sheets price in USD only; derive an EUR (EXW) figure so the
+// pricing engine — which keys off priceEur — can quote Amber products.
+const USD_TO_EUR = 0.92;
+for (const p of products) {
+  if (p.priceEur === undefined && p.priceUsd !== undefined) {
+    p.priceEur = Math.round(p.priceUsd * USD_TO_EUR * 100) / 100;
+  }
+}
+
 // Emit a TS seed module
 const header = `// AUTO-GENERATED from public/amber/*.xlsx + photo folders — Amber Glass vendor catalog seed.
 // Regenerate with: node scripts/gen-amber-seed.mjs
