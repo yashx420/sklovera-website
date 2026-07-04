@@ -11,6 +11,7 @@ import { motion, type Variants } from 'framer-motion';
 
 type Props = {
   onBrowseAll?: () => void;
+  onRequireAuth?: () => void;
   /** How many cards to show. Defaults to 8 (two rows of 4). */
   limit?: number;
   /** How many of the curated picks to skip — lets a second instance render different SKUs. */
@@ -46,7 +47,7 @@ const pickFeatured = (products: Product[], take: number, skip = 0): Product[] =>
   return picks.slice(skip, skip + take);
 };
 
-const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks" }: Props) => {
+const FeaturedProducts = ({ onBrowseAll, onRequireAuth, limit = 8, skip = 0, title = "Featured Products", kicker = "Editor's Picks" }: Props) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
   const [discount, setDiscount] = useState(0);
@@ -71,8 +72,8 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
   if (!featured.length) return null;
 
   const tier = tierFromRole(user.role);
-  const buyer = user.role === 'b2c' || user.role === 'b2b' || user.role === 'retail';
-  const showRfqCta = user.role === 'guest' || user.role === 'b2b' || user.role === 'retail' || user.role === 'admin';
+  const bulk = user.role === 'b2b' || user.role === 'retail'; // per-unit + RFQ
+  const individual = user.role === 'b2c';                     // per-box + bag
 
   const containerV: Variants = { hidden: { opacity: 0 }, show: { opacity: 1, transition: { staggerChildren: 0.2 } } };
   const itemV: Variants = { hidden: { opacity: 0, y: 20 }, show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 150, damping: 18 } } };
@@ -118,9 +119,9 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
         <motion.div variants={containerV} initial="hidden" whileInView="show" viewport={{ once: true, margin: '-100px' }} className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-6">
           {featured.map((p) => {
             const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
-            const unitInr = buyer ? computeUnitPrice(p.priceEur, tier, undefined, discount).inr : 0;
+            const unitInr = computeUnitPrice(p.priceEur, tier, undefined, discount).inr;
             const boxInr = unitInr * boxSize;
-            const pro = discount > 0;
+            const has = p.priceEur !== undefined;
             const inr0 = (n: number) => `₹ ${n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 })}`;
             return (
               <motion.article key={p.id} variants={itemV} whileHover={{ y: -8, scale: 1.02 }} onClick={() => setSelected(p)} className="bg-surface-container-lowest rounded-xl p-3 sm:p-6 flex flex-col gap-2 sm:gap-3 cursor-pointer transition-shadow hover:shadow-xl relative group overflow-hidden">
@@ -134,44 +135,35 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
                 <h3 className="font-headline italic text-lg sm:text-2xl text-primary leading-snug relative z-10">{p.name}</h3>
                 {p.collection && <div className="text-xs uppercase tracking-widest text-secondary font-semibold relative z-10">{p.collection}</div>}
                 <div className="mt-auto flex items-end justify-between pt-4 gap-3 relative z-10">
-                  {buyer ? (
-                    pro ? (
-                      <div className="min-w-0">
-                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
-                          Per unit
-                          <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discount}%</span>
-                        </div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {p.priceEur !== undefined ? inr0(unitInr) : '—'}
-                        </div>
-                        {p.priceEur !== undefined && (
-                          <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>
-                        )}
+                  {bulk ? (
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                        Per unit
+                        {discount > 0 && <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discount}%</span>}
                       </div>
-                    ) : (
-                      <div className="min-w-0">
-                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {p.priceEur !== undefined ? inr0(boxInr) : '—'}
-                        </div>
-                      </div>
-                    )
+                      <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? inr0(unitInr) : '—'}</div>
+                      {has && <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>}
+                    </div>
                   ) : user.role === 'admin' ? (
                     <div>
                       <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
-                      <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                        {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
-                      </div>
+                      <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? `€ ${p.priceEur!.toFixed(2)}` : '—'}</div>
                     </div>
                   ) : (
-                    <div className="flex-1" />
+                    <div className="min-w-0">
+                      <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
+                      <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? inr0(boxInr) : '—'}</div>
+                    </div>
                   )}
                   <div className="flex flex-col gap-1">
-                    {buyer && (
+                    {individual && (
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToBag(p.id, boxSize); }} className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold">Add to bag</motion.button>
                     )}
-                    {showRfqCta && (
+                    {(bulk || user.role === 'admin') && (
                       <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToCart(p.id, 1); }} className="text-xs bg-forest/8 text-emerald px-3 py-2 rounded-md font-semibold hover:bg-forest/15 transition-colors">Add to RFQ</motion.button>
+                    )}
+                    {user.role === 'guest' && (
+                      <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); onRequireAuth?.(); }} className="text-xs bg-primary text-surface px-4 py-2 rounded-md font-semibold">Add</motion.button>
                     )}
                   </div>
                 </div>
@@ -179,7 +171,7 @@ const FeaturedProducts = ({ onBrowseAll, limit = 8, skip = 0, title = "Featured 
             );
           })}
         </motion.div>
-        <ProductDetail product={selected} role={user.role} onClose={() => setSelected(null)} />
+        <ProductDetail product={selected} role={user.role} onClose={() => setSelected(null)} onRequireAuth={onRequireAuth} />
       </div>
     </section>
   );

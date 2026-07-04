@@ -114,6 +114,7 @@ function App() {
   const [role, setRole] = useState<Role>(() => currentUser().role);
   const [onboardingOpen, setOnboardingOpen] = useState(false);
   const [loginMode, setLoginMode] = useState<'customer' | 'vendor' | 'admin'>('customer');
+  const [buyerIntent, setBuyerIntent] = useState<'b2c' | 'b2b' | undefined>(undefined);
   const [pendingCount, setPendingCount] = useState(0);
 
   useEffect(() => {
@@ -449,7 +450,8 @@ function App() {
           {view === 'login' && (
             <LoginPage
               defaultMode={loginMode}
-              onDone={() => setView('home')}
+              buyerType={loginMode === 'customer' ? buyerIntent : undefined}
+              onDone={() => setView(loginMode === 'customer' ? 'catalog' : 'home')}
               onRegisterVendor={() => {
                 setLoginMode('vendor');
                 setView('vendor-register');
@@ -463,6 +465,7 @@ function App() {
               <FeaturedCollections onExplore={() => setView('catalog')} />
               <FeaturedProducts
                 onBrowseAll={() => setView('catalog')}
+                onRequireAuth={() => setOnboardingOpen(true)}
                 limit={5}
                 kicker="More from the Atelier"
                 title="Newly Curated"
@@ -470,7 +473,7 @@ function App() {
               <SpecificationDrawer onRegister={() => setView('vendor-register')} />
             </>
           )}
-          {view === 'catalog' && <ProductCatalog searchQuery={searchQuery} onSearchChange={setSearchQuery} />}
+          {view === 'catalog' && <ProductCatalog searchQuery={searchQuery} onSearchChange={setSearchQuery} onRequireAuth={() => setOnboardingOpen(true)} />}
           {view === 'standards' && <StandardsPage />}
           {view === 'vendor' && <VendorUpload onDone={() => setView(role === 'admin' ? 'admin' : role === 'supplier' ? 'supplier-inventory' : 'home')} />}
           {view === 'supplier-inventory' && <SupplierInventory />}
@@ -518,8 +521,13 @@ function App() {
           } else if (choice === 'vendor-login') {
             setLoginMode('vendor');
             setView('login');
-          } else if (choice === 'customer-login') {
+          } else if (choice === 'buyer-individual') {
             setLoginMode('customer');
+            setBuyerIntent('b2c');
+            setView('login');
+          } else if (choice === 'buyer-bulk') {
+            setLoginMode('customer');
+            setBuyerIntent('b2b');
             setView('login');
           } else if (choice === 'guest') {
             setView('catalog');

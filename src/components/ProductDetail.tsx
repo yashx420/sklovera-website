@@ -8,7 +8,7 @@ import { currentUser, type Role } from '../lib/auth';
 import ProductCarousel from './ProductCarousel';
 import { motion, AnimatePresence } from 'framer-motion';
 
-type Props = { product: Product | null; role: Role; onClose: () => void };
+type Props = { product: Product | null; role: Role; onClose: () => void; onRequireAuth?: () => void };
 
 const Row = ({ label, value }: { label: string; value: React.ReactNode }) =>
   value === undefined || value === null || value === '' ? null : (
@@ -18,7 +18,7 @@ const Row = ({ label, value }: { label: string; value: React.ReactNode }) =>
     </div>
   );
 
-const ProductDetail = ({ product, role, onClose }: Props) => {
+const ProductDetail = ({ product, role, onClose, onRequireAuth }: Props) => {
   const [qty, setQty] = useState(1);
   const [added, setAdded] = useState(false);
   if (!product) return null;
@@ -117,7 +117,7 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
             ) : (
               <div className="mt-8 space-y-3">
                 <div className="flex items-center gap-3">
-                  <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">{role === 'b2c' || role === 'b2b' || role === 'retail' ? 'Boxes' : 'Quantity'}</span>
+                  <span className="text-[10px] uppercase tracking-wider text-on-surface-variant">{role === 'b2b' || role === 'retail' ? 'Units' : role === 'b2c' ? 'Boxes' : 'Quantity'}</span>
                   <div className="flex items-center bg-surface-container rounded-md overflow-hidden">
                     <button onClick={() => setQty((q) => Math.max(1, q - 1))} className="px-3 py-1 text-primary hover:bg-surface-container-high">–</button>
                     <input
@@ -135,22 +135,23 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                 </div>
                 {(() => {
                   const tier = tierFromRole(role);
-                  const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
+                  const bulk = role === 'b2b' || role === 'retail'; // per-unit + RFQ (units)
+                  const individual = role === 'b2c';                // per-box + bag
+                  const guest = role === 'guest';
                   const boxSize = product.pcsPerBox ?? product.pcsPerCarton ?? 1;
                   const discountPct = getApprovedDiscount(currentUser().email);
-                  const pro = discountPct > 0; // approved retailer / distributor
                   const price = computeUnitPrice(product.priceEur, tier, undefined, discountPct);
                   const boxInr = price.inr * boxSize;
                   const fmt = (n: number) => n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 });
                   return (
                     <>
-                      {buyer && (
+                      {(bulk || individual || guest) && (
                         <div className="pb-3 border-b border-outline-variant/20">
-                          {pro ? (
+                          {bulk ? (
                             <div className="flex items-end justify-between">
                               <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
                                 Per unit
-                                <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discountPct}%</span>
+                                {discountPct > 0 && <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{discountPct}%</span>}
                               </div>
                               <div className="text-right">
                                 <div className="font-headline text-3xl text-primary">₹ {fmt(price.inr)}</div>
@@ -159,16 +160,14 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                             </div>
                           ) : (
                             <div className="flex items-end justify-between">
-                              <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">
-                                Box of {boxSize} · {tier.toUpperCase()}
-                              </div>
+                              <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
                               <div className="font-headline text-3xl text-primary">₹ {fmt(boxInr)}</div>
                             </div>
                           )}
                         </div>
                       )}
                       <div className="flex gap-3">
-                        {buyer ? (
+                        {individual ? (
                           <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
@@ -177,7 +176,7 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                           >
                             {added ? 'Added to bag ✓' : `Add ${qty} ${qty === 1 ? 'box' : 'boxes'} · ₹ ${(boxInr * qty).toLocaleString('en-IN', { maximumFractionDigits: 0 })}`}
                           </motion.button>
-                        ) : (
+                        ) : bulk ? (
                           <motion.button
                             whileHover={{ scale: 1.03 }}
                             whileTap={{ scale: 0.97 }}
@@ -186,14 +185,25 @@ const ProductDetail = ({ product, role, onClose }: Props) => {
                           >
                             {added ? 'Added to RFQ ✓' : 'Add to RFQ'}
                           </motion.button>
+                        ) : guest ? (
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            onClick={() => onRequireAuth?.()}
+                            className="flex-1 bg-primary text-surface py-3 rounded-md font-semibold"
+                          >
+                            Sign in to buy
+                          </motion.button>
+                        ) : null}
+                        {!guest && (
+                          <motion.button
+                            whileHover={{ scale: 1.03 }}
+                            whileTap={{ scale: 0.97 }}
+                            className="flex-1 bg-secondary text-on-secondary py-3 rounded-md font-semibold"
+                          >
+                            Request sample
+                          </motion.button>
                         )}
-                        <motion.button
-                          whileHover={{ scale: 1.03 }}
-                          whileTap={{ scale: 0.97 }}
-                          className="flex-1 bg-secondary text-on-secondary py-3 rounded-md font-semibold"
-                        >
-                          Request sample
-                        </motion.button>
                       </div>
                     </>
                   );

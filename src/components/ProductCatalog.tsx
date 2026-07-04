@@ -13,9 +13,10 @@ import { motion, type Variants } from 'framer-motion';
 type Props = {
   searchQuery?: string;
   onSearchChange?: (q: string) => void;
+  onRequireAuth?: () => void;
 };
 
-const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
+const ProductCatalog = ({ searchQuery = '', onSearchChange, onRequireAuth }: Props = {}) => {
   const [products, setProducts] = useState<Product[]>([]);
   const [user, setUser] = useState<User>(() => currentUser());
   const [localQuery, setLocalQuery] = useState('');
@@ -269,68 +270,44 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
               </div>
               {(() => {
                 const role = user.role;
-                const buyer = role === 'b2c' || role === 'b2b' || role === 'retail';
+                const bulk = role === 'b2b' || role === 'retail'; // per-unit + RFQ
+                const individual = role === 'b2c';                // per-box + bag
                 const boxSize = p.pcsPerBox ?? p.pcsPerCarton ?? 1;
                 const unitInr = computeUnitPrice(p.priceEur, tierFromRole(role), undefined, accountDiscount).inr;
                 const boxInr = unitInr * boxSize;
-                const pro = accountDiscount > 0; // approved retailer / distributor
                 const inr0 = (n: number) => `₹ ${n.toLocaleString('en-IN', { maximumFractionDigits: n < 100 ? 1 : 0 })}`;
-                const showBag = buyer || role === 'admin';
-                const showRfq = role === 'guest' || role === 'b2b' || role === 'retail' || role === 'admin';
+                const has = p.priceEur !== undefined;
                 return (
                   <div className="mt-auto flex items-end justify-between pt-2 gap-2">
-                    {buyer ? (
-                      pro ? (
-                        <div className="min-w-0">
-                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
-                            Per unit
-                            <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{accountDiscount}%</span>
-                          </div>
-                          <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                            {p.priceEur !== undefined ? inr0(unitInr) : '—'}
-                          </div>
-                          {p.priceEur !== undefined && (
-                            <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>
-                          )}
+                    {bulk ? (
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant flex items-center gap-1.5">
+                          Per unit
+                          {accountDiscount > 0 && <span className="text-[9px] font-bold text-on-secondary bg-secondary px-1.5 py-0.5 rounded">−{accountDiscount}%</span>}
                         </div>
-                      ) : (
-                        <div className="min-w-0">
-                          <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
-                          <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                            {p.priceEur !== undefined ? inr0(boxInr) : '—'}
-                          </div>
-                        </div>
-                      )
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? inr0(unitInr) : '—'}</div>
+                        {has && <div className="text-[10px] text-on-surface-variant whitespace-nowrap">{inr0(boxInr)} / box of {boxSize}</div>}
+                      </div>
                     ) : role === 'admin' ? (
                       <div>
                         <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">EXW</div>
-                        <div className="font-headline text-2xl text-primary whitespace-nowrap">
-                          {p.priceEur !== undefined ? `€ ${p.priceEur.toFixed(2)}` : '—'}
-                        </div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? `€ ${p.priceEur!.toFixed(2)}` : '—'}</div>
                       </div>
                     ) : (
-                      <div className="flex-1" />
+                      <div className="min-w-0">
+                        <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Box of {boxSize}</div>
+                        <div className="font-headline text-2xl text-primary whitespace-nowrap">{has ? inr0(boxInr) : '—'}</div>
+                      </div>
                     )}
                     <div className="flex flex-col gap-1 shrink-0">
-                      {showBag && (
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => { e.stopPropagation(); addToBag(p.id, boxSize); }}
-                          className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold"
-                        >
-                          Add to bag
-                        </motion.button>
+                      {individual && (
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToBag(p.id, boxSize); }} className="text-xs bg-primary text-surface px-3 py-2 rounded-md font-semibold">Add to bag</motion.button>
                       )}
-                      {showRfq && (
-                        <motion.button
-                          whileHover={{ scale: 1.05 }}
-                          whileTap={{ scale: 0.95 }}
-                          onClick={(e) => { e.stopPropagation(); addToCart(p.id, 1); }}
-                          className="text-xs bg-surface-container text-primary px-3 py-2 rounded-md font-semibold"
-                        >
-                          Add to RFQ
-                        </motion.button>
+                      {(bulk || role === 'admin') && (
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); addToCart(p.id, 1); }} className="text-xs bg-surface-container text-primary px-3 py-2 rounded-md font-semibold">Add to RFQ</motion.button>
+                      )}
+                      {role === 'guest' && (
+                        <motion.button whileHover={{ scale: 1.05 }} whileTap={{ scale: 0.95 }} onClick={(e) => { e.stopPropagation(); onRequireAuth?.(); }} className="text-xs bg-primary text-surface px-4 py-2 rounded-md font-semibold">Add</motion.button>
                       )}
                     </div>
                   </div>
@@ -340,7 +317,7 @@ const ProductCatalog = ({ searchQuery = '', onSearchChange }: Props = {}) => {
           ))}
         </motion.div>
 
-        <ProductDetail product={selected} role={user.role} onClose={() => setSelected(null)} />
+        <ProductDetail product={selected} role={user.role} onClose={() => setSelected(null)} onRequireAuth={onRequireAuth} />
       </div>
     </section>
   );
