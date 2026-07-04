@@ -22,6 +22,18 @@ export type QuoteProposal = {
   at: number;
 };
 
+// A per-vendor slice of an RFQ. Each vendor negotiates only their own line
+// items; the RFQ finalizes to the buyer once every segment is approved.
+export type VendorSegmentStatus = 'pending' | 'vendor_review' | 'vendor_countered' | 'approved';
+export type VendorSegment = {
+  vendorId: string;
+  vendorName: string;
+  productIds: string[];       // RFQ line items owned by this vendor
+  status: VendorSegmentStatus;
+  currentTotalEur?: number;   // standing proposed total for this vendor's lines
+  thread: QuoteProposal[];
+};
+
 export type RfqItem = {
   productId: string;
   sku: string;
@@ -53,6 +65,7 @@ export type Rfq = {
   quoteTier?: Tier;
   vendorId?: string;              // vendor the negotiation is routed to
   vendorThread?: QuoteProposal[]; // admin↔vendor counter-quote history
+  segments?: VendorSegment[];     // per-vendor negotiation slices
 };
 
 const CART_KEY = 'sklovera.rfq.cart.v1';
@@ -196,80 +209,95 @@ const patchRfq = (id: string, fn: (r: Rfq) => Rfq): void => {
   saveRfqs(loadRfqs().map((r) => (r.id === id ? fn(r) : r)));
 };
 
-const appendProposal = (r: Rfq, proposal: QuoteProposal): QuoteProposal[] => [
-  ...(r.vendorThread ?? []),
-  proposal,
-];
+export type VendorGroup = { vendorId: string; vendorName: string; productIds: string[] };
 
-/** Admin sends a proposed quote to the vendor for approval (or re-counters). */
-export const sendToVendor = (
+/** Initialize per-vendor segments from the RFQ's line-item ownership (idempotent). */
+export const ensureSegments = (id: string, groups: VendorGroup[]): void => {
+  patchRfq(id, (r) => {
+    if (r.segments && r.segments.length) return r;
+    const segments: VendorSegment[] = groups.map((g) => ({
+      vendorId: g.vendorId,
+      vendorName: g.vendorName,
+      productIds: g.productIds,
+      status: 'pending',
+      thread: [],
+    }));
+    return { ...r, segments, status: r.status === 'submitted' ? 'in_review' : r.status, updatedAt: now() };
+  });
+};
+
+const now = () => Date.now();
+
+const patchSegment = (
   id: string,
-  input: { totalEur: number; note?: string; byName?: string; vendorId?: string },
+  vendorId: string,
+  fn: (s: VendorSegment) => VendorSegment,
+  afterAll?: (r: Rfq) => Rfq,
 ): void => {
-  const now = Date.now();
-  patchRfq(id, (r) => ({
-    ...r,
+  patchRfq(id, (r) => {
+    const segments = (r.segments ?? []).map((s) => (s.vendorId === vendorId ? fn(s) : s));
+    const next: Rfq = { ...r, segments, updatedAt: now() };
+    return afterAll ? afterAll(next) : next;
+  });
+};
+
+/** Admin sends a proposed quote to one vendor for approval (or re-counters). */
+export const segmentSendToVendor = (
+  id: string,
+  vendorId: string,
+  input: { totalEur: number; note?: string; byName?: string },
+): void => {
+  patchSegment(id, vendorId, (s) => ({
+    ...s,
     status: 'vendor_review',
-    vendorId: input.vendorId ?? r.vendorId,
-    quoteTotalEur: input.totalEur,
-    vendorThread: appendProposal(r, {
-      by: 'admin',
-      byName: input.byName,
-      totalEur: input.totalEur,
-      note: input.note,
-      at: now,
-    }),
-    updatedAt: now,
+    currentTotalEur: input.totalEur,
+    thread: [...s.thread, { by: 'admin', byName: input.byName, totalEur: input.totalEur, note: input.note, at: now() }],
   }));
 };
 
-/** Vendor counters the admin's proposal with their own price. */
-export const vendorCounter = (
+/** Vendor counters the admin's proposal for their own segment. */
+export const segmentVendorCounter = (
   id: string,
+  vendorId: string,
   input: { totalEur: number; note?: string; byName?: string },
 ): void => {
-  const now = Date.now();
-  patchRfq(id, (r) => ({
-    ...r,
+  patchSegment(id, vendorId, (s) => ({
+    ...s,
     status: 'vendor_countered',
-    quoteTotalEur: input.totalEur,
-    vendorThread: appendProposal(r, {
-      by: 'vendor',
-      byName: input.byName,
-      totalEur: input.totalEur,
-      note: input.note,
-      at: now,
-    }),
-    updatedAt: now,
+    currentTotalEur: input.totalEur,
+    thread: [...s.thread, { by: 'vendor', byName: input.byName, totalEur: input.totalEur, note: input.note, at: now() }],
   }));
 };
 
 /**
- * Vendor approves the standing quote — this finalizes the negotiation and
- * sends the approved RFQ to the buyer (status → quoted).
+ * Vendor approves their segment. Once every segment is approved, the RFQ is
+ * finalized and the combined quote is sent to the buyer (status → quoted).
  */
-export const vendorApprove = (
+export const segmentVendorApprove = (
   id: string,
+  vendorId: string,
   input: { byName?: string; note?: string; fxEurToInr: number },
 ): void => {
-  const now = Date.now();
-  patchRfq(id, (r) => {
-    const total = r.quoteTotalEur ?? 0;
-    return {
-      ...r,
-      status: 'quoted',
-      quoteTotalInr: Math.round(total * input.fxEurToInr * 100) / 100,
-      vendorThread: appendProposal(r, {
-        by: 'vendor',
-        byName: input.byName,
-        totalEur: total,
-        note: input.note,
-        approved: true,
-        at: now,
-      }),
-      updatedAt: now,
-    };
-  });
+  patchSegment(
+    id,
+    vendorId,
+    (s) => ({
+      ...s,
+      status: 'approved',
+      thread: [...s.thread, { by: 'vendor', byName: input.byName, totalEur: s.currentTotalEur ?? 0, note: input.note, approved: true, at: now() }],
+    }),
+    (r) => {
+      const segs = r.segments ?? [];
+      if (!segs.length || !segs.every((s) => s.status === 'approved')) return r;
+      const total = segs.reduce((sum, s) => sum + (s.currentTotalEur ?? 0), 0);
+      return {
+        ...r,
+        status: 'quoted',
+        quoteTotalEur: Math.round(total * 100) / 100,
+        quoteTotalInr: Math.round(total * input.fxEurToInr * 100) / 100,
+      };
+    },
+  );
 };
 
 // ---------- Hydration helper ----------

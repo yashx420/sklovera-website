@@ -4,11 +4,13 @@ import {
   loadRfqs,
   onRfqChange,
   updateRfqStatus,
-  sendToVendor,
-  vendorCounter,
-  vendorApprove,
+  ensureSegments,
+  segmentSendToVendor,
+  segmentVendorCounter,
+  segmentVendorApprove,
   type Rfq,
   type RfqStatus,
+  type VendorSegment,
 } from '../lib/rfq';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
 import { computeQuote, loadPricingConfig, type Tier } from '../lib/pricing';
@@ -32,6 +34,13 @@ const STATUS_COLORS: Record<RfqStatus, string> = {
 
 const STATUS_FLOW: RfqStatus[] = ['submitted', 'in_review', 'vendor_review', 'vendor_countered', 'quoted', 'accepted', 'declined', 'closed'];
 
+const SEG_COLORS: Record<VendorSegment['status'], string> = {
+  pending: 'bg-surface-container-high text-on-surface-variant',
+  vendor_review: 'bg-tertiary-fixed/40 text-primary',
+  vendor_countered: 'bg-secondary-container text-on-secondary-container',
+  approved: 'bg-secondary-container text-on-secondary-container',
+};
+
 const fmtDate = (ts: number) => new Date(ts).toLocaleDateString(undefined, {
   year: 'numeric',
   month: 'short',
@@ -43,9 +52,9 @@ const RfqList = ({ scope }: Props) => {
   const [rfqs, setRfqs] = useState<Rfq[]>([]);
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [statusFilter, setStatusFilter] = useState<RfqStatus | 'all'>('all');
-  const [quoteTotal, setQuoteTotal] = useState<string>('');
-  const [negNote, setNegNote] = useState<string>('');
   const [tierOverride, setTierOverride] = useState<Tier>('b2b');
+  // Per-segment negotiation drafts, keyed `${rfqId}:${vendorId}`.
+  const [segDrafts, setSegDrafts] = useState<Record<string, { total: string; note: string }>>({});
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
   useEffect(() => {
@@ -61,13 +70,17 @@ const RfqList = ({ scope }: Props) => {
     return m;
   }, [rfqs]);
 
-  const rfqVendors = (r: Rfq) => {
-    const seen = new Map<string, string>();
+  // Group an RFQ's line items by owning vendor → segment definitions.
+  const rfqGroups = (r: Rfq) => {
+    const m = new Map<string, { vendorId: string; vendorName: string; productIds: string[] }>();
     for (const i of r.items) {
       const v = productVendor.get(i.productId);
-      if (v) seen.set(v.id, v.name);
+      if (!v) continue;
+      const g = m.get(v.id) ?? { vendorId: v.id, vendorName: v.name, productIds: [] };
+      g.productIds.push(i.productId);
+      m.set(v.id, g);
     }
-    return Array.from(seen, ([id, name]) => ({ id, name }));
+    return Array.from(m.values());
   };
 
   const visible = useMemo(() => {
@@ -90,49 +103,54 @@ const RfqList = ({ scope }: Props) => {
   );
   const hasShortfall = fulfillmentPlans.some((p) => p.shortfall > 0);
 
+  // Initialize per-vendor segments for admin/vendor views (idempotent).
   useEffect(() => {
-    if (!selected) {
-      setQuoteTotal('');
-      setNegNote('');
-      return;
+    if (!selected) return;
+    if ((scope === 'admin' || scope === 'vendor') && (!selected.segments || !selected.segments.length)) {
+      const groups = rfqGroups(selected);
+      if (groups.length) ensureSegments(selected.id, groups);
     }
-    setQuoteTotal(selected.quoteTotalEur !== undefined ? String(selected.quoteTotalEur) : '');
-    setNegNote('');
     setTierOverride(selected.quoteTier ?? 'b2b');
-  }, [selectedId, selected]);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedId, selected, scope]);
 
-  const suggestQuote = () => {
-    if (!selected) return;
-    const plans = planFulfillment(selected.items, loadProducts());
-    const q = computeQuote(selected.items, tierOverride, loadPricingConfig(), plans);
-    setQuoteTotal(String(q.totalEur));
+  const draftKey = (rfqId: string, vendorId: string) => `${rfqId}:${vendorId}`;
+  const getDraft = (rfqId: string, seg: VendorSegment) =>
+    segDrafts[draftKey(rfqId, seg.vendorId)] ?? {
+      total: seg.currentTotalEur !== undefined ? String(seg.currentTotalEur) : '',
+      note: '',
+    };
+  const setDraft = (rfqId: string, vendorId: string, patch: Partial<{ total: string; note: string }>) =>
+    setSegDrafts((d) => {
+      const k = draftKey(rfqId, vendorId);
+      return { ...d, [k]: { ...(d[k] ?? { total: '', note: '' }), ...patch } };
+    });
+  const clearDraft = (rfqId: string, vendorId: string) =>
+    setSegDrafts((d) => { const n = { ...d }; delete n[draftKey(rfqId, vendorId)]; return n; });
+
+  const segItems = (r: Rfq, seg: VendorSegment) => r.items.filter((i) => seg.productIds.includes(i.productId));
+
+  const suggestSeg = (r: Rfq, seg: VendorSegment) => {
+    const items = segItems(r, seg);
+    const plans = planFulfillment(items, loadProducts());
+    const q = computeQuote(items, tierOverride, loadPricingConfig(), plans);
+    setDraft(r.id, seg.vendorId, { total: String(q.totalEur) });
   };
-
-  const parsedTotal = () => {
-    const n = parseFloat(quoteTotal);
-    return Number.isFinite(n) ? n : NaN;
-  };
-
-  const doSendToVendor = () => {
-    if (!selected) return;
-    const n = parsedTotal();
+  const sendSeg = (r: Rfq, seg: VendorSegment) => {
+    const n = parseFloat(getDraft(r.id, seg).total);
     if (!Number.isFinite(n)) return;
-    sendToVendor(selected.id, { totalEur: n, note: negNote || undefined, byName: user.displayName, vendorId: rfqVendors(selected)[0]?.id });
-    setNegNote('');
+    segmentSendToVendor(r.id, seg.vendorId, { totalEur: n, note: getDraft(r.id, seg).note || undefined, byName: user.displayName });
+    clearDraft(r.id, seg.vendorId);
   };
-
-  const doVendorCounter = () => {
-    if (!selected) return;
-    const n = parsedTotal();
+  const counterSeg = (r: Rfq, seg: VendorSegment) => {
+    const n = parseFloat(getDraft(r.id, seg).total);
     if (!Number.isFinite(n)) return;
-    vendorCounter(selected.id, { totalEur: n, note: negNote || undefined, byName: user.displayName });
-    setNegNote('');
+    segmentVendorCounter(r.id, seg.vendorId, { totalEur: n, note: getDraft(r.id, seg).note || undefined, byName: user.displayName });
+    clearDraft(r.id, seg.vendorId);
   };
-
-  const doVendorApprove = () => {
-    if (!selected) return;
-    vendorApprove(selected.id, { byName: user.displayName, note: negNote || undefined, fxEurToInr: loadPricingConfig().fxEurToInr });
-    setNegNote('');
+  const approveSeg = (r: Rfq, seg: VendorSegment) => {
+    segmentVendorApprove(r.id, seg.vendorId, { byName: user.displayName, note: getDraft(r.id, seg).note || undefined, fxEurToInr: loadPricingConfig().fxEurToInr });
+    clearDraft(r.id, seg.vendorId);
   };
 
   const downloadPdf = () => {
@@ -291,6 +309,7 @@ const RfqList = ({ scope }: Props) => {
                     )}
                   </div>
 
+                  {scope !== 'vendor' && (
                   <div className="space-y-2">
                     {selected.items.map((i) => {
                       const plan = planById.get(i.productId);
@@ -337,6 +356,7 @@ const RfqList = ({ scope }: Props) => {
                       );
                     })}
                   </div>
+                  )}
 
                   {scope === 'admin' && hasShortfall && (
                     <div className="rounded-md bg-error-container text-on-error-container px-4 py-3 text-xs">
@@ -417,167 +437,138 @@ const RfqList = ({ scope }: Props) => {
                     </div>
                   )}
 
-                  {/* Admin ↔ vendor counter-quote history */}
-                  {(scope === 'admin' || scope === 'vendor') && selected.vendorThread && selected.vendorThread.length > 0 && (
-                    <div className="border-t border-outline-variant/20 pt-6 space-y-3">
-                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Vendor negotiation</div>
-                      <div className="space-y-2">
-                        {selected.vendorThread.map((m, idx) => (
-                          <div key={idx} className={`flex ${m.by === 'vendor' ? 'justify-end' : 'justify-start'}`}>
-                            <div className={`max-w-[80%] rounded-lg px-4 py-2 ${m.by === 'vendor' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-low text-primary'}`}>
-                              <div className="text-[10px] uppercase tracking-wider opacity-70">
-                                {m.by === 'vendor' ? (m.byName ?? 'Vendor') : 'Sklovera'}{m.approved ? ' · approved ✓' : ''}
-                              </div>
-                              <div className="font-headline text-lg">€ {m.totalEur.toFixed(2)}</div>
-                              {m.note && <div className="text-xs opacity-80 mt-0.5">{m.note}</div>}
-                              <div className="text-[9px] opacity-50 mt-1">{fmtDate(m.at)}</div>
-                            </div>
-                          </div>
-                        ))}
-                      </div>
-                    </div>
-                  )}
-
-                  {scope === 'admin' && (
-                    <div className="border-t border-outline-variant/20 pt-6 space-y-4">
-                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Admin actions</div>
-                      <div className="text-xs text-on-surface-variant">
-                        Vendor(s): <span className="text-primary font-medium">{rfqVendors(selected).map((v) => v.name).join(', ') || '—'}</span>
-                      </div>
-
-                      {selected.status === 'quoted' ? (
-                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
-                          ✓ Vendor approved — the quote is now with the buyer.
+                  {/* Per-vendor negotiation segments (admin sees all, vendor sees their own) */}
+                  {(scope === 'admin' || scope === 'vendor') && (() => {
+                    const allSegs = selected.segments ?? [];
+                    const segs = allSegs.filter((s) => scope === 'admin' || s.vendorId === user.id);
+                    if (!segs.length) {
+                      return (
+                        <div className="border-t border-outline-variant/20 pt-6 text-sm text-on-surface-variant">
+                          {scope === 'vendor' ? 'None of your products are on this RFQ.' : 'Preparing vendor segments…'}
                         </div>
-                      ) : selected.status === 'vendor_review' ? (
-                        <div className="rounded-md bg-tertiary-fixed/30 text-primary px-4 py-3 text-sm">
-                          ⏳ Awaiting vendor approval · proposed € {selected.quoteTotalEur?.toFixed(2)}. You can re-send a new figure below.
+                      );
+                    }
+                    const approvedCount = allSegs.filter((s) => s.status === 'approved').length;
+                    return (
+                      <div className="border-t border-outline-variant/20 pt-6 space-y-4">
+                        <div className="flex items-center justify-between">
+                          <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">
+                            {scope === 'admin' ? 'Vendor negotiations' : 'Your quote'}
+                          </div>
+                          {scope === 'admin' && (
+                            <div className="text-xs text-on-surface-variant">{approvedCount}/{allSegs.length} vendors approved</div>
+                          )}
                         </div>
-                      ) : null}
 
-                      {selected.status !== 'quoted' && (
-                        <>
-                          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
-                            <div>
-                              <label className="text-xs text-on-surface-variant">Pricing tier</label>
-                              <select
-                                value={tierOverride}
-                                onChange={(e) => setTierOverride(e.target.value as Tier)}
-                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                              >
-                                <option value="b2b">B2B</option>
-                                <option value="retail">Retail</option>
-                                <option value="b2c">B2C</option>
-                              </select>
-                            </div>
-                            <div>
-                              <label className="text-xs text-on-surface-variant">Quote total (EUR)</label>
-                              <input
-                                type="number"
-                                value={quoteTotal}
-                                onChange={(e) => setQuoteTotal(e.target.value)}
-                                placeholder="Suggest from engine"
-                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                              />
-                            </div>
-                            <div>
-                              <label className="text-xs text-on-surface-variant">Message to vendor</label>
-                              <input
-                                value={negNote}
-                                onChange={(e) => setNegNote(e.target.value)}
-                                placeholder="Target landed price…"
-                                className="mt-1 w-full bg-surface-container-low px-3 py-2 rounded-md outline-none text-sm"
-                              />
-                            </div>
+                        {scope === 'admin' && selected.status === 'quoted' && (
+                          <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
+                            ✓ All vendors approved — combined quote € {selected.quoteTotalEur?.toFixed(2)} sent to the buyer.
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            <button onClick={suggestQuote} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container">
-                              Suggest from engine
-                            </button>
-                            <button
-                              onClick={doSendToVendor}
-                              disabled={!Number.isFinite(parsedTotal())}
-                              className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40"
-                            >
-                              {selected.status === 'vendor_countered' ? 'Send back to vendor' : 'Send to vendor for approval'}
-                            </button>
-                          </div>
-                          <div className="text-[11px] text-on-surface-variant">The vendor must approve before the quote is sent to the buyer.</div>
-                        </>
-                      )}
-
-                      <div className="flex flex-wrap gap-2 pt-2 border-t border-outline-variant/10">
-                        {selected.status === 'submitted' && (
-                          <button onClick={() => updateRfqStatus(selected.id, 'in_review')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container">
-                            Mark in review
-                          </button>
                         )}
-                        <button onClick={() => updateRfqStatus(selected.id, 'declined', { adminNote: negNote || undefined })} className="px-4 py-2 rounded-md text-xs font-semibold bg-error-container text-on-error-container">
-                          Decline
-                        </button>
-                        <button onClick={() => updateRfqStatus(selected.id, 'closed')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-on-surface-variant">
-                          Close
-                        </button>
-                      </div>
-                    </div>
-                  )}
 
-                  {scope === 'vendor' && (
-                    <div className="border-t border-outline-variant/20 pt-6 space-y-4">
-                      <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold">Your response</div>
-                      {selected.status === 'vendor_review' ? (
-                        <>
-                          <div className="rounded-md bg-surface-container-low px-4 py-3">
-                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Sklovera proposes</div>
-                            <div className="font-headline text-3xl text-primary">€ {selected.quoteTotalEur?.toFixed(2)}</div>
-                          </div>
-                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                            <div>
-                              <label className="text-xs text-on-surface-variant">Counter total (EUR)</label>
-                              <input
-                                type="number"
-                                value={quoteTotal}
-                                onChange={(e) => setQuoteTotal(e.target.value)}
-                                className="mt-1 w-full bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm"
-                              />
+                        {segs.map((seg) => {
+                          const draft = getDraft(selected.id, seg);
+                          const items = segItems(selected, seg);
+                          const canSend = Number.isFinite(parseFloat(draft.total));
+                          return (
+                            <div key={seg.vendorId} className="rounded-xl bg-surface-container-low p-5 space-y-3">
+                              <div className="flex items-center justify-between gap-2">
+                                <div className="font-headline italic text-xl text-primary">{seg.vendorName}</div>
+                                <span className={`text-[9px] uppercase tracking-wider px-2 py-0.5 rounded ${SEG_COLORS[seg.status]}`}>
+                                  {seg.status.replace('_', ' ')}
+                                </span>
+                              </div>
+                              <div className="text-xs text-on-surface-variant">
+                                {items.length} line{items.length === 1 ? '' : 's'}
+                                {seg.currentTotalEur !== undefined ? ` · standing € ${seg.currentTotalEur.toFixed(2)}` : ''}
+                              </div>
+
+                              {scope === 'vendor' && (
+                                <div className="space-y-1.5">
+                                  {items.map((i) => (
+                                    <div key={i.productId} className="flex items-center gap-3 text-sm">
+                                      <ProductImage imageKey={i.imageKey} alt={i.name} className="w-10 h-10 object-contain rounded bg-surface-container shrink-0" />
+                                      <div className="min-w-0 flex-1">
+                                        <div className="text-primary truncate">{i.name}</div>
+                                        <div className="text-[10px] text-on-surface-variant">Qty {i.quantity}</div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {seg.thread.length > 0 && (
+                                <div className="space-y-2">
+                                  {seg.thread.map((m, idx) => (
+                                    <div key={idx} className={`flex ${m.by === 'vendor' ? 'justify-end' : 'justify-start'}`}>
+                                      <div className={`max-w-[85%] rounded-lg px-3 py-1.5 ${m.by === 'vendor' ? 'bg-secondary-container text-on-secondary-container' : 'bg-surface-container-lowest text-primary'}`}>
+                                        <div className="text-[9px] uppercase tracking-wider opacity-70">
+                                          {m.by === 'vendor' ? (m.byName ?? seg.vendorName) : 'Sklovera'}{m.approved ? ' · approved ✓' : ''}
+                                        </div>
+                                        <div className="font-headline text-base">€ {m.totalEur.toFixed(2)}</div>
+                                        {m.note && <div className="text-xs opacity-80">{m.note}</div>}
+                                        <div className="text-[9px] opacity-50 mt-0.5">{fmtDate(m.at)}</div>
+                                      </div>
+                                    </div>
+                                  ))}
+                                </div>
+                              )}
+
+                              {scope === 'admin' ? (
+                                seg.status === 'approved' ? (
+                                  <div className="text-xs text-secondary font-semibold">✓ Approved by vendor</div>
+                                ) : (
+                                  <>
+                                    {seg.status === 'vendor_review' && (
+                                      <div className="text-[11px] text-on-surface-variant">⏳ Awaiting {seg.vendorName}. You can re-send a new figure.</div>
+                                    )}
+                                    <div className="flex flex-wrap gap-2 items-center">
+                                      <input type="number" value={draft.total} onChange={(e) => setDraft(selected.id, seg.vendorId, { total: e.target.value })} placeholder="€ total" className="w-28 bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
+                                      <input value={draft.note} onChange={(e) => setDraft(selected.id, seg.vendorId, { note: e.target.value })} placeholder="Message to vendor" className="flex-1 min-w-[140px] bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
+                                      <button onClick={() => suggestSeg(selected, seg)} className="px-3 py-2 rounded-md text-xs font-semibold bg-surface-container text-primary hover:bg-surface-container-high">Suggest</button>
+                                      <button onClick={() => sendSeg(selected, seg)} disabled={!canSend} className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40">
+                                        {seg.status === 'vendor_countered' ? 'Send back' : 'Send to vendor'}
+                                      </button>
+                                    </div>
+                                  </>
+                                )
+                              ) : seg.status === 'vendor_review' ? (
+                                <>
+                                  <div className="rounded-md bg-surface-container-lowest px-3 py-2">
+                                    <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Sklovera proposes</div>
+                                    <div className="font-headline text-2xl text-primary">€ {seg.currentTotalEur?.toFixed(2)}</div>
+                                  </div>
+                                  <div className="flex flex-wrap gap-2 items-center">
+                                    <input type="number" value={draft.total} onChange={(e) => setDraft(selected.id, seg.vendorId, { total: e.target.value })} placeholder="Counter €" className="w-28 bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
+                                    <input value={draft.note} onChange={(e) => setDraft(selected.id, seg.vendorId, { note: e.target.value })} placeholder="Message" className="flex-1 min-w-[140px] bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm" />
+                                    <button onClick={() => approveSeg(selected, seg)} className="px-4 py-2 rounded-md text-xs font-semibold bg-secondary text-on-secondary">Approve</button>
+                                    <button onClick={() => counterSeg(selected, seg)} disabled={!canSend} className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40">Counter</button>
+                                  </div>
+                                  <div className="text-[11px] text-on-surface-variant">Approving adds your lines to the buyer's quote once all vendors approve.</div>
+                                </>
+                              ) : seg.status === 'vendor_countered' ? (
+                                <div className="text-xs text-on-surface-variant">Your counter of € {seg.currentTotalEur?.toFixed(2)} was sent. Awaiting Sklovera.</div>
+                              ) : seg.status === 'approved' ? (
+                                <div className="text-xs text-secondary font-semibold">✓ You approved this quote.</div>
+                              ) : (
+                                <div className="text-xs text-on-surface-variant">Awaiting a quote from Sklovera.</div>
+                              )}
                             </div>
-                            <div>
-                              <label className="text-xs text-on-surface-variant">Message</label>
-                              <input
-                                value={negNote}
-                                onChange={(e) => setNegNote(e.target.value)}
-                                placeholder="Lead time 6 weeks…"
-                                className="mt-1 w-full bg-surface-container-lowest px-3 py-2 rounded-md outline-none text-sm"
-                              />
-                            </div>
+                          );
+                        })}
+
+                        {scope === 'admin' && (
+                          <div className="flex flex-wrap gap-2 pt-2 border-t border-outline-variant/10">
+                            {selected.status === 'submitted' && (
+                              <button onClick={() => updateRfqStatus(selected.id, 'in_review')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-primary hover:bg-surface-container">Mark in review</button>
+                            )}
+                            <button onClick={() => updateRfqStatus(selected.id, 'declined')} className="px-4 py-2 rounded-md text-xs font-semibold bg-error-container text-on-error-container">Decline RFQ</button>
+                            <button onClick={() => updateRfqStatus(selected.id, 'closed')} className="px-4 py-2 rounded-md text-xs font-semibold bg-surface-container-low text-on-surface-variant">Close</button>
                           </div>
-                          <div className="flex flex-wrap gap-2">
-                            <button onClick={doVendorApprove} className="px-4 py-2 rounded-md text-xs font-semibold bg-secondary text-on-secondary">
-                              Approve &amp; send to buyer
-                            </button>
-                            <button
-                              onClick={doVendorCounter}
-                              disabled={!Number.isFinite(parsedTotal())}
-                              className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface disabled:opacity-40"
-                            >
-                              Counter
-                            </button>
-                          </div>
-                          <div className="text-[11px] text-on-surface-variant">Approving sends the quote to the buyer at € {selected.quoteTotalEur?.toFixed(2)}.</div>
-                        </>
-                      ) : selected.status === 'vendor_countered' ? (
-                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
-                          Your counter of € {selected.quoteTotalEur?.toFixed(2)} was sent. Awaiting Sklovera's response.
-                        </div>
-                      ) : selected.status === 'quoted' ? (
-                        <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
-                          ✓ You approved this quote — it's now with the buyer.
-                        </div>
-                      ) : (
-                        <div className="text-sm text-on-surface-variant">No action needed yet. Sklovera will send a quote for your approval.</div>
-                      )}
-                    </div>
-                  )}
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {scope === 'mine' && selected.status === 'quoted' && (
                     <div className="flex gap-3">
