@@ -14,6 +14,7 @@ import {
   type VendorSegment,
 } from '../lib/rfq';
 import { currentUser, onAuthChange, type User } from '../lib/auth';
+import { getBuyerProfile } from '../lib/buyerProfile';
 import { loadPricingConfig } from '../lib/pricing';
 import { generateQuotePdf } from '../lib/quotePdf';
 import { planFulfillment, type FulfillmentPlan } from '../lib/fulfillment';
@@ -313,6 +314,37 @@ const RfqList = ({ scope }: Props) => {
                       </div>
                     )}
                   </div>
+
+                  {/* Buyer business profile — shown to admin & vendors */}
+                  {scope !== 'mine' && (() => {
+                    const bp = getBuyerProfile(selected.buyerEmail);
+                    if (!bp) return null;
+                    return (
+                      <div className="rounded-lg bg-surface-container-low p-4">
+                        <div className="text-[10px] uppercase tracking-widest text-on-surface-variant font-semibold mb-3">Buyer business</div>
+                        <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Type</div>
+                            <div className="text-primary">{bp.businessType}</div>
+                          </div>
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Order volume</div>
+                            <div className="text-primary">{bp.orderVolume}</div>
+                          </div>
+                          <div>
+                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Market</div>
+                            <div className="text-primary">{bp.market}</div>
+                          </div>
+                        </div>
+                        {bp.notes && (
+                          <div className="mt-3">
+                            <div className="text-[10px] uppercase tracking-wider text-on-surface-variant">Additional info</div>
+                            <div className="text-primary text-sm italic">"{bp.notes}"</div>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })()}
 
                   {scope !== 'vendor' && (
                   <div className="space-y-2">

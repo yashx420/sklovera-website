@@ -7,6 +7,13 @@ import {
   type Role,
   type User,
 } from '../lib/auth';
+import {
+  getBuyerProfile,
+  saveBuyerProfile,
+  BUSINESS_TYPES,
+  ORDER_VOLUMES,
+  MARKETS,
+} from '../lib/buyerProfile';
 
 type Props = { onDone: () => void; onRegisterVendor?: () => void; defaultMode?: Mode; buyerType?: 'b2c' | 'b2b' };
 
@@ -35,6 +42,11 @@ const LoginPage = ({ onDone, onRegisterVendor, defaultMode, buyerType }: Props) 
   const [busy, setBusy] = useState(false);
 
   const [showRoleModal, setShowRoleModal] = useState(false);
+  const [showBizModal, setShowBizModal] = useState(false);
+  const [bizType, setBizType] = useState(BUSINESS_TYPES[0]);
+  const [bizVolume, setBizVolume] = useState(ORDER_VOLUMES[0]);
+  const [bizMarket, setBizMarket] = useState(MARKETS[0]);
+  const [bizNotes, setBizNotes] = useState('');
 
   // Subtle parallax on the editorial side image.
   const [tilt, setTilt] = useState({ x: 0, y: 0 });
@@ -48,17 +60,29 @@ const LoginPage = ({ onDone, onRegisterVendor, defaultMode, buyerType }: Props) 
     return () => window.removeEventListener('mousemove', onMove);
   }, []);
 
+  const finishLogin = (type: 'b2b' | 'b2c') => {
+    setBusy(true);
+    setTimeout(() => {
+      loginAsCustomer(email, name, type);
+      onDone();
+    }, 350);
+  };
+
+  // Retailers/distributors (bulk) provide a short business profile the first
+  // time they sign in; individuals go straight through.
+  const proceedCustomer = (type: 'b2b' | 'b2c') => {
+    if (type === 'b2b' && !getBuyerProfile(email)) {
+      setShowBizModal(true);
+      return;
+    }
+    finishLogin(type);
+  };
+
   const submitCustomer = (e: React.FormEvent) => {
     e.preventDefault();
     if (!email.trim()) return;
-    // If the buyer type was already chosen (from the onboarding chooser), skip
-    // the role modal and sign in directly.
     if (buyerType) {
-      setBusy(true);
-      setTimeout(() => {
-        loginAsCustomer(email, name, buyerType);
-        onDone();
-      }, 350);
+      proceedCustomer(buyerType);
       return;
     }
     setShowRoleModal(true);
@@ -66,11 +90,13 @@ const LoginPage = ({ onDone, onRegisterVendor, defaultMode, buyerType }: Props) 
 
   const handleRoleSelect = (type: 'b2b' | 'b2c') => {
     setShowRoleModal(false);
-    setBusy(true);
-    setTimeout(() => {
-      loginAsCustomer(email, name, type);
-      onDone();
-    }, 350);
+    proceedCustomer(type);
+  };
+
+  const submitBusinessProfile = () => {
+    saveBuyerProfile({ email: email.trim().toLowerCase(), businessType: bizType, orderVolume: bizVolume, market: bizMarket, notes: bizNotes.trim() || undefined });
+    setShowBizModal(false);
+    finishLogin('b2b');
   };
 
   const continueAsGuest = () => {
@@ -352,6 +378,69 @@ const LoginPage = ({ onDone, onRegisterVendor, defaultMode, buyerType }: Props) 
                     <span className="material-symbols-outlined text-sm group-hover:translate-x-2 transition-transform" data-icon="arrow_forward">arrow_forward</span>
                   </div>
                   <div className="absolute top-0 right-0 w-32 h-32 bg-emerald/5 rounded-bl-[100px] -z-10 group-hover:bg-emerald/10 transition-colors duration-500" />
+                </button>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Business profile — retailers & distributors */}
+      <AnimatePresence>
+        {showBizModal && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 z-[100] flex items-center justify-center p-4 sm:p-6 bg-surface/80 backdrop-blur-md"
+          >
+            <motion.div
+              initial={{ opacity: 0, scale: 0.95, y: 20 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.95, y: 20 }}
+              className="bg-surface-container-lowest rounded-[28px] p-6 sm:p-10 max-w-lg w-full shadow-2xl border border-outline-variant/30 relative overflow-hidden"
+            >
+              <div className="mb-6">
+                <span className="text-[10px] uppercase tracking-[0.3em] text-secondary font-semibold">Retailer / Distributor</span>
+                <h3 className="text-2xl sm:text-3xl font-headline italic text-primary mt-2">Tell us about your business</h3>
+                <p className="text-sm text-on-surface-variant mt-1">This helps us and our vendors quote you accurately. Saved to your account.</p>
+              </div>
+
+              <div className="space-y-4">
+                {[
+                  { label: 'Business type', value: bizType, set: setBizType, options: BUSINESS_TYPES },
+                  { label: 'Typical order volume', value: bizVolume, set: setBizVolume, options: ORDER_VOLUMES },
+                  { label: 'Primary market', value: bizMarket, set: setBizMarket, options: MARKETS },
+                ].map((f) => (
+                  <div key={f.label}>
+                    <label className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">{f.label}</label>
+                    <select
+                      value={f.value}
+                      onChange={(e) => f.set(e.target.value)}
+                      className="mt-1.5 w-full bg-surface-container-low px-4 py-3 rounded-md outline-none text-sm text-primary"
+                    >
+                      {f.options.map((o) => (<option key={o} value={o}>{o}</option>))}
+                    </select>
+                  </div>
+                ))}
+                <div>
+                  <label className="text-[10px] uppercase tracking-[0.2em] text-on-surface-variant font-semibold">Additional info</label>
+                  <textarea
+                    value={bizNotes}
+                    onChange={(e) => setBizNotes(e.target.value)}
+                    rows={3}
+                    placeholder="Anything else about your business — brands you carry, key accounts, timelines…"
+                    className="mt-1.5 w-full bg-surface-container-low px-4 py-3 rounded-md outline-none text-sm text-primary resize-none"
+                  />
+                </div>
+              </div>
+
+              <div className="mt-8 flex gap-3">
+                <button onClick={submitBusinessProfile} className="flex-1 bg-primary text-surface py-3.5 rounded-md font-semibold tracking-wide">
+                  Continue
+                </button>
+                <button onClick={() => { setShowBizModal(false); finishLogin('b2b'); }} className="px-5 py-3.5 text-sm text-on-surface-variant hover:text-primary">
+                  Skip
                 </button>
               </div>
             </motion.div>
