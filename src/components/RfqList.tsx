@@ -8,6 +8,7 @@ import {
   segmentSendToVendor,
   segmentVendorCounter,
   segmentVendorApprove,
+  sendQuoteToBuyer,
   type Rfq,
   type RfqStatus,
   type VendorSegment,
@@ -26,13 +27,14 @@ const STATUS_COLORS: Record<RfqStatus, string> = {
   in_review: 'bg-secondary-container text-on-secondary-container',
   vendor_review: 'bg-tertiary-fixed/40 text-primary',
   vendor_countered: 'bg-secondary-container text-on-secondary-container',
+  vendor_approved: 'bg-secondary-container text-on-secondary-container',
   quoted: 'bg-primary text-surface',
   accepted: 'bg-secondary-container text-on-secondary-container',
   declined: 'bg-error-container text-on-error-container',
   closed: 'bg-surface-container-high text-on-surface-variant',
 };
 
-const STATUS_FLOW: RfqStatus[] = ['submitted', 'in_review', 'vendor_review', 'vendor_countered', 'quoted', 'accepted', 'declined', 'closed'];
+const STATUS_FLOW: RfqStatus[] = ['submitted', 'in_review', 'vendor_review', 'vendor_countered', 'vendor_approved', 'quoted', 'accepted', 'declined', 'closed'];
 
 const SEG_COLORS: Record<VendorSegment['status'], string> = {
   pending: 'bg-surface-container-high text-on-surface-variant',
@@ -54,6 +56,7 @@ const RfqList = ({ scope }: Props) => {
   const [statusFilter, setStatusFilter] = useState<RfqStatus | 'all'>('all');
   // Per-segment negotiation drafts, keyed `${rfqId}:${vendorId}`.
   const [segDrafts, setSegDrafts] = useState<Record<string, { total: string; note: string; discount: string }>>({});
+  const [finalNote, setFinalNote] = useState('');
 
   useEffect(() => onAuthChange(() => setUser(currentUser())), []);
   useEffect(() => {
@@ -109,6 +112,7 @@ const RfqList = ({ scope }: Props) => {
       const groups = rfqGroups(selected);
       if (groups.length) ensureSegments(selected.id, groups);
     }
+    setFinalNote(selected.adminNote ?? '');
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [selectedId, selected, scope]);
 
@@ -163,7 +167,7 @@ const RfqList = ({ scope }: Props) => {
     const base = scope === 'mine' ? rfqs.filter((r) => r.buyerId === user.id) : rfqs;
     const c: Record<RfqStatus | 'all', number> = {
       all: base.length,
-      submitted: 0, in_review: 0, vendor_review: 0, vendor_countered: 0, quoted: 0, accepted: 0, declined: 0, closed: 0,
+      submitted: 0, in_review: 0, vendor_review: 0, vendor_countered: 0, vendor_approved: 0, quoted: 0, accepted: 0, declined: 0, closed: 0,
     };
     for (const r of base) c[r.status]++;
     return c;
@@ -461,9 +465,28 @@ const RfqList = ({ scope }: Props) => {
                           )}
                         </div>
 
+                        {scope === 'admin' && selected.status === 'vendor_approved' && (
+                          <div className="rounded-lg bg-secondary-container text-on-secondary-container p-4 space-y-3">
+                            <div className="text-sm font-semibold">✓ All vendors approved · combined € {selected.quoteTotalEur?.toFixed(2)} (₹ {selected.quoteTotalInr?.toLocaleString('en-IN', { maximumFractionDigits: 0 })})</div>
+                            <div className="text-xs opacity-80">Final approval — review and send this quote to the buyer.</div>
+                            <input
+                              value={finalNote}
+                              onChange={(e) => setFinalNote(e.target.value)}
+                              placeholder="Note to buyer (optional) — validity, terms…"
+                              className="w-full bg-surface-container-lowest text-primary px-3 py-2 rounded-md outline-none text-sm"
+                            />
+                            <button
+                              onClick={() => sendQuoteToBuyer(selected.id, finalNote || undefined)}
+                              className="px-4 py-2 rounded-md text-xs font-semibold bg-primary text-surface"
+                            >
+                              Approve &amp; send to buyer
+                            </button>
+                          </div>
+                        )}
+
                         {scope === 'admin' && selected.status === 'quoted' && (
                           <div className="rounded-md bg-secondary-container text-on-secondary-container px-4 py-3 text-sm">
-                            ✓ All vendors approved — combined quote € {selected.quoteTotalEur?.toFixed(2)} sent to the buyer.
+                            ✓ Approved quote € {selected.quoteTotalEur?.toFixed(2)} sent to the buyer.
                           </div>
                         )}
 

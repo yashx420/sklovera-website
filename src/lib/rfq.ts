@@ -6,7 +6,8 @@ export type RfqStatus =
   | 'in_review'       // admin looking at it
   | 'vendor_review'   // admin sent a quote to the vendor; awaiting vendor
   | 'vendor_countered'// vendor countered; awaiting admin
-  | 'quoted'          // vendor approved; quote now with the buyer
+  | 'vendor_approved' // all vendors approved; awaiting admin's final send to buyer
+  | 'quoted'          // admin sent the approved quote to the buyer
   | 'accepted'
   | 'declined'
   | 'closed';
@@ -289,15 +290,22 @@ export const segmentVendorApprove = (
     (r) => {
       const segs = r.segments ?? [];
       if (!segs.length || !segs.every((s) => s.status === 'approved')) return r;
+      // All vendors approved — hold for the admin to make the final call and
+      // send the combined quote to the buyer.
       const total = segs.reduce((sum, s) => sum + (s.currentTotalEur ?? 0), 0);
       return {
         ...r,
-        status: 'quoted',
+        status: 'vendor_approved',
         quoteTotalEur: Math.round(total * 100) / 100,
         quoteTotalInr: Math.round(total * input.fxEurToInr * 100) / 100,
       };
     },
   );
+};
+
+/** Admin's final approval — sends the vendor-approved quote to the buyer. */
+export const sendQuoteToBuyer = (id: string, note?: string): void => {
+  patchRfq(id, (r) => ({ ...r, status: 'quoted', adminNote: note ?? r.adminNote, updatedAt: now() }));
 };
 
 // ---------- Hydration helper ----------

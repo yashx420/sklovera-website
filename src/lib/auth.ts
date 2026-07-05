@@ -61,9 +61,10 @@ const slug = (s: string) =>
   s.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'guest';
 
 /**
- * Sign in an ad-hoc B2C customer. If the email matches a seeded demo
- * account we log into that, otherwise we create a lightweight session
- * with the email + name (no password validation in this demo).
+ * Sign in a customer by email. Every email maps to one persistent account: a
+ * returning email keeps its stable id (so RFQs, orders and bulk discounts stay
+ * associated), while a new email creates and persists a fresh account. The
+ * buyer type (individual/bulk) updates the account's role on each sign-in.
  */
 export const loginAsCustomer = (
   email: string,
@@ -71,21 +72,15 @@ export const loginAsCustomer = (
   buyerType: 'b2c' | 'b2b' = 'b2c',
 ): User => {
   const trimmedEmail = email.trim().toLowerCase();
-  const match = loadAllUsers().find((u) => u.email.toLowerCase() === trimmedEmail);
-  if (match) {
-    // Update role based on selection to allow switching in demo
-    const updated = { ...match, role: buyerType };
-    upsertUser(updated);
-    login(updated);
-    return updated;
-  }
-  const cleanName = name?.trim() || trimmedEmail.split('@')[0].replace(/[._-]+/g, ' ');
-  const user: User = {
-    id: `${buyerType}-${slug(trimmedEmail)}`,
-    role: buyerType,
-    email: trimmedEmail,
-    displayName: cleanName.replace(/\b\w/g, (c) => c.toUpperCase()),
-  };
+  const existing = loadAllUsers().find((u) => u.email.toLowerCase() === trimmedEmail);
+  const displayName =
+    existing?.displayName ||
+    (name?.trim() || trimmedEmail.split('@')[0].replace(/[._-]+/g, ' ')).replace(/\b\w/g, (c) => c.toUpperCase());
+  // Persist the account, keyed by a stable email-based id (or its existing id).
+  const user = upsertUser(
+    { role: buyerType, email: trimmedEmail, displayName },
+    existing?.id ?? `buyer-${slug(trimmedEmail)}`,
+  );
   login(user);
   return user;
 };
