@@ -31,3 +31,6 @@ public/*.zip
 public/amber/
 public/solbika/
 public/*.xlsx
+
+# Deploy artifact
+sklovera-site.zip
