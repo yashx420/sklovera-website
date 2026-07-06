@@ -80,6 +80,10 @@ export type ParseIssue = { row: number; message: string };
 export type ParseResult = { products: Product[]; issues: ParseIssue[] };
 
 const STORAGE_KEY = 'sklovera.products.v1';
+
+/** Product imagery is served as WebP; map any png/jpg image path to .webp. */
+const toWebp = (k?: string): string | undefined =>
+  k && k.startsWith('/images/') ? k.replace(/\.(png|jpe?g)$/i, '.webp') : k;
 // Per-vendor seed flags. Bump the version when a vendor's seed changes (e.g.
 // new photos/categories) so the upsert re-runs exactly once for existing users.
 // Amber v3: HoReCa photos + categories. Solbika v1: initial import.
@@ -343,6 +347,10 @@ export const loadProducts = (): Product[] => {
         next.supplierId && CATEGORIED_SUPPLIERS.has(next.supplierId) && next.category
           ? next.category
           : detectCategory(next.name);
+      // Product imagery ships as WebP — normalize any stored png/jpg keys
+      // (from older seeds / localStorage) so they resolve to the .webp files.
+      next.imageKey = toWebp(next.imageKey);
+      if (next.images) next.images = next.images.map((x) => toWebp(x)!);
       // Amber sheets are USD-priced; derive EUR from the live USD→EUR rate so
       // its prices track the market (falls back to the seeded value).
       if (next.supplierId === 'sup-amber' && next.priceUsd !== undefined) {
